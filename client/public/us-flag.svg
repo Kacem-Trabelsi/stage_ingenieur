@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7410 3900" width="100%" height="100%">
+  <rect width="7410" height="3900" fill="#B22234"/>
+  <path d="M0,300H7410M0,900H7410M0,1500H7410M0,2100H7410M0,2700H7410M0,3300H7410" stroke="#FFFFFF" stroke-width="300"/>
+  <rect width="2964" height="2100" fill="#3C3B6E"/>
+  <g fill="#FFFFFF">
+    <g id="s1">
+      <circle cx="247" cy="175" r="75"/>
+      <circle cx="741" cy="175" r="75"/>
+      <circle cx="1235" cy="175" r="75"/>
+      <circle cx="1729" cy="175" r="75"/>
+      <circle cx="2223" cy="175" r="75"/>
+      <circle cx="2717" cy="175" r="75"/>
+    </g>
+    <g id="s2">
+      <circle cx="494" cy="350" r="75"/>
+      <circle cx="988" cy="350" r="75"/>
+      <circle cx="1482" cy="350" r="75"/>
+      <circle cx="1976" cy="350" r="75"/>
+      <circle cx="2470" cy="350" r="75"/>
+    </g>
+    <use href="#s1" y="350"/>
+    <use href="#s2" y="350"/>
+    <use href="#s1" y="700"/>
+    <use href="#s2" y="700"/>
+    <use href="#s1" y="1050"/>
+    <use href="#s2" y="1050"/>
+    <use href="#s1" y="1400"/>
+    <use href="#s2" y="1400"/>
+    <use href="#s1" y="1750"/>
+  </g>
+</svg>

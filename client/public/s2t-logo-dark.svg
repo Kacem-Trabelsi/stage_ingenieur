@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 160" width="100%" height="100%">
+  <defs>
+    <linearGradient id="s2tRedDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB7185"/>
+      <stop offset="100%" stop-color="#E11D48"/>
+    </linearGradient>
+    <linearGradient id="s2tBlueDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="s2tTealDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2DD4BF"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Stylized 3-Petal S2T Icon -->
+  <g transform="translate(15, 10)">
+    <path d="M70 15 C40 25 15 50 10 70 C25 70 50 55 70 15 Z" fill="url(#s2tRedDark)" />
+    <path d="M75 12 C60 45 45 80 50 105 C65 95 80 60 75 12 Z" fill="url(#s2tBlueDark)" />
+    <path d="M78 20 C85 55 90 90 70 115 C85 105 105 70 78 20 Z" fill="url(#s2tTealDark)" />
+  </g>
+
+  <!-- Typography: S2T -->
+  <text x="120" y="80" font-family="'Plus Jakarta Sans', 'Outfit', sans-serif" font-size="52" font-weight="900" fill="#F8FAFC" letter-spacing="-1">
+    S<tspan fill="#FB7185">2</tspan>T
+  </text>
+
+  <!-- Subtitle: Smart Tunisian Technoparks -->
+  <text x="122" y="106" font-family="'Plus Jakarta Sans', sans-serif" font-size="14.5" font-weight="700" fill="#CBD5E1" letter-spacing="0.5">
+    Smart Tunisian Technoparks
+  </text>
+
+  <!-- Arabic Subtitle -->
+  <text x="122" y="128" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" font-weight="600" fill="#2DD4BF" letter-spacing="0.3">
+    تونس للأقطاب التكنولوجية الذكية
+  </text>
+</svg>
