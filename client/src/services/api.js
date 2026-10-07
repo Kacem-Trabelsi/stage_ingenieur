@@ -98,6 +98,19 @@ export const chatAPI = {
   clearHistory: (channelId) => api.delete(`/chat/clear/${channelId}`),
 };
 
+// Reunions & Meeting Room Booking Endpoints (Salles de Conférence S2T)
+export const reunionAPI = {
+  getAll: (params) => api.get('/reunions', { params }),
+  getById: (id) => api.get(`/reunions/${id}`),
+  getStats: () => api.get('/reunions/stats'),
+  getRooms: (params) => api.get('/reunions/rooms', { params }),
+  getBookedSlots: (params) => api.get('/reunions/booked-slots', { params }),
+  create: (data) => api.post('/reunions', data),
+  update: (id, data) => api.put(`/reunions/${id}`, data),
+  updateStatus: (id, status, cancellationReason) => api.patch(`/reunions/${id}/status`, { status, cancellationReason }),
+  delete: (id) => api.delete(`/reunions/${id}`),
+};
+
 // Health Check
 export const healthCheckAPI = () => api.get('/health');
 

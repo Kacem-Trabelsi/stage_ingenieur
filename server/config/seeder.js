@@ -4,6 +4,7 @@ import Invoice from '../models/Invoice.js';
 import Email from '../models/Email.js';
 import Notification from '../models/Notification.js';
 import ChatMessage from '../models/ChatMessage.js';
+import Reunion from '../models/Reunion.js';
 
 export const seedDatabase = async () => {
   try {
@@ -584,6 +585,93 @@ export const seedDatabase = async () => {
         ]);
         console.log('✅ Messages Chat S2T initialisés avec succès !');
       }
+    }
+
+    // 8. Seed Initial Meeting Bookings (Reunions & Salles S2T)
+    const reunionCount = await Reunion.countDocuments();
+    if (reunionCount === 0) {
+      const clientUser = await User.findOne({ email: 'client@s2t.tn' });
+      const adminUsr = await User.findOne({ email: 'admin@s2t.tn' });
+
+      const today = new Date();
+      const nextWeekDate1 = new Date(today.getTime() + 3 * 24 * 3600 * 1000);
+      const nextWeekDate2 = new Date(today.getTime() + 8 * 24 * 3600 * 1000);
+      const nextWeekDate3 = new Date(today.getTime() + 12 * 24 * 3600 * 1000);
+
+      const d1Str = nextWeekDate1.toISOString().split('T')[0];
+      const d2Str = nextWeekDate2.toISOString().split('T')[0];
+      const d3Str = nextWeekDate3.toISOString().split('T')[0];
+
+      const fmt = (d) =>
+        new Intl.DateTimeFormat('fr-FR', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+        }).format(d);
+
+      await Reunion.create([
+        {
+          title: "Comité de Pilotage & Revue d'Hébergement Q4",
+          room: 'Salle Innovation & Pitch B-101',
+          roomId: 'room-2',
+          date: d1Str,
+          formattedDate: fmt(nextWeekDate1),
+          startTime: '10:00',
+          endTime: '11:30',
+          organizer: 'Direction S2T & InnovTech Solutions',
+          organizerEmail: clientUser ? clientUser.email : 'client@s2t.tn',
+          organizerCompany: 'InnovTech Solutions SARL',
+          organizerUser: clientUser ? clientUser._id : undefined,
+          participants: 6,
+          isVisio: true,
+          visioLink: 'https://meet.s2t.tn/el-ghazala-copil-q4',
+          needCoffee: true,
+          equipment: ['Double Écran Visio', 'Tableau Interactif', 'Caméra Cadrage Auto 4K', 'Connexion Fibre'],
+          notes: 'Revue contractuelle trimestrielle et suivi des indicateurs R&D.',
+          status: 'confirme',
+        },
+        {
+          title: 'Session Technique Partenaires & Démo Produit IA',
+          room: 'Salle Polyvalente Ibn Khaldoun',
+          roomId: 'room-1',
+          date: d2Str,
+          formattedDate: fmt(nextWeekDate2),
+          startTime: '14:00',
+          endTime: '16:30',
+          organizer: 'InnovTech Solutions (Résident)',
+          organizerEmail: clientUser ? clientUser.email : 'client@s2t.tn',
+          organizerCompany: 'InnovTech Solutions SARL',
+          organizerUser: clientUser ? clientUser._id : undefined,
+          participants: 28,
+          isVisio: true,
+          visioLink: 'https://meet.s2t.tn/demo-innovtech-2026',
+          needCoffee: true,
+          equipment: ['Écran 4K 85"', 'Réseau Fibre 5G Dédié', 'Système Son & Micros', 'Visioconférence Teams/Zoom'],
+          notes: 'Présentation de la solution IA aux grands comptes et investisseurs.',
+          status: 'confirme',
+        },
+        {
+          title: 'Atelier Brainstorming & Architecture Cloud Microservices',
+          room: 'Espace Brainstorming Pépinière TIC',
+          roomId: 'room-3',
+          date: d3Str,
+          formattedDate: fmt(nextWeekDate3),
+          startTime: '09:30',
+          endTime: '12:00',
+          organizer: 'Équipe R&D & Direction Technique S2T',
+          organizerEmail: adminUsr ? adminUsr.email : 'admin@s2t.tn',
+          organizerCompany: 'Smart Tunisian Technoparks (S2T)',
+          organizerUser: adminUsr ? adminUsr._id : undefined,
+          participants: 8,
+          isVisio: false,
+          visioLink: '',
+          needCoffee: false,
+          equipment: ['Écran Collaboratif', 'Paperboard Numérique', 'Wi-Fi 6 Haut Débit'],
+          notes: 'Session de conception des architectures de données hébergées.',
+          status: 'confirme',
+        },
+      ]);
+      console.log('✅ Salles de réunion et réservations S2T initialisées avec succès !');
     }
   } catch (err) {
     console.error('❌ Erreur lors du peuplement de la base :', err.message);

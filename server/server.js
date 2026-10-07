@@ -12,6 +12,7 @@ import invoiceRoutes from './routes/invoiceRoutes.js';
 import emailRoutes from './routes/emailRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
+import reunionRoutes from './routes/reunionRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import { seedDatabase } from './config/seeder.js';
 import { initializeSocket } from './socket.js';
@@ -78,6 +79,7 @@ app.use('/api/invoices', invoiceRoutes);
 app.use('/api/emails', emailRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/reunions', reunionRoutes);
 
 // Error Middleware
 app.use(notFound);
