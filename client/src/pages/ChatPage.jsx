@@ -1950,7 +1950,7 @@ const ChatPage = () => {
       {/* Audio / Video Call Modal */}
       {callModal && (
         <div className="modal-overlay">
-          <div className="chat-call-modal-card">
+          <div className={`chat-call-modal-card ${callModal === 'video' ? 'video-mode' : 'audio-mode'}`}>
             {/* Top ambient glowing line */}
             <div className={`chat-call-card-top-bar ${callModal === 'video' ? 'video' : 'audio'} ${callState}`} />
 
@@ -2085,11 +2085,13 @@ const ChatPage = () => {
 
             {/* Direct Line / Contact Info */}
             <div className="chat-call-info-note">
-              <Lock size={14} color="var(--s2t-blue)" />
+              <Lock size={15} color="var(--s2t-blue)" />
               <span>
-                {!isClient
-                  ? `Ligne directe Résident : <strong>${activeCallTarget?.email || activeChannel.residentEmail || 'Contact Entreprise'}</strong>`
-                  : 'Standard Direction S2T : <strong>+216 71 857 000</strong> (Pôle El Ghazala)'}
+                {!isClient ? (
+                  <>Ligne directe Résident : <strong>{activeCallTarget?.email || activeChannel.residentEmail || 'Contact Entreprise'}</strong></>
+                ) : (
+                  <>Standard Direction S2T : <strong>+216 71 857 000</strong> (Pôle El Ghazala)</>
+                )}
               </span>
             </div>
 
