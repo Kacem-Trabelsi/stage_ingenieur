@@ -43,7 +43,11 @@ import {
   VolumeX,
   Eye,
   Maximize2,
-  PhoneCall
+  PhoneCall,
+  Lock,
+  Wifi,
+  Radio,
+  Activity
 } from 'lucide-react';
 
 const EMOJI_CATEGORIES = [
@@ -1870,43 +1874,47 @@ const ChatPage = () => {
       {incomingCall && (
         <div className="incoming-call-overlay">
           <div className="chat-incoming-call-card">
+            {/* Top ambient glowing line */}
+            <div className={`incoming-call-top-glow ${incomingCall.isVideo ? 'video' : 'audio'}`} />
+
             <div className="incoming-call-pulse-ring">
-              <span className="sonar-wave sonar-wave-1" />
-              <span className="sonar-wave sonar-wave-2" />
-              <span className="sonar-wave sonar-wave-3" />
+              <span className={`sonar-wave sonar-wave-1 ${incomingCall.isVideo ? 'video' : 'audio'}`} />
+              <span className={`sonar-wave sonar-wave-2 ${incomingCall.isVideo ? 'video' : 'audio'}`} />
+              <span className={`sonar-wave sonar-wave-3 ${incomingCall.isVideo ? 'video' : 'audio'}`} />
+              
               <div
                 className="channel-avatar-circle incoming-avatar-circle"
                 style={{ background: incomingCall.caller?.avatarBg || 'var(--s2t-blue)' }}
               >
                 {incomingCall.caller?.avatarText || incomingCall.caller?.name?.charAt(0) || 'D'}
+                <span className="incoming-avatar-status-badge">
+                  {incomingCall.isVideo ? <Video size={11} /> : <PhoneCall size={11} />}
+                </span>
               </div>
             </div>
 
             <div className="incoming-call-details">
-              <span
-                className="incoming-badge-pill"
-                style={{
-                  background: incomingCall.isVideo ? 'rgba(37, 99, 235, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-                  color: incomingCall.isVideo ? 'var(--s2t-blue)' : '#10B981',
-                  borderColor: incomingCall.isVideo ? 'rgba(37, 99, 235, 0.3)' : 'rgba(16, 185, 129, 0.3)',
-                }}
-              >
-                {incomingCall.isVideo ? <Video size={13} className="animate-pulse" /> : <PhoneCall size={12} className="animate-bounce" />}
-                <span>{incomingCall.isVideo ? 'VISIOCONFÉRENCE ENTRANTE S2T' : 'APPEL VOCAL ENTRANT S2T'}</span>
-              </span>
+              <div className={`incoming-badge-pill ${incomingCall.isVideo ? 'video' : 'audio'}`}>
+                <span className="live-ping-dot" />
+                {incomingCall.isVideo ? <Video size={13} className="animate-pulse" /> : <Radio size={13} className="animate-bounce" />}
+                <span>{incomingCall.isVideo ? 'VISIOCONFÉRENCE HD ENTRANTE' : 'APPEL VOCAL S2T ENTRANT'}</span>
+              </div>
+
               <h3 className="incoming-caller-title">
                 {incomingCall.caller?.name || 'Direction S2T'}
               </h3>
+              
               <p className="incoming-caller-company">
                 {incomingCall.caller?.companyName
                   ? `${incomingCall.caller.companyName} • Pôle El Ghazala`
                   : incomingCall.caller?.role === 'admin'
-                  ? 'Direction Générale S2T • Support Direct'
+                  ? 'Direction Générale S2T • Administration & Support'
                   : 'Résident Entreprise S2T'}
               </p>
+
               <div className="incoming-secure-tag">
                 <ShieldCheck size={14} color="#10B981" />
-                <span>{incomingCall.isVideo ? 'Visioconférence HD WebRTC TLS Chiffrée' : 'Liaison Audio WebRTC TLS Sécurisée'}</span>
+                <span>Liaison Chiffrée TLS 256-bit • Réseau S2T</span>
               </div>
             </div>
 
@@ -1915,23 +1923,24 @@ const ChatPage = () => {
                 type="button"
                 className="btn-incoming-reject"
                 onClick={handleRejectIncomingCall}
-                title="Refuser l'appel"
+                title="Décliner l'appel"
               >
-                <PhoneOff size={22} />
+                <div className="btn-call-icon-wrap">
+                  <PhoneOff size={22} />
+                </div>
                 <span>Refuser</span>
               </button>
 
               <button
                 type="button"
-                className="btn-incoming-accept"
+                className={`btn-incoming-accept ${incomingCall.isVideo ? 'video' : 'audio'}`}
                 onClick={handleAcceptIncomingCall}
                 title={incomingCall.isVideo ? 'Accepter la visioconférence' : "Accepter l'appel"}
-                style={{
-                  background: incomingCall.isVideo ? 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' : undefined,
-                }}
               >
-                {incomingCall.isVideo ? <Video size={22} className="animate-pulse" /> : <Phone size={22} className="animate-pulse" />}
-                <span>{incomingCall.isVideo ? 'Accepter Visio' : 'Accepter'}</span>
+                <div className="btn-call-icon-wrap">
+                  {incomingCall.isVideo ? <Video size={22} className="animate-pulse" /> : <Phone size={22} className="animate-pulse" />}
+                </div>
+                <span>{incomingCall.isVideo ? 'Accepter Visio' : 'Répondre'}</span>
               </button>
             </div>
           </div>
@@ -1942,15 +1951,17 @@ const ChatPage = () => {
       {callModal && (
         <div className="modal-overlay">
           <div className="chat-call-modal-card">
-            
+            {/* Top ambient glowing line */}
+            <div className={`chat-call-card-top-bar ${callModal === 'video' ? 'video' : 'audio'} ${callState}`} />
+
             {/* Call Header & Animated Avatar */}
             <div className="chat-call-header">
               <div className="chat-call-avatar-wrapper">
                 {callState === 'ringing' && (
                   <>
-                    <span className="sonar-wave sonar-wave-1" />
-                    <span className="sonar-wave sonar-wave-2" />
-                    <span className="sonar-wave sonar-wave-3" />
+                    <span className={`sonar-wave sonar-wave-1 ${callModal === 'video' ? 'video' : 'audio'}`} />
+                    <span className={`sonar-wave sonar-wave-2 ${callModal === 'video' ? 'video' : 'audio'}`} />
+                    <span className={`sonar-wave sonar-wave-3 ${callModal === 'video' ? 'video' : 'audio'}`} />
                   </>
                 )}
                 <div
@@ -1969,10 +1980,10 @@ const ChatPage = () => {
               
               <span className="chat-call-subtext">
                 {callState === 'ringing' 
-                  ? (callModal === 'video' ? 'Visioconférence en cours... Sonnerie chez le correspondant' : 'Appel vocal en cours... Sonnerie chez le correspondant') 
+                  ? (callModal === 'video' ? 'Visioconférence en cours • Sonnerie chez le correspondant...' : 'Appel vocal direct • Sonnerie en cours...') 
                   : callState === 'ended' 
                   ? (callModal === 'video' ? 'Visioconférence terminée' : 'Appel terminé')
-                  : (callModal === 'video' ? `Visioconférence HD avec ${activeCallTarget?.name || activeChannel.name} • Vidéo & Audio Chiffrés` : `Liaison directe avec ${activeCallTarget?.name || activeChannel.name} • Micro & Audio Actifs`)}
+                  : (callModal === 'video' ? `Visioconférence HD sécurisée avec ${activeCallTarget?.name || activeChannel.name}` : `Liaison audio sécurisée avec ${activeCallTarget?.name || activeChannel.name}`)}
               </span>
 
               {/* Status & Timer Badge */}
@@ -1980,17 +1991,17 @@ const ChatPage = () => {
                 {callState === 'ringing' ? (
                   <>
                     {callModal === 'video' ? <Video size={13} className="animate-pulse" /> : <PhoneCall size={13} className="animate-bounce" />}
-                    <span>Sonnerie en cours...</span>
+                    <span>Appel en cours d'établissement...</span>
                   </>
                 ) : callState === 'ended' ? (
                   <>
                     <PhoneOff size={13} />
-                    <span>{callModal === 'video' ? 'Visioconférence terminée' : 'Appel terminé'} • {formatCallTime(callTimer)}</span>
+                    <span>{callModal === 'video' ? 'Visio terminée' : 'Appel terminé'} • {formatCallTime(callTimer)}</span>
                   </>
                 ) : (
                   <>
-                    <Circle size={8} fill="#10B981" color="#10B981" className="animate-ping" />
-                    <span>En direct : {formatCallTime(callTimer)} • {callModal === 'video' ? 'Visio HD WebRTC' : 'Audio HD WebRTC'}</span>
+                    <span className="live-ping-dot green" />
+                    <span>En direct : {formatCallTime(callTimer)} • {callModal === 'video' ? 'Visio HD WebRTC' : 'Voix HD WebRTC'}</span>
                   </>
                 )}
               </div>
@@ -1999,7 +2010,10 @@ const ChatPage = () => {
             {/* Equalizer Sound Waves when Connected (Audio Only) */}
             {callModal === 'audio' && callState === 'connected' && (
               <div className="chat-call-equalizer-container">
-                <span className="chat-equalizer-label">Signal Audio Sécurisé S2T (Micro & Haut-Parleur Actifs)</span>
+                <div className="chat-equalizer-header">
+                  <Activity size={13} color="#10B981" />
+                  <span className="chat-equalizer-label">Liaison Audio HD Active (Micro & Haut-Parleur)</span>
+                </div>
                 <div className="chat-call-equalizer-bars">
                   <span className="eq-bar eq-1" />
                   <span className="eq-bar eq-2" />
@@ -2011,64 +2025,59 @@ const ChatPage = () => {
                   <span className="eq-bar eq-8" />
                   <span className="eq-bar eq-9" />
                   <span className="eq-bar eq-10" />
+                  <span className="eq-bar eq-11" />
+                  <span className="eq-bar eq-12" />
+                  <span className="eq-bar eq-13" />
+                  <span className="eq-bar eq-14" />
+                  <span className="eq-bar eq-15" />
+                  <span className="eq-bar eq-16" />
                 </div>
               </div>
             )}
 
             {/* Video Box if Video Call */}
             {callModal === 'video' && (
-              <div className="chat-video-preview-box" style={{ position: 'relative', overflow: 'hidden', minHeight: '260px', height: '280px', borderRadius: '14px', background: '#090d16', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                
-                {/* Remote Video Element - ALWAYS rendered in DOM so ref and srcObject are never lost */}
+              <div className="chat-video-preview-box">
+                {/* Remote Video Element - ALWAYS in DOM */}
                 <video
                   ref={remoteVideoRef}
                   autoPlay
                   playsInline
+                  className="chat-remote-video"
                   style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
                     display: callState === 'connected' ? 'block' : 'none',
-                    borderRadius: '14px',
                   }}
                 />
 
                 {/* Waiting placeholder avatar when ringing or connecting */}
                 {callState !== 'connected' && (
-                  <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', gap: '0.6rem', padding: '1.5rem' }}>
-                    <div className="channel-avatar-circle" style={{ width: '64px', height: '64px', fontSize: '1.5rem', background: activeCallTarget?.avatarBg || 'var(--s2t-blue)', boxShadow: '0 0 20px rgba(37, 99, 235, 0.4)' }}>
-                      {activeCallTarget?.avatarText || activeCallTarget?.name?.charAt(0) || 'D'}
+                  <div className="chat-video-waiting-placeholder">
+                    <div className="chat-video-waiting-portal">
+                      <div className="channel-avatar-circle" style={{ width: '72px', height: '72px', fontSize: '1.75rem', background: activeCallTarget?.avatarBg || 'var(--s2t-blue)' }}>
+                        {activeCallTarget?.avatarText || activeCallTarget?.name?.charAt(0) || 'D'}
+                      </div>
                     </div>
-                    <span style={{ fontSize: '0.95rem', fontWeight: 600, color: '#f8fafc' }}>{activeCallTarget?.name || activeChannel.name}</span>
-                    <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Établissement du flux vidéo sécurisé WebRTC...</span>
+                    <span className="chat-video-waiting-name">{activeCallTarget?.name || activeChannel.name}</span>
+                    <span className="chat-video-waiting-sub">Établissement du flux vidéo sécurisé WebRTC...</span>
                   </div>
                 )}
 
                 {/* Local Video Picture-In-Picture */}
-                <video
-                  ref={localVideoRef}
-                  autoPlay
-                  muted
-                  playsInline
-                  style={{
-                    position: 'absolute',
-                    bottom: '12px',
-                    right: '12px',
-                    width: '120px',
-                    height: '85px',
-                    objectFit: 'cover',
-                    borderRadius: '10px',
-                    border: '2px solid rgba(255,255,255,0.9)',
-                    boxShadow: '0 6px 18px rgba(0,0,0,0.7)',
-                    zIndex: 10,
-                    background: '#111',
-                  }}
-                />
+                <div className="chat-pip-container">
+                  <video
+                    ref={localVideoRef}
+                    autoPlay
+                    muted
+                    playsInline
+                    className="chat-local-video-pip"
+                  />
+                  <span className="chat-pip-badge">Moi</span>
+                </div>
 
                 {isVideoOff && (
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-muted)', zIndex: 12, borderRadius: '14px' }}>
+                  <div className="chat-video-disabled-overlay">
                     <VideoOff size={36} color="var(--s2t-red)" />
-                    <span style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 600 }}>Caméra locale désactivée</span>
+                    <span>Caméra locale désactivée</span>
                   </div>
                 )}
               </div>
@@ -2076,15 +2085,15 @@ const ChatPage = () => {
 
             {/* Direct Line / Contact Info */}
             <div className="chat-call-info-note">
-              <Info size={15} color="var(--s2t-blue)" />
+              <Lock size={14} color="var(--s2t-blue)" />
               <span>
                 {!isClient
-                  ? `Ligne directe Résident : <strong>${activeCallTarget?.email || activeChannel.residentEmail || 'Contact Entreprise'}</strong> (${activeChannel.role})`
+                  ? `Ligne directe Résident : <strong>${activeCallTarget?.email || activeChannel.residentEmail || 'Contact Entreprise'}</strong>`
                   : 'Standard Direction S2T : <strong>+216 71 857 000</strong> (Pôle El Ghazala)'}
               </span>
             </div>
 
-            {/* Call Controls */}
+            {/* Call Controls Dock */}
             <div className="chat-call-controls-row">
               {/* Mic Mute Toggle */}
               <button
@@ -2094,7 +2103,9 @@ const ChatPage = () => {
                 title={isMuted ? 'Activer le micro' : 'Couper le micro'}
                 disabled={callState === 'ended'}
               >
-                {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
+                <div className="control-btn-icon-wrap">
+                  {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
+                </div>
                 <span className="control-btn-caption">{isMuted ? 'Coupé' : 'Micro'}</span>
               </button>
 
@@ -2106,7 +2117,9 @@ const ChatPage = () => {
                 title={isSpeakerOn ? 'Couper le haut-parleur' : 'Activer le haut-parleur'}
                 disabled={callState === 'ended'}
               >
-                {isSpeakerOn ? <Volume2 size={20} /> : <VolumeX size={20} />}
+                <div className="control-btn-icon-wrap">
+                  {isSpeakerOn ? <Volume2 size={20} /> : <VolumeX size={20} />}
+                </div>
                 <span className="control-btn-caption">{isSpeakerOn ? 'HP Actif' : 'HP Coupé'}</span>
               </button>
 
@@ -2119,7 +2132,9 @@ const ChatPage = () => {
                   title={isVideoOff ? 'Activer la caméra' : 'Couper la caméra'}
                   disabled={callState === 'ended'}
                 >
-                  {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
+                  <div className="control-btn-icon-wrap">
+                    {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
+                  </div>
                   <span className="control-btn-caption">{isVideoOff ? 'Cam Off' : 'Caméra'}</span>
                 </button>
               )}
@@ -2131,7 +2146,9 @@ const ChatPage = () => {
                 onClick={handleEndCall}
                 title="Raccrocher"
               >
-                <PhoneOff size={22} />
+                <div className="hangup-icon-wrap">
+                  <PhoneOff size={22} />
+                </div>
                 <span className="control-btn-caption">Raccrocher</span>
               </button>
             </div>
