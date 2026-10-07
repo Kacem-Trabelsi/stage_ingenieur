@@ -17,24 +17,20 @@ import {
   Calendar as CalendarIcon, 
   X, 
   Check, 
-  ExternalLink,
-  ChevronRight,
-  ShieldCheck,
-  RefreshCw,
-  Search,
-  Filter,
-  AlertCircle,
-  Trash2,
-  Ban,
-  Activity,
-  Sparkles,
-  Info,
-  CheckCheck,
-  XCircle,
-  HelpCircle,
-  Layers,
-  Lock,
-  CalendarCheck2
+  ShieldCheck, 
+  RefreshCw, 
+  Search, 
+  Filter, 
+  AlertCircle, 
+  Trash2, 
+  Ban, 
+  Activity, 
+  Info, 
+  CheckCheck, 
+  XCircle, 
+  Layers, 
+  Lock, 
+  CalendarCheck2 
 } from 'lucide-react';
 
 const FALLBACK_ROOMS = [
@@ -73,7 +69,7 @@ const FALLBACK_ROOMS = [
   }
 ];
 
-// Suggested meeting slots
+// Suggested quick meeting slots
 const SUGGESTED_SLOTS = [
   { start: '08:30', end: '10:00', label: '08:30 - 10:00' },
   { start: '10:00', end: '11:30', label: '10:00 - 11:30' },
@@ -371,19 +367,19 @@ const ReunionsPage = () => {
   return (
     <div className="reunions-page-container">
       {/* Top Banner Header */}
-      <div className="page-header-row" style={{ marginBottom: '1.25rem' }}>
-        <div>
+      <div className="page-header-row">
+        <div className="page-header-text">
           <div className="page-breadcrumb">
-            <CalendarDays size={16} color="var(--s2t-cyan)" />
-            <span>{isClient ? 'Espace Entreprise Résidente' : 'Direction S2T Administration'} / Réunions & Salles de Conférence</span>
+            <CalendarDays size={15} color="var(--s2t-cyan)" />
+            <span>{isClient ? 'Espace Entreprise Résidente' : 'Direction S2T Administration'} / Réunions & Salles</span>
           </div>
           <h1 className="page-main-title">Gestion des Salles & Réservations S2T</h1>
           <p className="page-subtitle">
-            Planifiez vos événements d'entreprise, comités de direction et visioconférences 4K au Technopark El Ghazala en évitant tout conflit d'horaires.
+            Planifiez vos comités, réunions stratégiques et visioconférences 4K au Technopark El Ghazala en évitant les conflits d'horaires.
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div className="page-header-actions">
           <button
             type="button"
             className="btn btn-secondary btn-sm"
@@ -401,78 +397,42 @@ const ReunionsPage = () => {
               setBookingModalOpen(true);
             }}
             className="btn btn-primary"
-            style={{ gap: '0.6rem', padding: '0.65rem 1.4rem' }}
+            style={{ gap: '0.5rem' }}
           >
             <Plus size={18} />
-            <span>Réserver une Salle S2T</span>
+            <span>Réserver une Salle</span>
           </button>
         </div>
       </div>
 
       {/* Success Notification Banner */}
       {bookingSuccess && (
-        <div style={{
-          background: 'rgba(16, 185, 129, 0.12)',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
-          color: '#10B981',
-          padding: '0.9rem 1.25rem',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          fontSize: '0.9rem',
-          fontWeight: 600,
-          animation: 'fadeIn 0.25s ease-out',
-        }}>
-          <CheckCircle2 size={22} style={{ flexShrink: 0 }} />
+        <div className="reunions-success-banner">
+          <CheckCircle2 size={20} style={{ flexShrink: 0 }} />
           <span>{bookingSuccess}</span>
         </div>
       )}
 
       {/* Admin Alert for Pending Requests */}
       {isAdmin && pendingCount > 0 && activeTab !== 'pending' && (
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.08) 100%)',
-          border: '1px solid rgba(245, 158, 11, 0.35)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '1rem 1.25rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '1rem',
-          flexWrap: 'wrap',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-            <div style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '50%',
-              background: '#F59E0B',
-              color: '#000',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              fontSize: '0.95rem'
-            }}>
+        <div className="reunions-admin-alert">
+          <div className="admin-alert-content">
+            <div className="admin-alert-badge-count">
               {pendingCount}
             </div>
             <div>
-              <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+              <h4 className="admin-alert-title">
                 {pendingCount} Demande{pendingCount > 1 ? 's' : ''} de réservation en attente de votre validation
               </h4>
-              <p style={{ margin: 0, fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
+              <p className="admin-alert-sub">
                 Des entreprises résidentes attendent la confirmation de leur créneau de salle.
               </p>
             </div>
           </div>
           <button
             type="button"
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm admin-alert-btn"
             onClick={() => setActiveTab('pending')}
-            style={{ background: '#F59E0B', borderColor: '#F59E0B', color: '#000', fontWeight: 700 }}
           >
             Examiner les demandes ({pendingCount})
           </button>
@@ -480,53 +440,44 @@ const ReunionsPage = () => {
       )}
 
       {/* KPI Stats Cards Row */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-        gap: '1rem',
-        marginBottom: '1.5rem'
-      }}>
-        <div className="glass-card" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(37, 99, 235, 0.15)', color: 'var(--s2t-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <CalendarIcon size={22} />
+      <div className="reunions-stats-grid">
+        <div className="glass-card stat-card-box">
+          <div className="stat-icon-wrapper" style={{ background: 'rgba(37, 99, 235, 0.15)', color: 'var(--s2t-blue)' }}>
+            <CalendarIcon size={20} />
           </div>
-          <div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Total Réservations</span>
-            <h4 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>{meetings.length}</h4>
+          <div className="stat-info">
+            <span className="stat-label">Total Réservations</span>
+            <h4 className="stat-value">{meetings.length}</h4>
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Clock size={22} />
+        <div className="glass-card stat-card-box">
+          <div className="stat-icon-wrapper" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B' }}>
+            <Clock size={20} />
           </div>
-          <div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>En Attente de Validation</span>
-            <h4 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: '#F59E0B' }}>
-              {pendingCount}
-            </h4>
+          <div className="stat-info">
+            <span className="stat-label">En Attente Validation</span>
+            <h4 className="stat-value" style={{ color: '#F59E0B' }}>{pendingCount}</h4>
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Activity size={22} />
+        <div className="glass-card stat-card-box">
+          <div className="stat-icon-wrapper" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10B981' }}>
+            <Activity size={20} />
           </div>
-          <div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Validées & Confirmées</span>
-            <h4 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: '#10B981' }}>
-              {confirmedCount}
-            </h4>
+          <div className="stat-info">
+            <span className="stat-label">Confirmées S2T</span>
+            <h4 className="stat-value" style={{ color: '#10B981' }}>{confirmedCount}</h4>
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.15)', color: '#8B5CF6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Video size={22} />
+        <div className="glass-card stat-card-box">
+          <div className="stat-icon-wrapper" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8B5CF6' }}>
+            <Video size={20} />
           </div>
-          <div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Visioconférences 4K</span>
-            <h4 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: '#8B5CF6' }}>
+          <div className="stat-info">
+            <span className="stat-label">Visioconférences 4K</span>
+            <h4 className="stat-value" style={{ color: '#8B5CF6' }}>
               {meetings.filter(m => m.isVisio && m.status === 'confirme').length}
             </h4>
           </div>
@@ -534,68 +485,25 @@ const ReunionsPage = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        marginBottom: '1.25rem',
-        borderBottom: '1px solid var(--border-color)',
-        paddingBottom: '0.65rem',
-        overflowX: 'auto',
-      }}>
+      <div className="reunions-tabs-bar">
         <button
           type="button"
           onClick={() => setActiveTab('all')}
-          style={{
-            padding: '0.5rem 1rem',
-            borderRadius: 'var(--radius-full)',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '0.85rem',
-            fontWeight: 700,
-            background: activeTab === 'all' ? 'var(--s2t-blue)' : 'var(--bg-tertiary)',
-            color: activeTab === 'all' ? '#fff' : 'var(--text-secondary)',
-            transition: 'all 0.2s ease',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            whiteSpace: 'nowrap',
-          }}
+          className={`reunion-tab-btn ${activeTab === 'all' ? 'active-blue' : ''}`}
         >
           <Layers size={14} />
-          <span>Toutes les Réunions ({meetings.length})</span>
+          <span>Toutes ({meetings.length})</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('pending')}
-          style={{
-            padding: '0.5rem 1rem',
-            borderRadius: 'var(--radius-full)',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '0.85rem',
-            fontWeight: 700,
-            background: activeTab === 'pending' ? '#F59E0B' : 'var(--bg-tertiary)',
-            color: activeTab === 'pending' ? '#000' : 'var(--text-secondary)',
-            transition: 'all 0.2s ease',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            whiteSpace: 'nowrap',
-          }}
+          className={`reunion-tab-btn ${activeTab === 'pending' ? 'active-amber' : ''}`}
         >
           <Clock size={14} />
-          <span>À Valider par l'Admin</span>
+          <span>À Valider (Admin)</span>
           {pendingCount > 0 && (
-            <span style={{
-              background: activeTab === 'pending' ? '#000' : '#F59E0B',
-              color: activeTab === 'pending' ? '#fff' : '#000',
-              padding: '0.1rem 0.45rem',
-              borderRadius: '10px',
-              fontSize: '0.72rem',
-              fontWeight: 800
-            }}>
+            <span className="tab-counter-pill">
               {pendingCount}
             </span>
           )}
@@ -604,21 +512,7 @@ const ReunionsPage = () => {
         <button
           type="button"
           onClick={() => setActiveTab('confirmed')}
-          style={{
-            padding: '0.5rem 1rem',
-            borderRadius: 'var(--radius-full)',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '0.85rem',
-            fontWeight: 700,
-            background: activeTab === 'confirmed' ? '#10B981' : 'var(--bg-tertiary)',
-            color: activeTab === 'confirmed' ? '#fff' : 'var(--text-secondary)',
-            transition: 'all 0.2s ease',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            whiteSpace: 'nowrap',
-          }}
+          className={`reunion-tab-btn ${activeTab === 'confirmed' ? 'active-green' : ''}`}
         >
           <CheckCircle2 size={14} />
           <span>Confirmées ({confirmedCount})</span>
@@ -628,21 +522,7 @@ const ReunionsPage = () => {
           <button
             type="button"
             onClick={() => setActiveTab('mine')}
-            style={{
-              padding: '0.5rem 1rem',
-              borderRadius: 'var(--radius-full)',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              background: activeTab === 'mine' ? 'var(--s2t-teal)' : 'var(--bg-tertiary)',
-              color: activeTab === 'mine' ? '#fff' : 'var(--text-secondary)',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              whiteSpace: 'nowrap',
-            }}
+            className={`reunion-tab-btn ${activeTab === 'mine' ? 'active-teal' : ''}`}
           >
             <Users size={14} />
             <span>Mes Réservations ({meetings.filter(m => m.isOwner).length})</span>
@@ -651,31 +531,29 @@ const ReunionsPage = () => {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="glass-card" style={{ padding: '0.85rem 1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flex: 1, minWidth: '220px', background: 'var(--bg-tertiary)', padding: '0.5rem 0.85rem', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-color)' }}>
+      <div className="glass-card reunions-filter-bar">
+        <div className="reunions-search-box">
           <Search size={16} color="var(--text-muted)" />
           <input
             type="text"
             placeholder="Rechercher par titre, entreprise, organisateur ou salle..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', width: '100%', fontSize: '0.85rem' }}
           />
           {searchQuery && (
-            <button type="button" onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}>
+            <button type="button" onClick={() => setSearchQuery('')} className="search-clear-btn">
               <X size={14} />
             </button>
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Filter size={15} color="var(--text-secondary)" />
+        <div className="reunions-filter-selects">
+          <div className="filter-select-wrapper">
+            <Filter size={14} color="var(--text-secondary)" />
             <select
               className="form-select"
               value={roomFilter}
               onChange={(e) => setRoomFilter(e.target.value)}
-              style={{ padding: '0.45rem 0.85rem', fontSize: '0.825rem', minWidth: '180px' }}
             >
               <option value="all">Toutes les salles</option>
               {rooms.map(r => (
@@ -685,10 +563,9 @@ const ReunionsPage = () => {
           </div>
 
           <select
-            className="form-select"
+            className="form-select status-select"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            style={{ padding: '0.45rem 0.85rem', fontSize: '0.825rem', minWidth: '140px' }}
           >
             <option value="all">Tous les statuts</option>
             <option value="en_attente">En attente</option>
@@ -712,20 +589,20 @@ const ReunionsPage = () => {
           </div>
 
           {isLoading ? (
-            <div style={{ padding: '3rem 1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+            <div className="reunions-loading-box">
               <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 0.75rem' }} />
               <p style={{ margin: 0, fontWeight: 600 }}>Synchronisation du calendrier en direct...</p>
             </div>
           ) : filteredMeetings.length === 0 ? (
-            <div className="glass-card" style={{ padding: '3rem 1.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-              <CalendarDays size={42} style={{ opacity: 0.35, marginBottom: '0.75rem' }} />
+            <div className="glass-card reunions-empty-card">
+              <CalendarDays size={40} style={{ opacity: 0.35, marginBottom: '0.75rem' }} />
               <h4 style={{ margin: '0 0 0.4rem', color: 'var(--text-primary)', fontWeight: 700 }}>
                 {activeTab === 'pending' ? 'Aucune demande en attente' : 'Aucune réunion trouvée'}
               </h4>
-              <p style={{ fontSize: '0.85rem', margin: 0 }}>
+              <p style={{ fontSize: '0.85rem', margin: 0, color: 'var(--text-secondary)' }}>
                 {activeTab === 'pending' 
                   ? 'Toutes les réservations de salles ont été traitées et confirmées.'
-                  : 'Aucune réservation ne correspond à vos filtres. Cliquez sur "Réserver une Salle S2T" pour planifier un créneau.'}
+                  : 'Aucune réservation ne correspond à vos filtres. Cliquez sur "Réserver une Salle" pour planifier un créneau.'}
               </p>
             </div>
           ) : (
@@ -751,63 +628,61 @@ const ReunionsPage = () => {
                         : '4px solid var(--border-color)'
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                      <div>
+                    <div className="meeting-card-top-row">
+                      <div className="meeting-card-title-block">
                         {isConfirmed && (
-                          <span className="meeting-status-tag" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10B981' }}>
-                            <CheckCheck size={13} style={{ marginRight: '4px' }} />
+                          <span className="meeting-status-tag status-confirmed">
+                            <CheckCheck size={13} />
                             Confirmée & Scellée S2T
                           </span>
                         )}
 
                         {isPending && (
-                          <span className="meeting-status-tag" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                            <Clock size={13} style={{ marginRight: '4px' }} />
+                          <span className="meeting-status-tag status-pending">
+                            <Clock size={13} />
                             En attente de validation Admin
                           </span>
                         )}
 
                         {isRejected && (
-                          <span className="meeting-status-tag" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#EF4444' }}>
-                            <XCircle size={13} style={{ marginRight: '4px' }} />
+                          <span className="meeting-status-tag status-rejected">
+                            <XCircle size={13} />
                             Refusée par l'Administration
                           </span>
                         )}
 
                         {isCancelled && (
-                          <span className="meeting-status-tag" style={{ background: 'rgba(107, 114, 128, 0.15)', color: 'var(--text-muted)' }}>
-                            <Ban size={13} style={{ marginRight: '4px' }} />
+                          <span className="meeting-status-tag status-cancelled">
+                            <Ban size={13} />
                             Annulée
                           </span>
                         )}
 
-                        <h3 className="meeting-card-title" style={{ textDecoration: (isCancelled || isRejected) ? 'line-through' : 'none', marginTop: '0.4rem' }}>
+                        <h3 className="meeting-card-title" style={{ textDecoration: (isCancelled || isRejected) ? 'line-through' : 'none' }}>
                           {meet.title}
                         </h3>
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                      <div className="meeting-card-quick-actions">
                         {meet.isVisio && isConfirmed && meet.visioLink && (
                           <a
                             href={meet.visioLink}
                             target="_blank"
                             rel="noreferrer"
-                            className="btn btn-primary btn-sm"
-                            style={{ gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}
+                            className="btn btn-primary btn-sm join-visio-btn"
                             title="Rejoindre la visioconférence sécurisée S2T"
                           >
                             <Video size={14} />
-                            <span>Rejoindre Visio</span>
+                            <span>Visio</span>
                           </a>
                         )}
 
                         {meet.isOwner && !isCancelled && !isRejected && (
                           <button
                             type="button"
-                            className="btn btn-ghost btn-sm"
+                            className="btn btn-ghost btn-sm action-icon-btn"
                             onClick={() => setCancelModalMeeting(meet)}
                             title="Annuler cette réservation"
-                            style={{ color: 'var(--text-muted)', padding: '0.35rem' }}
                           >
                             <Ban size={15} />
                           </button>
@@ -816,10 +691,9 @@ const ReunionsPage = () => {
                         {(isAdmin || meet.isOwner) && (
                           <button
                             type="button"
-                            className="btn btn-ghost btn-sm"
+                            className="btn btn-ghost btn-sm action-icon-btn"
                             onClick={() => handleDeleteMeeting(meet.id || meet._id, meet.title)}
                             title="Supprimer la réunion"
-                            style={{ color: 'var(--text-muted)', padding: '0.35rem' }}
                           >
                             <Trash2 size={15} />
                           </button>
@@ -849,18 +723,7 @@ const ReunionsPage = () => {
 
                     {/* Rejection notice */}
                     {isRejected && meet.cancellationReason && (
-                      <div style={{
-                        marginTop: '0.65rem',
-                        padding: '0.5rem 0.75rem',
-                        borderRadius: 'var(--radius-sm)',
-                        background: 'rgba(239, 68, 68, 0.08)',
-                        border: '1px solid rgba(239, 68, 68, 0.25)',
-                        color: '#EF4444',
-                        fontSize: '0.8rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem'
-                      }}>
+                      <div className="meeting-rejection-notice">
                         <Info size={15} style={{ flexShrink: 0 }} />
                         <span><strong>Motif du refus :</strong> {meet.cancellationReason}</span>
                       </div>
@@ -868,31 +731,20 @@ const ReunionsPage = () => {
 
                     {/* Notes */}
                     {meet.notes && (
-                      <div style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: 'var(--text-secondary)', background: 'var(--bg-tertiary)', padding: '0.4rem 0.65rem', borderRadius: 'var(--radius-sm)' }}>
+                      <div className="meeting-card-note">
                         <strong>Note :</strong> {meet.notes}
                       </div>
                     )}
 
                     {/* ADMIN ACTION BAR: Confirm or Reject pending request */}
                     {isAdmin && isPending && (
-                      <div style={{
-                        marginTop: '0.85rem',
-                        padding: '0.75rem 0.85rem',
-                        background: 'rgba(245, 158, 11, 0.08)',
-                        borderRadius: 'var(--radius-md)',
-                        border: '1px solid rgba(245, 158, 11, 0.25)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '0.75rem',
-                        flexWrap: 'wrap',
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+                      <div className="admin-action-row">
+                        <div className="admin-action-label">
                           <ShieldCheck size={16} color="#F59E0B" />
                           <span>Validation Administrative Requise</span>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div className="admin-action-buttons">
                           <button
                             type="button"
                             onClick={() => {
@@ -900,14 +752,7 @@ const ReunionsPage = () => {
                               setRejectReason('');
                               setSelectedQuickReason('');
                             }}
-                            className="btn btn-secondary btn-sm"
-                            style={{
-                              color: '#EF4444',
-                              borderColor: 'rgba(239, 68, 68, 0.3)',
-                              fontSize: '0.78rem',
-                              padding: '0.35rem 0.75rem',
-                              gap: '0.35rem',
-                            }}
+                            className="btn btn-secondary btn-sm admin-btn-reject"
                             disabled={isSubmitting}
                           >
                             <X size={14} />
@@ -917,16 +762,7 @@ const ReunionsPage = () => {
                           <button
                             type="button"
                             onClick={() => handleAdminApprove(meet)}
-                            className="btn btn-primary btn-sm"
-                            style={{
-                              background: '#10B981',
-                              borderColor: '#10B981',
-                              color: '#fff',
-                              fontSize: '0.78rem',
-                              padding: '0.35rem 0.85rem',
-                              fontWeight: 700,
-                              gap: '0.35rem',
-                            }}
+                            className="btn btn-primary btn-sm admin-btn-approve"
                             disabled={isSubmitting}
                           >
                             <Check size={14} />
@@ -938,27 +774,16 @@ const ReunionsPage = () => {
 
                     {/* Client Pending Notice */}
                     {isClient && isPending && (
-                      <div style={{
-                        marginTop: '0.65rem',
-                        padding: '0.5rem 0.75rem',
-                        borderRadius: 'var(--radius-sm)',
-                        background: 'rgba(245, 158, 11, 0.08)',
-                        border: '1px dashed rgba(245, 158, 11, 0.3)',
-                        color: 'var(--text-secondary)',
-                        fontSize: '0.78rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem'
-                      }}>
+                      <div className="client-pending-notice">
                         <Info size={14} color="#F59E0B" style={{ flexShrink: 0 }} />
                         <span>Votre demande est en cours de validation par la Direction S2T. Vous recevrez une notification dès confirmation.</span>
                       </div>
                     )}
 
                     {/* Footer Info */}
-                    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', flexWrap: 'wrap', gap: '0.4rem' }}>
-                      <span>Entreprise / Organisateur : <strong>{meet.organizer}</strong></span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div className="meeting-card-footer">
+                      <span className="organizer-text">Organisateur : <strong>{meet.organizer}</strong></span>
+                      <div className="amenities-text">
                         {meet.needCoffee && <span style={{ color: '#F59E0B', fontWeight: 600 }}>☕ Pause Café S2T</span>}
                         <span style={{ color: 'var(--s2t-teal)', fontWeight: 600 }}>Équipements réservés ✓</span>
                       </div>
@@ -999,7 +824,7 @@ const ReunionsPage = () => {
                         backgroundColor: isOccupied ? 'rgba(239, 68, 68, 0.95)' : 'rgba(16, 185, 129, 0.95)'
                       }}
                     >
-                      {isOccupied ? 'Occupée sur ce créneau' : 'Disponible'}
+                      {isOccupied ? 'Occupée' : 'Disponible'}
                     </span>
                   </div>
 
@@ -1023,8 +848,7 @@ const ReunionsPage = () => {
                         setConflictError('');
                         setBookingModalOpen(true);
                       }}
-                      className="btn btn-secondary btn-sm"
-                      style={{ width: '100%', marginTop: '0.85rem', gap: '0.4rem', justifyContent: 'center' }}
+                      className="btn btn-secondary btn-sm book-room-btn"
                     >
                       <CalendarDays size={14} />
                       <span>Réserver cette salle</span>
@@ -1042,15 +866,14 @@ const ReunionsPage = () => {
         <div className="modal-overlay" onClick={() => setBookingModalOpen(false)} style={{ zIndex: 1300 }}>
           <form 
             onSubmit={handleCreateBooking} 
-            className="modal-container" 
-            style={{ maxWidth: '660px', width: '92%' }}
+            className="modal-container responsive-booking-modal" 
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <CalendarDays size={20} color="var(--s2t-cyan)" />
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Réserver une Salle de Réunion S2T</h3>
+                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>Réserver une Salle de Réunion S2T</h3>
                   <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                     {isAdmin ? 'Création directe avec confirmation automatique' : 'Demande transmise à la Direction S2T pour validation'}
                   </p>
@@ -1070,19 +893,7 @@ const ReunionsPage = () => {
               
               {/* Conflict error banner */}
               {(conflictError || detectedConflict) && (
-                <div style={{
-                  background: 'rgba(239, 68, 68, 0.12)',
-                  border: '1px solid rgba(239, 68, 68, 0.35)',
-                  color: '#EF4444',
-                  padding: '0.85rem 1rem',
-                  borderRadius: 'var(--radius-md)',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '0.75rem',
-                  fontSize: '0.825rem',
-                  lineHeight: 1.45,
-                  boxShadow: '0 0 15px rgba(239, 68, 68, 0.1)',
-                }}>
+                <div className="modal-conflict-banner">
                   <AlertCircle size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
                   <div>
                     <strong style={{ display: 'block', marginBottom: '2px' }}>⛔ Conflit d'horaire détecté :</strong>
@@ -1124,7 +935,7 @@ const ReunionsPage = () => {
               </div>
 
               {/* Date & Time Selectors */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.75rem' }}>
+              <div className="modal-datetime-grid">
                 <div className="form-group" style={{ margin: 0 }}>
                   <label className="form-label">Date *</label>
                   <input
@@ -1172,46 +983,27 @@ const ReunionsPage = () => {
               </div>
 
               {/* Visual Availability Box */}
-              <div style={{
-                background: 'var(--bg-tertiary)',
-                borderRadius: 'var(--radius-md)',
-                padding: '0.85rem 1rem',
-                border: '1px solid var(--border-color)',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <div className="modal-availability-card">
+                <div className="availability-card-header">
+                  <span className="avail-title">
                     <CalendarCheck2 size={14} color="var(--s2t-blue)" />
                     Créneaux du {bookingData.date} pour {bookingData.room} :
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                  <span className="avail-count">
                     {bookedSlotsForDate.length} créneau{bookedSlotsForDate.length > 1 ? 'x' : ''} réservé{bookedSlotsForDate.length > 1 ? 's' : ''}
                   </span>
                 </div>
 
                 {bookedSlotsForDate.length === 0 ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: '#10B981', fontSize: '0.8rem', fontWeight: 600 }}>
+                  <div className="avail-free-msg">
                     <CheckCircle2 size={15} />
                     <span>✨ Salle 100% disponible toute la journée. Tous les créneaux sont libres.</span>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                    <div className="booked-slots-badges-row">
                       {bookedSlotsForDate.map((b, idx) => (
-                        <span 
-                          key={idx} 
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.35rem',
-                            padding: '0.25rem 0.55rem',
-                            borderRadius: 'var(--radius-sm)',
-                            background: 'rgba(239, 68, 68, 0.15)',
-                            color: '#EF4444',
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            border: '1px solid rgba(239, 68, 68, 0.25)'
-                          }}
-                        >
+                        <span key={idx} className="booked-slot-chip">
                           <Lock size={12} />
                           ⛔ {b.startTime} - {b.endTime} ({b.title || 'Réservé'})
                         </span>
@@ -1219,11 +1011,11 @@ const ReunionsPage = () => {
                     </div>
 
                     {/* Quick suggestion free slots */}
-                    <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border-color)' }}>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.3rem' }}>
+                    <div className="suggested-slots-section">
+                      <span className="suggested-label">
                         💡 Suggestions de créneaux rapides (cliquez pour sélectionner) :
                       </span>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                      <div className="suggested-chips-group">
                         {SUGGESTED_SLOTS.map((slot, i) => {
                           const isSlotBusy = bookedSlotsForDate.some(
                             (b) => slot.start < b.endTime && slot.end > b.startTime
@@ -1239,26 +1031,7 @@ const ReunionsPage = () => {
                                 setBookingData(prev => ({ ...prev, startTime: slot.start, endTime: slot.end }));
                                 setConflictError('');
                               }}
-                              style={{
-                                padding: '0.2rem 0.55rem',
-                                borderRadius: 'var(--radius-sm)',
-                                border: isSelected ? '1px solid var(--s2t-blue)' : '1px solid var(--border-color)',
-                                background: isSelected 
-                                  ? 'var(--s2t-blue)' 
-                                  : isSlotBusy 
-                                  ? 'rgba(107, 114, 128, 0.15)' 
-                                  : 'var(--bg-secondary)',
-                                color: isSelected 
-                                  ? '#fff' 
-                                  : isSlotBusy 
-                                  ? 'var(--text-muted)' 
-                                  : 'var(--text-primary)',
-                                fontSize: '0.72rem',
-                                fontWeight: 600,
-                                cursor: isSlotBusy ? 'not-allowed' : 'pointer',
-                                textDecoration: isSlotBusy ? 'line-through' : 'none',
-                                opacity: isSlotBusy ? 0.5 : 1,
-                              }}
+                              className={`suggested-slot-btn ${isSelected ? 'selected' : ''} ${isSlotBusy ? 'disabled' : ''}`}
                             >
                               {slot.label}
                             </button>
@@ -1271,7 +1044,7 @@ const ReunionsPage = () => {
               </div>
 
               {/* Participants & Amenities */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
+              <div className="modal-options-grid">
                 <div className="form-group" style={{ margin: 0 }}>
                   <label className="form-label">Nombre de Participants</label>
                   <input
@@ -1286,7 +1059,7 @@ const ReunionsPage = () => {
 
                 <div className="form-group" style={{ margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <label className="form-label">Options d'Accueil S2T</label>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', height: '42px' }}>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', height: '42px', flexWrap: 'wrap' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.825rem', cursor: 'pointer' }}>
                       <input
                         type="checkbox"
@@ -1314,14 +1087,14 @@ const ReunionsPage = () => {
                 <textarea
                   className="form-textarea"
                   rows={2}
-                  placeholder="Ex: Besoin de 2 micros cravate et affichage sans fil Chromecast/AirPlay..."
+                  placeholder="Ex: Besoin de 2 micros sans fil et câble HDMI..."
                   value={bookingData.notes}
                   onChange={(e) => setBookingData({ ...bookingData, notes: e.target.value })}
                 />
               </div>
             </div>
 
-            <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+            <div className="modal-footer modal-footer-responsive">
               <button 
                 type="button" 
                 className="btn btn-secondary" 
@@ -1368,8 +1141,7 @@ const ReunionsPage = () => {
         <div className="modal-overlay" onClick={() => setRejectModalMeeting(null)} style={{ zIndex: 1350 }}>
           <form 
             onSubmit={handleAdminReject}
-            className="modal-container"
-            style={{ maxWidth: '520px', width: '92%' }}
+            className="modal-container responsive-reject-modal"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
@@ -1403,17 +1175,7 @@ const ReunionsPage = () => {
                   ].map((reason, idx) => (
                     <label 
                       key={idx}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.4rem 0.65rem',
-                        borderRadius: 'var(--radius-sm)',
-                        background: selectedQuickReason === reason ? 'rgba(239, 68, 68, 0.12)' : 'var(--bg-tertiary)',
-                        border: selectedQuickReason === reason ? '1px solid #EF4444' : '1px solid var(--border-color)',
-                        cursor: 'pointer',
-                        fontSize: '0.8rem',
-                      }}
+                      className={`quick-reason-option ${selectedQuickReason === reason ? 'selected' : ''}`}
                     >
                       <input
                         type="radio"
@@ -1442,7 +1204,7 @@ const ReunionsPage = () => {
               </div>
             </div>
 
-            <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+            <div className="modal-footer modal-footer-responsive">
               <button 
                 type="button" 
                 className="btn btn-secondary" 
@@ -1469,8 +1231,7 @@ const ReunionsPage = () => {
         <div className="modal-overlay" onClick={() => setCancelModalMeeting(null)} style={{ zIndex: 1350 }}>
           <form 
             onSubmit={handleConfirmCancel}
-            className="modal-container"
-            style={{ maxWidth: '500px', width: '92%' }}
+            className="modal-container responsive-cancel-modal"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
@@ -1505,7 +1266,7 @@ const ReunionsPage = () => {
               </div>
             </div>
 
-            <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+            <div className="modal-footer modal-footer-responsive">
               <button 
                 type="button" 
                 className="btn btn-secondary" 
