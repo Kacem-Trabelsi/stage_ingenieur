@@ -161,7 +161,7 @@ export const initializeSocket = (httpServer) => {
     });
 
     // 6. WebRTC ICE Candidate Forwarding
-    socket.on('ice-candidate', ({ toSocketId, toEmail, candidate }) => {
+    socket.on('ice-candidate', ({ toSocketId, toEmail, toRole, candidate }) => {
       if (!candidate) return;
 
       const candidatePayload = {
@@ -173,7 +173,15 @@ export const initializeSocket = (httpServer) => {
       if (toSocketId) {
         io.to(toSocketId).emit('ice-candidate', candidatePayload);
       } else if (toEmail) {
-        io.to(`user:${toEmail.toLowerCase().trim()}`).emit('ice-candidate', candidatePayload);
+        const cleanEmail = toEmail.toLowerCase().trim();
+        if (cleanEmail === 'direction@s2t.tn' || cleanEmail === 'direction') {
+          socket.to('room:direction').emit('ice-candidate', candidatePayload);
+          socket.to('role:admin').emit('ice-candidate', candidatePayload);
+        } else {
+          io.to(`user:${cleanEmail}`).emit('ice-candidate', candidatePayload);
+        }
+      } else if (toRole) {
+        socket.to(`role:${toRole}`).emit('ice-candidate', candidatePayload);
       } else {
         socket.broadcast.emit('ice-candidate', candidatePayload);
       }

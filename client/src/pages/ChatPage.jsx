@@ -253,6 +253,8 @@ const ChatPage = () => {
   const [activeCallTarget, setActiveCallTarget] = useState(null); // { name, email, socketId }
 
   const localStreamRef = useRef(null);
+  const remoteStreamRef = useRef(new MediaStream());
+  const targetSocketIdRef = useRef(null);
   const peerConnectionRef = useRef(null);
   const pendingCandidatesRef = useRef([]);
   const remoteAudioRef = useRef(null);
@@ -275,6 +277,17 @@ const ChatPage = () => {
       });
       localStreamRef.current = null;
     }
+    if (remoteStreamRef.current) {
+      remoteStreamRef.current.getTracks().forEach((track) => {
+        try {
+          track.stop();
+        } catch (e) {
+          // ignore
+        }
+      });
+      remoteStreamRef.current = new MediaStream();
+    }
+    targetSocketIdRef.current = null;
     if (peerConnectionRef.current) {
       try {
         peerConnectionRef.current.close();
@@ -326,6 +339,9 @@ const ChatPage = () => {
 
     const handleCallAccepted = async (payload) => {
       stopRingtone();
+      if (payload.answerer?.socketId) {
+        targetSocketIdRef.current = payload.answerer.socketId;
+      }
       if (peerConnectionRef.current && payload.signalData) {
         try {
           await peerConnectionRef.current.setRemoteDescription(
@@ -350,6 +366,15 @@ const ChatPage = () => {
           ...prev,
           ...payload.answerer,
         }));
+      }
+      // Immediately bind remote stream to video element
+      if (remoteVideoRef.current && remoteStreamRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current;
+        remoteVideoRef.current.play().catch(() => {});
+      }
+      if (remoteAudioRef.current && remoteStreamRef.current) {
+        remoteAudioRef.current.srcObject = remoteStreamRef.current;
+        remoteAudioRef.current.play().catch(() => {});
       }
     };
 
@@ -462,12 +487,23 @@ const ChatPage = () => {
     fetchChannels();
   }, [isClient]);
 
-  // Ensure local video stream is attached when video call modal opens
+  // Ensure video streams are attached when video call modal opens or updates
   useEffect(() => {
-    if (callModal === 'video' && localStreamRef.current && localVideoRef.current) {
-      localVideoRef.current.srcObject = localStreamRef.current;
+    if (callModal === 'video') {
+      if (localStreamRef.current && localVideoRef.current) {
+        localVideoRef.current.srcObject = localStreamRef.current;
+        localVideoRef.current.play().catch(() => {});
+      }
+      if (remoteStreamRef.current && remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current;
+        remoteVideoRef.current.play().catch(() => {});
+      }
+      if (remoteStreamRef.current && remoteAudioRef.current) {
+        remoteAudioRef.current.srcObject = remoteStreamRef.current;
+        remoteAudioRef.current.play().catch(() => {});
+      }
     }
-  }, [callModal, callState]);
+  }, [callModal, callState, activeCallTarget]);
 
   // 2. Fetch messages whenever activeChannelId changes
   useEffect(() => {
@@ -878,14 +914,27 @@ const ChatPage = () => {
 
       // 4. Remote track listener
       pc.ontrack = (event) => {
-        console.log('[WebRTC Caller] ontrack reçu:', event.streams[0]);
-        if (remoteAudioRef.current && event.streams[0]) {
-          remoteAudioRef.current.srcObject = event.streams[0];
-          remoteAudioRef.current.play().catch((e) => console.log('Caller audio play error:', e));
+        console.log('[WebRTC Caller] ontrack reçu:', event.track?.kind, event.streams);
+        const incomingStream = (event.streams && event.streams[0]) ? event.streams[0] : null;
+        if (incomingStream) {
+          remoteStreamRef.current = incomingStream;
+        } else if (event.track) {
+          if (!remoteStreamRef.current) {
+            remoteStreamRef.current = new MediaStream();
+          }
+          if (!remoteStreamRef.current.getTracks().find((t) => t.id === event.track.id)) {
+            remoteStreamRef.current.addTrack(event.track);
+          }
         }
-        if (type === 'video' && remoteVideoRef.current && event.streams[0]) {
-          remoteVideoRef.current.srcObject = event.streams[0];
-          remoteVideoRef.current.play().catch((e) => console.log('Caller video play error:', e));
+
+        const streamToPlay = incomingStream || remoteStreamRef.current;
+        if (remoteVideoRef.current && streamToPlay) {
+          remoteVideoRef.current.srcObject = streamToPlay;
+          remoteVideoRef.current.play().catch(() => {});
+        }
+        if (remoteAudioRef.current && streamToPlay) {
+          remoteAudioRef.current.srcObject = streamToPlay;
+          remoteAudioRef.current.play().catch(() => {});
         }
       };
 
@@ -895,7 +944,8 @@ const ChatPage = () => {
           const socket = getSocket();
           socket.emit('ice-candidate', {
             toEmail: targetEmail,
-            toSocketId: activeCallTarget?.socketId,
+            toRole: targetRole,
+            toSocketId: targetSocketIdRef.current || activeCallTarget?.socketId,
             candidate: event.candidate,
           });
         }
@@ -943,6 +993,7 @@ const ChatPage = () => {
     setIsSpeakerOn(true);
     setIsVideoOff(false);
     setActiveCallTarget(callData.caller);
+    targetSocketIdRef.current = callData.caller?.socketId || null;
 
     try {
       // 1. Get microphone (and camera if video)
@@ -978,6 +1029,7 @@ const ChatPage = () => {
 
       if (isVideo && localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
+        localVideoRef.current.play().catch(() => {});
       }
 
       // 2. Create RTCPeerConnection
@@ -991,14 +1043,27 @@ const ChatPage = () => {
 
       // 4. Remote track listener
       pc.ontrack = (event) => {
-        console.log('[WebRTC Receiver] ontrack reçu:', event.streams[0]);
-        if (remoteAudioRef.current && event.streams[0]) {
-          remoteAudioRef.current.srcObject = event.streams[0];
-          remoteAudioRef.current.play().catch((e) => console.log('Receiver audio play error:', e));
+        console.log('[WebRTC Receiver] ontrack reçu:', event.track?.kind, event.streams);
+        const incomingStream = (event.streams && event.streams[0]) ? event.streams[0] : null;
+        if (incomingStream) {
+          remoteStreamRef.current = incomingStream;
+        } else if (event.track) {
+          if (!remoteStreamRef.current) {
+            remoteStreamRef.current = new MediaStream();
+          }
+          if (!remoteStreamRef.current.getTracks().find((t) => t.id === event.track.id)) {
+            remoteStreamRef.current.addTrack(event.track);
+          }
         }
-        if (isVideo && remoteVideoRef.current && event.streams[0]) {
-          remoteVideoRef.current.srcObject = event.streams[0];
-          remoteVideoRef.current.play().catch((e) => console.log('Receiver video play error:', e));
+
+        const streamToPlay = incomingStream || remoteStreamRef.current;
+        if (remoteVideoRef.current && streamToPlay) {
+          remoteVideoRef.current.srcObject = streamToPlay;
+          remoteVideoRef.current.play().catch(() => {});
+        }
+        if (remoteAudioRef.current && streamToPlay) {
+          remoteAudioRef.current.srcObject = streamToPlay;
+          remoteAudioRef.current.play().catch(() => {});
         }
       };
 
@@ -1140,6 +1205,9 @@ const ChatPage = () => {
       const next = !prev;
       if (remoteAudioRef.current) {
         remoteAudioRef.current.muted = !next;
+      }
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.muted = !next;
       }
       return next;
     });
@@ -1949,21 +2017,30 @@ const ChatPage = () => {
 
             {/* Video Box if Video Call */}
             {callModal === 'video' && (
-              <div className="chat-video-preview-box" style={{ position: 'relative', overflow: 'hidden', minHeight: '220px', borderRadius: '12px', background: '#090d16' }}>
-                {callState === 'connected' ? (
-                  <video
-                    ref={remoteVideoRef}
-                    autoPlay
-                    playsInline
-                    style={{ width: '100%', height: '100%', minHeight: '220px', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div style={{ width: '100%', height: '100%', minHeight: '220px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', gap: '0.6rem' }}>
-                    <div className="channel-avatar-circle" style={{ width: '56px', height: '56px', fontSize: '1.25rem', background: activeCallTarget?.avatarBg || 'var(--s2t-blue)' }}>
+              <div className="chat-video-preview-box" style={{ position: 'relative', overflow: 'hidden', minHeight: '260px', height: '280px', borderRadius: '14px', background: '#090d16', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                
+                {/* Remote Video Element - ALWAYS rendered in DOM so ref and srcObject are never lost */}
+                <video
+                  ref={remoteVideoRef}
+                  autoPlay
+                  playsInline
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: callState === 'connected' ? 'block' : 'none',
+                    borderRadius: '14px',
+                  }}
+                />
+
+                {/* Waiting placeholder avatar when ringing or connecting */}
+                {callState !== 'connected' && (
+                  <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', gap: '0.6rem', padding: '1.5rem' }}>
+                    <div className="channel-avatar-circle" style={{ width: '64px', height: '64px', fontSize: '1.5rem', background: activeCallTarget?.avatarBg || 'var(--s2t-blue)', boxShadow: '0 0 20px rgba(37, 99, 235, 0.4)' }}>
                       {activeCallTarget?.avatarText || activeCallTarget?.name?.charAt(0) || 'D'}
                     </div>
-                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f8fafc' }}>{activeCallTarget?.name || activeChannel.name}</span>
-                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>En attente de connexion vidéo...</span>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 600, color: '#f8fafc' }}>{activeCallTarget?.name || activeChannel.name}</span>
+                    <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Établissement du flux vidéo sécurisé WebRTC...</span>
                   </div>
                 )}
 
@@ -1975,22 +2052,23 @@ const ChatPage = () => {
                   playsInline
                   style={{
                     position: 'absolute',
-                    bottom: '10px',
-                    right: '10px',
-                    width: '110px',
-                    height: '80px',
+                    bottom: '12px',
+                    right: '12px',
+                    width: '120px',
+                    height: '85px',
                     objectFit: 'cover',
-                    borderRadius: '8px',
-                    border: '2px solid rgba(255,255,255,0.85)',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.6)',
-                    zIndex: 2,
+                    borderRadius: '10px',
+                    border: '2px solid rgba(255,255,255,0.9)',
+                    boxShadow: '0 6px 18px rgba(0,0,0,0.7)',
+                    zIndex: 10,
+                    background: '#111',
                   }}
                 />
 
                 {isVideoOff && (
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-muted)', zIndex: 3 }}>
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-muted)', zIndex: 12, borderRadius: '14px' }}>
                     <VideoOff size={36} color="var(--s2t-red)" />
-                    <span style={{ fontSize: '0.8rem', color: '#fff' }}>Caméra désactivée</span>
+                    <span style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 600 }}>Caméra locale désactivée</span>
                   </div>
                 )}
               </div>
