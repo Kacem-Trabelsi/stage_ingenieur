@@ -1376,7 +1376,7 @@ const ChatPage = () => {
           
           {/* Window Header */}
           <div className="chat-window-header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div className="chat-window-header-left">
               {/* Mobile Back Button */}
               <button
                 type="button"
@@ -1391,38 +1391,36 @@ const ChatPage = () => {
                 className="channel-avatar-circle"
                 style={{
                   background: activeChannel.avatarBg || 'var(--s2t-blue)',
-                  width: '42px',
-                  height: '42px',
                 }}
               >
-                {activeChannel.id === 'ia_assistant' ? <Bot size={22} /> : (activeChannel.avatarText || activeChannel.name.charAt(0))}
+                {activeChannel.id === 'ia_assistant' ? <Bot size={22} /> : (activeChannel.avatarText || activeChannel.name?.charAt(0))}
               </div>
 
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
+              <div className="chat-window-header-info">
+                <div className="chat-header-name-row">
+                  <h3 className="chat-header-title">
                     {activeChannel.name}
                   </h3>
                   {activeChannel.online && (
                     <span className="chat-status-pill">
                       <Circle size={6} fill="#10B981" color="#10B981" />
-                      <span>{activeChannel.id === 'ia_assistant' ? 'IA Active 24/7' : (!isClient ? 'Entreprise Résidente' : 'En ligne')}</span>
+                      <span>{activeChannel.id === 'ia_assistant' ? 'IA Active 24/7' : (!isClient ? 'Résident' : 'En ligne')}</span>
                     </span>
                   )}
                 </div>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                <span className="chat-header-subtitle">
                   {activeChannel.role}
                 </span>
               </div>
             </div>
 
             {/* Header Right Actions */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <div className="chat-window-header-actions">
               {activeChannel.id !== 'ia_assistant' && (
                 <>
                   <button 
                     type="button" 
-                    className="btn btn-ghost btn-sm" 
+                    className="btn btn-ghost btn-sm chat-header-action-btn" 
                     title={!isClient ? `Appel vocal direct avec ${activeChannel.name}` : "Lancer un appel vocal sécurisé"}
                     onClick={() => handleStartCall('audio')}
                   >
@@ -1430,7 +1428,7 @@ const ChatPage = () => {
                   </button>
                   <button 
                     type="button" 
-                    className="btn btn-ghost btn-sm" 
+                    className="btn btn-ghost btn-sm chat-header-action-btn" 
                     title={!isClient ? `Visioconférence sécurisée avec ${activeChannel.name}` : "Lancer une visioconférence avec la Direction"}
                     onClick={() => handleStartCall('video')}
                   >
@@ -1441,7 +1439,7 @@ const ChatPage = () => {
 
               <button
                 type="button"
-                className="btn btn-ghost btn-sm"
+                className="btn btn-ghost btn-sm chat-header-action-btn"
                 title="Effacer l'historique de cette conversation"
                 onClick={handleClearHistory}
                 style={{ color: 'var(--text-muted)' }}
