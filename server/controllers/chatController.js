@@ -1,83 +1,7 @@
 import ChatMessage from '../models/ChatMessage.js';
 import User from '../models/User.js';
 import { createNotification } from '../services/notificationService.js';
-
-// Helper to generate AI responses based on S2T 16 Articles & Law 2001-50
-const generateAiResponse = (userText, userName, companyName) => {
-  const q = (userText || '').toLowerCase();
-
-  if (q.includes('tarif') || q.includes('loyer') || q.includes('prix') || q.includes('redevance') || q.includes('montant') || q.includes('combien')) {
-    return `📌 **Barème officiel des Redevances Locatives S2T (Article 6 du Contrat)** :
-• **1ère Année (Pépinière)** : 30,000 DT HTVA / m² / an
-• **2ème Année (Pépinière)** : 55,000 DT HTVA / m² / an
-• **3ème Année / Régime Standard** : 75,000 DT HTVA / m² / an
-
-TVA légale applicable : **19%** + Droit de timbre fiscal : **1.000 DT**.
-La redevance est payable mensuellement d'avance avant le **cinquième (5ème) jour de chaque mois** par virement bancaire ou ordre permanent (Art. 6.3).`;
-  }
-
-  if (q.includes('caution') || q.includes('garantie') || q.includes('depot') || q.includes('dépôt')) {
-    return `🛡️ **Dépôt de Garantie & Caution (Article 7 de la Convention)** :
-Conformément à l'Article 7, l'hébergé verse à la signature un dépôt de garantie correspondant à **deux (2) mois de redevance mensuelle TTC**.
-Le versement s'effectue sur le compte bancaire officiel S2T :
-• **Banque** : STB Agence Ariana Nord
-• **RIB** : \`08 026011 0830000062 89\`
-Cette caution est intégralement restituée sous 2 mois après libération des locaux et apurement des comptes.`;
-  }
-
-  if (q.includes('avenant') || q.includes('surface') || q.includes('agrandir') || q.includes('superficie') || q.includes('reduire') || q.includes('réduire')) {
-    return `📈 **Modification de Superficie & Avenants (Article 11 du Contrat)** :
-Toute modification de superficie ou de local doit faire l'objet d'un **avenant écrit signé par les deux parties** (Art. 11).
-Vous pouvez soumettre directement une demande d'avenant depuis l'onglet **Contrats** de votre tableau de bord. Dès validation juridique, le loyer est automatiquement recalculé au prorata.`;
-  }
-
-  if (q.includes('resiliation') || q.includes('résiliation') || q.includes('quitter') || q.includes('preavis') || q.includes('préavis') || q.includes('fin')) {
-    return `⚖️ **Procédure de Résiliation (Article 8 & 9 du Contrat)** :
-1. L'hébergé peut résilier le contrat d'hébergement en observant un délai de **préavis d'un (1) mois** par lettre recommandée avec accusé de réception (LRAR).
-2. En cas de manquement ou d'abandon supérieur à **2 mois**, la résiliation s'opère de plein droit (Art. 8.4).
-3. À la fin du contrat, l'hébergé est tenu d'évacuer tous ses biens et matériels (Art. 9).`;
-  }
-
-  if (q.includes('loi') || q.includes('reglement') || q.includes('règlement') || q.includes('statut') || q.includes('bail') || q.includes('2001')) {
-    return `🏛️ **Cadre Juridique & Statut Légal (Loi n° 2001-50 & Article 4)** :
-Le Pôle Technologique S2T El Ghazala est régi par la **Loi n° 2001-50 du 3 mai 2001** (modifiée par la Loi n° 2006-37).
-Conformément à l'Article 4, il s'agit d'un **contrat d'hébergement d'entreprises TIC** et non d'un contrat de bail commercial (loi du 25 mai 1977). Le local ne peut en aucun cas faire l'objet d'une sous-location ou cession à des tiers.`;
-  }
-
-  if (q.includes('salle') || q.includes('reunion') || q.includes('réunion') || q.includes('formation') || q.includes('evenement') || q.includes('conférence')) {
-    return `🤝 **Accès aux Salles de Réunion & Formation (Article 2.c)** :
-L'hébergement au Pôle S2T comprend l'accès mutualisé aux :
-• **Salle Ibn Khaldoun** (Conférences & Présentations)
-• **Salle Innovation & R&D** (Comités & Réunions de travail)
-• **Salle de Formation Multimédia**
-Vous pouvez effectuer une réservation en temps réel depuis le module **Réunions** du menu latéral.`;
-  }
-
-  if (q.includes('fibre') || q.includes('internet') || q.includes('badge') || q.includes('clim') || q.includes('electricite') || q.includes('électricité') || q.includes('technique')) {
-    return `🔌 **Services Inclus & Support Technique (Article 2)** :
-Sont compris dans le forfait de redevance S2T :
-• Connexion Internet très haut débit Fibre Optique dédiée
-• Accueil, secrétariat et réception postale
-• Charges d'électricité, climatisation centrale, gardiennage 24/7 et nettoyage
-• Badge d'accès biométrique / RFID aux bâtiments.`;
-  }
-
-  if (q.includes('facture') || q.includes('quittance') || q.includes('paiement') || q.includes('payer') || q.includes('rib') || q.includes('virement')) {
-    return `💳 **Paiement des Factures & Quittances Libératoires** :
-Vous pouvez régler vos factures de loyer en ligne via :
-1. **Virement bancaire STB** : RIB \`10 005 0830000 000000 45\` (joindre le bordereau)
-2. **Carte bancaire** (validation immédiate)
-3. **Ordre de prélèvement permanent S2T**
-4. **Espèces en régie** (Bureau A-102 Bâtiment Administratif S2T).
-Dès rapprochement, votre **quittance libératoire** certifiée est disponible en téléchargement PDF (Art. 6.6).`;
-  }
-
-  if (q.includes('bonjour') || q.includes('salut') || q.includes('hello') || q.includes('aide')) {
-    return `Bonjour ${userName || 'Cher Résident'} ! Je suis à votre entière disposition. Posez-moi vos questions sur le calcul des loyers, le dépôt de garantie STB, les demandes d'avenants ou les 16 articles réglementaires du Pôle S2T.`;
-  }
-
-  return `Merci pour votre message. Votre question a été analysée par l'Assistant S2T. Pour toute précision complémentaire, l'équipe de la Direction S2T est également joignable sur le canal direct dédié.`;
-};
+import { askGeminiAssistant } from '../services/geminiAiService.js';
 
 // @desc    Get all chat channels with latest activity
 // @route   GET /api/chat/channels
@@ -462,7 +386,7 @@ export const sendMessage = async (req, res) => {
         isAi: false,
       });
 
-      const aiReplyText = generateAiResponse((text || 'aide').trim(), user.name, user.companyName);
+      const aiReplyText = await askGeminiAssistant((text || 'aide').trim(), user.name, user.companyName);
 
       const aiMessage = await ChatMessage.create({
         channelId: 'ia_assistant',

@@ -82,6 +82,7 @@ const AI_PROMPTS = [
   { label: '🏛️ Cadre Légal (Loi 2001-50)', prompt: 'Quel est le cadre juridique et la loi régissant les technoparcs en Tunisie ?' },
   { label: '🔌 Services Inclus & Fibre', prompt: 'Quels sont les services techniques et télécoms inclus dans la redevance ?' },
   { label: '📄 Factures & Quittances', prompt: 'Comment régler une facture et obtenir ma quittance libératoire STB ?' },
+  { label: '🛠️ Support & Réclamations', prompt: 'Comment déclarer une panne de climatisation ou un problème de connectivité au support S2T ?' },
 ];
 
 const DEFAULT_CHANNELS = [
