@@ -15,6 +15,7 @@ import {
 
 const Blog = () => {
   const { t, language } = useLanguage();
+  const isRtl = language === 'ar';
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [search, setSearch] = useState('');
   const [activeArticle, setActiveArticle] = useState(null);
@@ -87,205 +88,163 @@ const Blog = () => {
   });
 
   return (
-    <div style={{ paddingBottom: '6rem' }}>
+    <div className="blog-page-wrapper">
       {/* Header Banner */}
-      <section style={{
-        padding: '5rem 0 3.5rem',
-        textAlign: 'center',
-        background: 'var(--grad-hero)',
-        borderBottom: '1px solid var(--border-color)',
-      }}>
-        <div className="container" style={{ maxWidth: '850px' }}>
-          <span className="badge" style={{ background: 'var(--primary-light)', color: 'var(--s2t-red)', marginBottom: '1.25rem' }}>
+      <section className="blog-header-section">
+        <div className="container blog-header-container">
+          <span className="badge blog-badge-pill">
             {t('blog_badge')}
           </span>
-          <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', marginBottom: '1.25rem' }}>
+          <h1 className="blog-header-title">
             {t('blog_title')} <span className="gradient-text">{t('blog_title_sub')}</span>
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.6 }}>
+          <p className="blog-header-desc">
             {t('blog_desc')}
           </p>
         </div>
       </section>
 
-      {/* Filter & Search Bar */}
-      <section className="container" style={{ padding: '3rem 1.5rem 2rem' }}>
-        <div className="glass-card" style={{
-          padding: '1.25rem',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '1rem',
-          marginBottom: '2.5rem',
-        }}>
-          {/* Categories */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`btn btn-sm ${selectedCategory === cat.id ? 'btn-primary' : 'btn-ghost'}`}
-              >
-                {cat.label}
-              </button>
-            ))}
+      {/* Filter & Search Bar + Articles Grid */}
+      <section className="container blog-main-section">
+        {/* Filter Card with Search and Categories */}
+        <div className="glass-card blog-filter-card">
+          {/* Categories Pills Container */}
+          <div className="blog-categories-scroll-container">
+            <div className="blog-categories-wrap">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`blog-cat-pill ${selectedCategory === cat.id ? 'active' : ''}`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Search */}
-          <div style={{ position: 'relative', flex: '1 1 260px', maxWidth: '340px' }}>
-            <Search size={16} style={{
-              position: 'absolute',
-              [language === 'ar' ? 'right' : 'left']: '1rem',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--text-muted)'
-            }} />
+          {/* Search Box */}
+          <div className="blog-search-box">
+            <Search size={16} className="blog-search-icon" />
             <input
               type="text"
-              className="form-input"
-              style={{
-                [language === 'ar' ? 'paddingRight' : 'paddingLeft']: '2.5rem',
-                height: '38px',
-                fontSize: '0.875rem'
-              }}
+              className="form-input blog-search-input"
               placeholder={t('blog_search_placeholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+            {search && (
+              <button
+                type="button"
+                className="blog-search-clear"
+                onClick={() => setSearch('')}
+                aria-label="Effacer"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
         </div>
 
         {/* Articles Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: '2rem',
-        }}>
-          {filteredArticles.map((art) => (
-            <article
-              key={art.id}
-              className="glass-card glass-card-hover"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-                cursor: 'pointer',
-              }}
-              onClick={() => setActiveArticle(art)}
-            >
-              {/* Header Color Banner */}
-              <div style={{
-                height: '140px',
-                background: art.imageGradient,
-                padding: '1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-              }}>
-                <span className="badge" style={{ background: 'rgba(0,0,0,0.4)', color: '#fff', alignSelf: 'flex-start' }}>
-                  {art.categoryLabel}
-                </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Calendar size={13} /> {art.date}
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Clock size={13} /> {art.readTime}
-                  </span>
+        <div className="blog-articles-grid">
+          {filteredArticles.length > 0 ? (
+            filteredArticles.map((art) => (
+              <article
+                key={art.id}
+                className="glass-card glass-card-hover blog-card"
+                onClick={() => setActiveArticle(art)}
+              >
+                {/* Header Color Banner */}
+                <div
+                  className="blog-card-banner"
+                  style={{ background: art.imageGradient }}
+                >
+                  <div className="blog-card-banner-top">
+                    <span className="blog-card-badge">
+                      {art.categoryLabel}
+                    </span>
+                  </div>
+                  <div className="blog-card-meta">
+                    <span className="blog-meta-item">
+                      <Calendar size={13} /> {art.date}
+                    </span>
+                    <span className="blog-meta-item">
+                      <Clock size={13} /> {art.readTime}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Content */}
-              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.75rem', lineHeight: 1.4 }}>
-                  {art.title}
-                </h3>
-                <p style={{
-                  fontSize: '0.875rem',
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1.6,
-                  marginBottom: '1.5rem',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                }}>
-                  {art.excerpt}
-                </p>
+                {/* Content */}
+                <div className="blog-card-body">
+                  <h3 className="blog-card-title">
+                    {art.title}
+                  </h3>
+                  <p className="blog-card-excerpt">
+                    {art.excerpt}
+                  </p>
 
-                <div style={{
-                  marginTop: 'auto',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingTop: '1rem',
-                  borderTop: '1px solid var(--border-color)',
-                  fontSize: '0.825rem',
-                  color: 'var(--s2t-red)',
-                  fontWeight: 600,
-                }}>
-                  <span>{t('blog_read_more')}</span>
-                  <ArrowRight size={16} style={{ transform: language === 'ar' ? 'rotate(180deg)' : 'none' }} />
+                  <div className="blog-card-footer">
+                    <span>{t('blog_read_more')}</span>
+                    <ArrowRight size={16} className="blog-card-arrow" style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))
+          ) : (
+            <div className="glass-card blog-empty-state">
+              <BookOpen size={44} style={{ color: 'var(--text-muted)', marginBottom: '0.75rem' }} />
+              <h4 style={{ fontSize: '1.1rem', marginBottom: '0.35rem' }}>Aucun article trouvé</h4>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                Essayez d'ajuster votre recherche ou filtre de catégorie.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
       {/* Article Detail Modal */}
       {activeArticle && (
         <div className="modal-overlay" onClick={() => setActiveArticle(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '720px' }}>
-            <div style={{
-              padding: '2rem',
-              background: activeArticle.imageGradient,
-              color: '#fff',
-              position: 'relative',
-            }}>
+          <div
+            className="modal-content blog-modal-box"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className="blog-modal-header"
+              style={{ background: activeArticle.imageGradient }}
+            >
               <button
                 type="button"
+                className="blog-modal-close-btn"
                 onClick={() => setActiveArticle(null)}
-                style={{
-                  position: 'absolute',
-                  top: '1rem',
-                  [language === 'ar' ? 'left' : 'right']: '1rem',
-                  background: 'rgba(0,0,0,0.5)',
-                  border: 'none',
-                  color: '#fff',
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                aria-label="Fermer"
               >
                 <X size={18} />
               </button>
 
-              <span className="badge" style={{ background: 'rgba(0,0,0,0.4)', color: '#fff', marginBottom: '1rem' }}>
+              <span className="blog-card-badge" style={{ marginBottom: '0.85rem' }}>
                 {activeArticle.categoryLabel}
               </span>
-              <h2 style={{ fontSize: '1.6rem', lineHeight: 1.3, marginBottom: '0.75rem' }}>
+              <h2 className="blog-modal-title">
                 {activeArticle.title}
               </h2>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.85rem', opacity: 0.9 }}>
+              <div className="blog-modal-meta">
                 <span>{t('blog_by_author')} {activeArticle.author}</span>
                 <span>•</span>
                 <span>{activeArticle.date}</span>
+                <span>•</span>
+                <span>{activeArticle.readTime}</span>
               </div>
             </div>
 
-            <div style={{ padding: '2rem' }}>
-              <div style={{ whiteSpace: 'pre-line', lineHeight: 1.8, fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+            <div className="blog-modal-body">
+              <div className="blog-modal-content-text">
                 {activeArticle.content}
               </div>
 
-              <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end' }}>
+              <div className="blog-modal-footer">
                 <button
                   type="button"
                   className="btn btn-secondary"
@@ -303,4 +262,3 @@ const Blog = () => {
 };
 
 export default Blog;
-
