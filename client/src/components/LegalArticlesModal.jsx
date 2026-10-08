@@ -17,6 +17,7 @@ import {
   Calendar,
   Layers
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 import { S2T_CONVENTION_ARTICLES } from '../data/s2tArticlesData';
 
 const LegalArticlesModal = ({ 
@@ -25,8 +26,12 @@ const LegalArticlesModal = ({
   onAccept = null, 
   hasAccepted = false,
   contractInfo = null, // Optional { companyName, spaceNumber, surface, ratePerM2, depositAmount, startDate, endDate }
-  title = "Convention d'Hébergement — 16 Articles Réglementaires S2T" 
+  title = null
 }) => {
+  const { t, language } = useLanguage();
+  const isRtl = language === 'ar';
+  const modalTitle = title || t('articles_modal_default_title');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('ALL');
   const [expandedArticleId, setExpandedArticleId] = useState(null);
@@ -70,7 +75,7 @@ const LegalArticlesModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 10000, padding: '1rem' }}>
+    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 10000, padding: '1rem' }} dir={isRtl ? 'rtl' : 'ltr'}>
       <div 
         className="modal-content legal-articles-modal-box"
         onClick={(e) => e.stopPropagation()}
@@ -117,7 +122,7 @@ const LegalArticlesModal = ({
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
-                  {title}
+                  {modalTitle}
                 </h3>
                 <span style={{
                   fontSize: '0.72rem',
@@ -130,11 +135,11 @@ const LegalArticlesModal = ({
                   letterSpacing: '0.02em',
                   textTransform: 'uppercase'
                 }}>
-                  Loi n°2001-50 & 2006-37
+                  {t('articles_law_badge')}
                 </span>
               </div>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0' }}>
-                Smart Tunisian Technoparks (S2T) • Pôle Technologique El Ghazala
+                {t('articles_sub_header')}
               </p>
             </div>
           </div>
@@ -145,17 +150,17 @@ const LegalArticlesModal = ({
               onClick={handlePrint}
               className="btn btn-secondary btn-sm no-print"
               style={{ gap: '0.35rem', fontSize: '0.78rem', borderRadius: '8px' }}
-              title="Imprimer ou enregistrer en PDF"
+              title={t('articles_print_tooltip')}
             >
               <Printer size={14} />
-              <span className="hide-on-mobile">Imprimer</span>
+              <span className="hide-on-mobile">{t('articles_print')}</span>
             </button>
             <button
               type="button"
               onClick={onClose}
               className="btn btn-ghost btn-sm"
               style={{ borderRadius: '8px', padding: '0.4rem' }}
-              title="Fermer"
+              title={t('articles_close')}
             >
               <X size={20} />
             </button>
@@ -178,18 +183,18 @@ const LegalArticlesModal = ({
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Building2 size={16} color="#10B981" />
-              <span>Entreprise : <strong>{contractInfo.companyName || 'Résident'}</strong></span>
+              <span>{t('articles_company_label')} <strong>{contractInfo.companyName || t('articles_resident_default')}</strong></span>
               {contractInfo.spaceNumber && (
-                <span style={{ color: 'var(--text-secondary)' }}>• Local : <strong>{contractInfo.spaceNumber}</strong></span>
+                <span style={{ color: 'var(--text-secondary)' }}>• {t('articles_space_label')} <strong>{contractInfo.spaceNumber}</strong></span>
               )}
               {contractInfo.surface && (
-                <span style={{ color: 'var(--text-secondary)' }}>• Superficie : <strong>{contractInfo.surface} m²</strong></span>
+                <span style={{ color: 'var(--text-secondary)' }}>• {t('articles_surface_label')} <strong>{contractInfo.surface} m²</strong></span>
               )}
             </div>
             {contractInfo.ratePerM2 && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--s2t-blue)', fontWeight: 600 }}>
                 <Scale size={14} />
-                <span>Barème : {contractInfo.ratePerM2} DT HT/m²/an</span>
+                <span>{t('articles_rate_label')} {contractInfo.ratePerM2} DT HT/m²/an</span>
               </div>
             )}
           </div>
@@ -208,19 +213,19 @@ const LegalArticlesModal = ({
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
             {/* Search Input */}
             <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
-              <Search size={15} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <Search size={15} style={{ position: 'absolute', [isRtl ? 'right' : 'left']: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 type="text"
                 className="form-input"
-                placeholder="Rechercher dans les 16 articles (ex: redevance, caution, préavis, résiliation...)"
+                placeholder={t('articles_search_ph')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ paddingLeft: '2rem', height: '36px', fontSize: '0.82rem', borderRadius: '8px' }}
+                style={{ [isRtl ? 'paddingRight' : 'paddingLeft']: '2rem', height: '36px', fontSize: '0.82rem', borderRadius: '8px' }}
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                  style={{ position: 'absolute', [isRtl ? 'left' : 'right']: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
                 >
                   <X size={14} />
                 </button>
@@ -236,7 +241,7 @@ const LegalArticlesModal = ({
               }}
               defaultValue=""
             >
-              <option value="" disabled>Accès direct à un article...</option>
+              <option value="" disabled>{t('articles_quick_jump')}</option>
               {S2T_CONVENTION_ARTICLES.map(art => (
                 <option key={art.id} value={art.id}>
                   {art.number} : {art.title}
@@ -254,8 +259,8 @@ const LegalArticlesModal = ({
             paddingBottom: '2px',
             scrollbarWidth: 'none'
           }}>
-            <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600, marginRight: '0.25rem', whiteSpace: 'nowrap' }}>
-              Articles :
+            <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600, [isRtl ? 'marginLeft' : 'marginRight']: '0.25rem', whiteSpace: 'nowrap' }}>
+              {t('articles_articles_nav')}
             </span>
             {S2T_CONVENTION_ARTICLES.map(art => (
               <button
@@ -307,9 +312,9 @@ const LegalArticlesModal = ({
             <Info size={20} color="var(--s2t-blue)" style={{ flexShrink: 0, marginTop: '2px' }} />
             <div>
               <strong style={{ color: 'var(--text-primary)', display: 'block', marginBottom: '0.2rem' }}>
-                Note Juridique Préalable (Pôle Technologique Smart Tunisian Technoparks) :
+                {t('articles_note_title')}
               </strong>
-              La présente convention d'hébergement régit les rapports contractuels entre le <strong>Pôle S2T</strong> et l'<strong>entreprise hébergée</strong>. Conformément à la Loi n° 2001-50, elle constitue un contrat d'hébergement d'entreprise en pépinière / technoparc et n'est pas assujettie au statut des baux commerciaux de la loi du 25 mai 1977.
+              {t('articles_note_p1')} <strong>{t('articles_note_p2')}</strong> {t('articles_note_p3')} <strong>{t('articles_note_p4')}</strong>{t('articles_note_p5')}
             </div>
           </div>
 
@@ -317,10 +322,10 @@ const LegalArticlesModal = ({
             <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
               <AlertCircle size={36} style={{ margin: '0 auto 0.75rem', opacity: 0.6 }} />
               <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
-                Aucun article ne correspond à votre recherche
+                {t('articles_no_results')}
               </h4>
               <p style={{ fontSize: '0.82rem' }}>
-                Essayez d'autres mots-clés ou réinitialisez le filtre.
+                {t('articles_no_results_sub')}
               </p>
               <button
                 type="button"
@@ -328,7 +333,7 @@ const LegalArticlesModal = ({
                 className="btn btn-secondary btn-sm"
                 style={{ marginTop: '0.75rem' }}
               >
-                Réinitialiser les filtres
+                {t('articles_reset_filter')}
               </button>
             </div>
           ) : (
@@ -405,7 +410,8 @@ const LegalArticlesModal = ({
                     padding: '0.5rem 0.75rem',
                     background: 'var(--bg-tertiary)',
                     borderRadius: 'var(--radius-sm)',
-                    borderLeft: '3px solid var(--s2t-blue)'
+                    borderLeft: isRtl ? 'none' : '3px solid var(--s2t-blue)',
+                    borderRight: isRtl ? '3px solid var(--s2t-blue)' : 'none',
                   }}>
                     💡 {article.summary}
                   </div>
@@ -417,7 +423,8 @@ const LegalArticlesModal = ({
                     color: 'var(--text-primary)',
                     whiteSpace: 'pre-line',
                     marginBottom: '0.85rem',
-                    paddingLeft: '0.25rem'
+                    paddingLeft: isRtl ? 0 : '0.25rem',
+                    paddingRight: isRtl ? '0.25rem' : 0,
                   }}>
                     {article.content}
                   </div>
@@ -434,9 +441,9 @@ const LegalArticlesModal = ({
                     }}>
                       <div style={{ fontWeight: 700, color: '#059669', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <CheckCircle2 size={14} />
-                        <span>Points Clés Juridiques :</span>
+                        <span>{t('articles_key_points')}</span>
                       </div>
-                      <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--text-secondary)' }}>
+                      <ul style={{ margin: 0, paddingLeft: isRtl ? 0 : '1.25rem', paddingRight: isRtl ? '1.25rem' : 0, color: 'var(--text-secondary)' }}>
                         {article.highlights.map((hl, idx) => (
                           <li key={idx} style={{ marginBottom: '0.2rem' }}>{hl}</li>
                         ))}
@@ -463,7 +470,7 @@ const LegalArticlesModal = ({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
             <ShieldCheck size={18} color="#10B981" />
-            <span>Document contractuel officiel approuvé par la Direction Générale S2T.</span>
+            <span>{t('articles_official_doc')}</span>
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
@@ -473,7 +480,7 @@ const LegalArticlesModal = ({
               className="btn btn-secondary"
               style={{ fontSize: '0.85rem', padding: '0.5rem 1rem' }}
             >
-              Fermer
+              {t('articles_close')}
             </button>
 
             {onAccept && (
@@ -494,7 +501,7 @@ const LegalArticlesModal = ({
                 }}
               >
                 <CheckCircle2 size={16} />
-                <span>{hasAccepted ? 'Conditions Validées ✓' : "J'ai lu et j'accepte les 16 Articles"}</span>
+                <span>{hasAccepted ? t('articles_btn_validated') : t('articles_btn_accept')}</span>
               </button>
             )}
           </div>

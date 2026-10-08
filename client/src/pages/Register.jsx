@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import LegalArticlesModal from '../components/LegalArticlesModal';
 import { 
   Building2, 
@@ -23,6 +24,9 @@ import {
 } from 'lucide-react';
 
 const Register = () => {
+  const { t, language } = useLanguage();
+  const isRtl = language === 'ar';
+
   const [accountType, setAccountType] = useState('client'); // 'client' | 'admin'
   const [formData, setFormData] = useState({
     name: '',
@@ -49,27 +53,27 @@ const Register = () => {
     e.preventDefault();
 
     if (!formData.name || !formData.email || !formData.password) {
-      setError('Veuillez remplir tous les champs obligatoires');
+      setError(t('reg_err_required'));
       return;
     }
 
     if (accountType === 'client' && !formData.companyName) {
-      setError('Veuillez indiquer la raison sociale de votre entreprise');
+      setError(t('reg_err_company'));
       return;
     }
 
     if (accountType === 'client' && !acceptedArticles) {
-      setError('Veuillez lire et accepter les 16 articles de la Convention d\'Hébergement S2T pour soumettre votre dossier.');
+      setError(t('reg_err_articles'));
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('Le mot de passe doit comporter au moins 6 caractères');
+      setError(t('reg_err_pwd_length'));
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas');
+      setError(t('reg_err_pwd_match'));
       return;
     }
 
@@ -101,7 +105,7 @@ const Register = () => {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-        'Erreur lors de la création du compte. Veuillez vérifier les informations saisies.'
+        t('reg_err_default')
       );
     } finally {
       setLoading(false);
@@ -113,13 +117,16 @@ const Register = () => {
   // --------------------------------------------------------------------------
   if (submittedCandidate) {
     return (
-      <div style={{
-        minHeight: 'calc(100vh - 120px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '3rem 1rem',
-      }}>
+      <div 
+        dir={isRtl ? 'rtl' : 'ltr'}
+        style={{
+          minHeight: 'calc(100vh - 120px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem 1rem',
+        }}
+      >
         <div className="glass-card" style={{
           width: '100%',
           maxWidth: '620px',
@@ -158,14 +165,14 @@ const Register = () => {
               display: 'inline-block',
               marginBottom: '0.75rem'
             }}>
-              Dossier Transmis • En attente d'approbation
+              {t('reg_success_badge')}
             </span>
 
             <h2 style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 0.5rem', color: 'var(--text-primary)' }}>
-              Demande d'Hébergement Enregistrée !
+              {t('reg_success_title')}
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5 }}>
-              Votre candidature pour l'entreprise <strong style={{ color: 'var(--text-primary)' }}>{submittedCandidate.companyName}</strong> a été transmise à la Direction de Smart Tunisian Technoparks (S2T).
+              {t('reg_success_desc_prefix')} <strong style={{ color: 'var(--text-primary)' }}>{submittedCandidate.companyName}</strong> {t('reg_success_desc_suffix')}
             </p>
           </div>
 
@@ -179,27 +186,27 @@ const Register = () => {
           }}>
             <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--s2t-blue)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.03em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <FileCheck size={16} />
-              <span>Récapitulatif de votre demande</span>
+              <span>{t('reg_recap_title')}</span>
             </h4>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.85rem' }}>
               <div>
-                <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>Raison Sociale</span>
+                <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>{t('reg_recap_company')}</span>
                 <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{submittedCandidate.companyName}</span>
               </div>
 
               <div>
-                <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>Représentant Légal</span>
+                <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>{t('reg_recap_rep')}</span>
                 <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{submittedCandidate.name}</span>
               </div>
 
               <div>
-                <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>Email Professionnel</span>
+                <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>{t('reg_recap_email')}</span>
                 <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{submittedCandidate.email}</span>
               </div>
 
               <div>
-                <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>Activité TIC Éligible</span>
+                <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>{t('reg_recap_activity')}</span>
                 <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{submittedCandidate.activityType}</span>
               </div>
             </div>
@@ -222,9 +229,9 @@ const Register = () => {
             <ShieldCheck size={20} color="var(--s2t-blue)" style={{ flexShrink: 0, marginTop: '2px' }} />
             <div>
               <strong style={{ color: 'var(--text-primary)', display: 'block', marginBottom: '0.25rem' }}>
-                Procédure d'admission (Loi n°2001-50 relative aux Parcs Technologiques) :
+                {t('reg_procedure_title')}
               </strong>
-              Un administrateur de la <strong>Direction Juridique & Financière S2T</strong> vérifie la conformité de votre activité TIC avec le cahier des charges du Pôle El Ghazala. Vous recevrez une notification d'activation dès l'approbation de votre dossier.
+              {t('reg_procedure_desc_1')} <strong>{t('reg_procedure_desc_bold')}</strong> {t('reg_procedure_desc_2')}
             </div>
           </div>
 
@@ -245,7 +252,7 @@ const Register = () => {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <CheckCircle2 size={16} color="#10B981" />
-              <span><strong>Convention d'Hébergement (16 Articles)</strong> consultée et acceptée.</span>
+              <span><strong>{t('reg_convention_accepted_bold')}</strong> {t('reg_convention_accepted_suffix')}</span>
             </div>
             <button
               type="button"
@@ -253,7 +260,7 @@ const Register = () => {
               className="btn btn-ghost btn-sm"
               style={{ fontSize: '0.76rem', color: 'var(--s2t-blue)', padding: '0.2rem 0.5rem', fontWeight: 700 }}
             >
-              Relire les 16 Articles
+              {t('reg_btn_reread_articles')}
             </button>
           </div>
 
@@ -264,8 +271,8 @@ const Register = () => {
               className="btn btn-primary"
               style={{ flex: 1, justifyContent: 'center', gap: '0.5rem', padding: '0.75rem' }}
             >
-              <span>Page de Connexion</span>
-              <ArrowRight size={16} />
+              <span>{t('reg_btn_to_login')}</span>
+              <ArrowRight size={16} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
             </Link>
 
             <Link
@@ -274,7 +281,7 @@ const Register = () => {
               style={{ justifyContent: 'center', gap: '0.4rem', padding: '0.75rem 1.25rem' }}
             >
               <HomeIcon size={16} />
-              <span>Accueil S2T</span>
+              <span>{t('reg_btn_to_home')}</span>
             </Link>
           </div>
 
@@ -282,7 +289,7 @@ const Register = () => {
           <LegalArticlesModal
             isOpen={showArticlesModal}
             onClose={() => setShowArticlesModal(false)}
-            title="Convention d'Hébergement S2T — 16 Articles Réglementaires"
+            title={t('reg_modal_title')}
           />
         </div>
       </div>
@@ -293,13 +300,16 @@ const Register = () => {
   // REGISTRATION FORM SCREEN
   // --------------------------------------------------------------------------
   return (
-    <div style={{
-      minHeight: 'calc(100vh - 120px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '3rem 1rem',
-    }}>
+    <div 
+      dir={isRtl ? 'rtl' : 'ltr'}
+      style={{
+        minHeight: 'calc(100vh - 120px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '3rem 1rem',
+      }}
+    >
       <div className="glass-card" style={{
         width: '100%',
         maxWidth: '580px',
@@ -310,12 +320,12 @@ const Register = () => {
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <img
             src="/s2t-logo.svg"
-            alt="Logo S2T"
+            alt={t('reg_logo_alt')}
             style={{ height: '38px', margin: '0 auto 1rem', display: 'block' }}
           />
-          <h2 style={{ fontSize: '1.6rem', marginBottom: '0.35rem' }}>Demande d'Hébergement S2T</h2>
+          <h2 style={{ fontSize: '1.6rem', marginBottom: '0.35rem' }}>{t('reg_title')}</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-            Rejoignez l'écosystème technologique du Pôle El Ghazala
+            {t('reg_subtitle')}
           </p>
         </div>
 
@@ -350,7 +360,7 @@ const Register = () => {
             }}
           >
             <Building2 size={16} />
-            <span>Entreprise Hébergée</span>
+            <span>{t('reg_tab_client')}</span>
           </button>
 
           <button
@@ -373,7 +383,7 @@ const Register = () => {
             }}
           >
             <ShieldCheck size={16} />
-            <span>Agent S2T (Direction)</span>
+            <span>{t('reg_tab_admin')}</span>
           </button>
         </div>
 
@@ -394,10 +404,10 @@ const Register = () => {
               <Scale size={18} color="var(--s2t-blue)" style={{ flexShrink: 0 }} />
               <div>
                 <strong style={{ fontSize: '0.82rem', color: 'var(--text-primary)', display: 'block' }}>
-                  Convention d'Hébergement Pôle S2T (16 Articles)
+                  {t('reg_convention_banner_title')}
                 </strong>
                 <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                  Régie par la Loi n°2001-50 & 2006-37 • Redevances & Règlement Pépinière
+                  {t('reg_convention_banner_desc')}
                 </span>
               </div>
             </div>
@@ -417,7 +427,7 @@ const Register = () => {
               }}
             >
               <BookOpen size={13} />
-              <span>Lire les 16 Articles</span>
+              <span>{t('reg_btn_read_articles')}</span>
             </button>
           </div>
         )}
@@ -447,22 +457,22 @@ const Register = () => {
             <>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Raison Sociale / Société *</label>
+                  <label className="form-label">{t('reg_label_company')}</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="ex: InnovTech SARL"
+                    placeholder={t('reg_ph_company')}
                     value={formData.companyName}
                     onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Matricule Fiscal</label>
+                  <label className="form-label">{t('reg_label_fiscal_id')}</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="ex: 1234567/A/M/000"
+                    placeholder={t('reg_ph_fiscal_id')}
                     value={formData.fiscalId}
                     onChange={(e) => setFormData({ ...formData, fiscalId: e.target.value })}
                   />
@@ -471,23 +481,23 @@ const Register = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Activité TIC (Loi 2001-50)</label>
+                  <label className="form-label">{t('reg_label_activity')}</label>
                   <select
                     className="form-select"
                     value={formData.activityType}
                     onChange={(e) => setFormData({ ...formData, activityType: e.target.value })}
                   >
-                    <option value="Édition Logiciels & IA">Édition Logiciels & IA</option>
-                    <option value="Télécoms & Réseaux">Télécoms & Réseaux</option>
-                    <option value="Cybersécurité & Cloud">Cybersécurité & Cloud</option>
-                    <option value="IoT & Systèmes Embarqués">IoT & Systèmes Embarqués</option>
-                    <option value="FinTech & Services Numériques">FinTech & Services Numériques</option>
-                    <option value="R&D et Innovation">R&D et Innovation</option>
+                    <option value="Édition Logiciels & IA">{t('reg_act_software')}</option>
+                    <option value="Télécoms & Réseaux">{t('reg_act_telecom')}</option>
+                    <option value="Cybersécurité & Cloud">{t('reg_act_cyber')}</option>
+                    <option value="IoT & Systèmes Embarqués">{t('reg_act_iot')}</option>
+                    <option value="FinTech & Services Numériques">{t('reg_act_fintech')}</option>
+                    <option value="R&D et Innovation">{t('reg_act_rd')}</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Superficie souhaitée (m²)</label>
+                  <label className="form-label">{t('reg_label_surface')}</label>
                   <input
                     type="number"
                     min="15"
@@ -501,26 +511,26 @@ const Register = () => {
             </>
           ) : (
             <div className="form-group">
-              <label className="form-label">Département S2T</label>
+              <label className="form-label">{t('reg_label_dept')}</label>
               <select
                 className="form-select"
                 value={formData.activityType}
                 onChange={(e) => setFormData({ ...formData, activityType: e.target.value })}
               >
-                <option value="Service Affaires Juridiques">Service Affaires Juridiques</option>
-                <option value="Direction Financière & Facturation">Direction Financière & Facturation</option>
-                <option value="Direction Générale S2T">Direction Générale S2T</option>
+                <option value="Service Affaires Juridiques">{t('reg_dept_legal')}</option>
+                <option value="Direction Financière & Facturation">{t('reg_dept_finance')}</option>
+                <option value="Direction Générale S2T">{t('reg_dept_dg')}</option>
               </select>
             </div>
           )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="form-group">
-              <label className="form-label">Nom du Représentant *</label>
+              <label className="form-label">{t('reg_label_rep_name')}</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="ex: Karim Ben Salem"
+                placeholder={t('reg_ph_rep_name')}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -528,11 +538,11 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Téléphone</label>
+              <label className="form-label">{t('reg_label_phone')}</label>
               <input
                 type="tel"
                 className="form-input"
-                placeholder="+216 -- --- ---"
+                placeholder={t('reg_ph_phone')}
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               />
@@ -540,11 +550,11 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Email Professionnel *</label>
+            <label className="form-label">{t('reg_label_email')}</label>
             <input
               type="email"
               className="form-input"
-              placeholder="contact@societe.tn"
+              placeholder={t('reg_ph_email')}
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
@@ -553,11 +563,11 @@ const Register = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="form-group">
-              <label className="form-label">Mot de passe (min. 6 car.) *</label>
+              <label className="form-label">{t('reg_label_password')}</label>
               <input
                 type="password"
                 className="form-input"
-                placeholder="••••••••"
+                placeholder={t('reg_ph_password')}
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
@@ -566,11 +576,11 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Confirmer mot de passe *</label>
+              <label className="form-label">{t('reg_label_confirm_pwd')}</label>
               <input
                 type="password"
                 className="form-input"
-                placeholder="••••••••"
+                placeholder={t('reg_ph_password')}
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 required
@@ -597,7 +607,7 @@ const Register = () => {
                   style={{ marginTop: '3px', accentColor: 'var(--s2t-blue)', width: '16px', height: '16px', cursor: 'pointer', flexShrink: 0 }}
                 />
                 <span>
-                  J'atteste avoir pris connaissance de l'intégralité des <strong>16 articles de la Convention d'Hébergement S2T</strong> et du <strong>Règlement Intérieur</strong>, et j'en accepte les conditions (redevances, caution de 2 mois, destination TIC, obligations légales).{' '}
+                  {t('reg_checkbox_prefix')} <strong>{t('reg_checkbox_articles_bold')}</strong> {t('reg_checkbox_and')} <strong>{t('reg_checkbox_rules_bold')}</strong>{t('reg_checkbox_suffix')}{' '}
                   <button
                     type="button"
                     onClick={(e) => {
@@ -617,7 +627,7 @@ const Register = () => {
                       display: 'inline'
                     }}
                   >
-                    [Consulter les 16 Articles]
+                    {t('reg_checkbox_consult_link')}
                   </button>
                 </span>
               </label>
@@ -630,7 +640,7 @@ const Register = () => {
             style={{ width: '100%', marginTop: '0.5rem', padding: '0.85rem' }}
             disabled={loading}
           >
-            {loading ? 'Traitement du dossier...' : (accountType === 'client' ? 'Soumettre ma Candidature Résident' : 'Créer le Compte Agent S2T')}
+            {loading ? t('reg_btn_loading') : (accountType === 'client' ? t('reg_btn_submit_client') : t('reg_btn_submit_admin'))}
           </button>
         </form>
 
@@ -640,9 +650,9 @@ const Register = () => {
           fontSize: '0.875rem',
           color: 'var(--text-secondary)'
         }}>
-          Vous avez déjà un compte validé ?{' '}
+          {t('reg_already_account')}{' '}
           <Link to="/login" style={{ color: 'var(--s2t-blue)', fontWeight: 600 }}>
-            Se connecter
+            {t('reg_link_login')}
           </Link>
         </p>
 
@@ -652,7 +662,7 @@ const Register = () => {
           onClose={() => setShowArticlesModal(false)}
           onAccept={() => setAcceptedArticles(true)}
           hasAccepted={acceptedArticles}
-          title="Convention d'Hébergement S2T — 16 Articles Réglementaires"
+          title={t('reg_modal_title')}
         />
       </div>
     </div>
