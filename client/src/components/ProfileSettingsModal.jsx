@@ -29,7 +29,6 @@ import {
   Camera,
   Upload,
   Trash2,
-  Calendar,
   Clock,
   Laptop
 } from 'lucide-react';
@@ -46,7 +45,8 @@ const PRESET_AVATARS = [
 const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
   const { user, updateProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { language, setLanguage, languages } = useLanguage();
+  const { language, setLanguage, languages, t } = useLanguage();
+  const isRtl = language === 'ar';
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const fileInputRef = useRef(null);
@@ -162,12 +162,12 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setErrorMessage('Veuillez sélectionner un fichier image valide (JPG, PNG, WEBP).');
+      setErrorMessage(t('prof_msg_err_invalid_img'));
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage('La taille de l\'image ne doit pas dépasser 5 Mo.');
+      setErrorMessage(t('prof_msg_err_img_size'));
       return;
     }
 
@@ -199,7 +199,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
 
         const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
         setFormData((prev) => ({ ...prev, avatar: compressedDataUrl }));
-        setSuccessMessage('Photo chargée ! Cliquez sur "Enregistrer les modifications" pour valider dans la base.');
+        setSuccessMessage(t('prof_msg_photo_uploaded'));
         setTimeout(() => setSuccessMessage(''), 3500);
       };
       img.src = uploadEvent.target.result;
@@ -210,7 +210,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
   const handleRemoveAvatar = () => {
     setFormData((prev) => ({ ...prev, avatar: '' }));
     if (fileInputRef.current) fileInputRef.current.value = '';
-    setSuccessMessage('Photo réinitialisée. Cliquez sur "Enregistrer les modifications" pour valider.');
+    setSuccessMessage(t('prof_msg_photo_removed'));
     setTimeout(() => setSuccessMessage(''), 3000);
   };
 
@@ -221,11 +221,11 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
 
     if (formData.password) {
       if (formData.password.length < 6) {
-        setErrorMessage('Le nouveau mot de passe doit comporter au moins 6 caractères.');
+        setErrorMessage(t('prof_msg_err_pwd_min'));
         return;
       }
       if (formData.password !== formData.confirmPassword) {
-        setErrorMessage('Les nouveaux mots de passe saisis ne correspondent pas.');
+        setErrorMessage(t('prof_msg_err_pwd_match'));
         return;
       }
     }
@@ -255,7 +255,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
       }
 
       const resData = await updateProfile(updateData);
-      setSuccessMessage('Vos modifications et paramètres ont été enregistrés avec succès dans la base de données !');
+      setSuccessMessage(t('prof_msg_success'));
       setFormData(prev => ({ ...prev, currentPassword: '', password: '', confirmPassword: '' }));
       if (resData?.lastPasswordChange) {
         setSecurityMeta(prev => ({
@@ -266,7 +266,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
       }
       setTimeout(() => setSuccessMessage(''), 4500);
     } catch (err) {
-      setErrorMessage(err.response?.data?.message || 'Une erreur est survenue lors de l\'enregistrement des données.');
+      setErrorMessage(err.response?.data?.message || t('prof_msg_error_default'));
     } finally {
       setLoading(false);
     }
@@ -284,9 +284,10 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
   const passStrength = getPasswordStrength();
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return 'Non renseigné';
+    if (!dateStr) return t('prof_audit_not_set');
     try {
-      return new Intl.DateTimeFormat('fr-FR', {
+      const locale = language === 'ar' ? 'ar-TN' : language === 'en' ? 'en-US' : 'fr-FR';
+      return new Intl.DateTimeFormat(locale, {
         day: '2-digit',
         month: 'long',
         year: 'numeric',
@@ -303,6 +304,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
       <form 
         onSubmit={handleProfileSubmit}
         className="profile-modal-container" 
+        dir={isRtl ? 'rtl' : 'ltr'}
         onClick={(e) => e.stopPropagation()}
       >
         {/* 1. Modal Top Header */}
@@ -332,7 +334,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>
-                  {formData.name || user?.name || 'Mon Profil'}
+                  {formData.name || user?.name || t('prof_modal_title')}
                 </h3>
                 <span style={{
                   fontSize: '0.72rem',
@@ -345,11 +347,11 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em'
                 }}>
-                  {user?.role === 'admin' ? 'Admin S2T' : 'Entreprise Hébergée'}
+                  {user?.role === 'admin' ? t('prof_badge_admin') : t('prof_badge_client')}
                 </span>
               </div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                {formData.email || user?.email} — {user?.role === 'admin' ? 'Direction Juridique & Finance S2T' : (formData.companyName || user?.companyName || 'Pôle El Ghazala')}
+                {formData.email || user?.email} — {user?.role === 'admin' ? t('prof_sub_admin') : (formData.companyName || user?.companyName || t('prof_sub_default'))}
               </span>
             </div>
           </div>
@@ -364,7 +366,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               color: 'var(--text-secondary)',
               cursor: 'pointer' 
             }}
-            title="Fermer la fenêtre"
+            title={t('prof_btn_close_title')}
           >
             <X size={20} />
           </button>
@@ -378,7 +380,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
             className={`profile-tab-pill ${activeTab === 'profile' ? 'active' : ''}`}
           >
             <User size={16} />
-            <span>1. Informations Profil</span>
+            <span>{t('prof_tab_info')}</span>
           </button>
 
           <button
@@ -387,7 +389,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
             className={`profile-tab-pill ${activeTab === 'security' ? 'active' : ''}`}
           >
             <Lock size={16} />
-            <span>2. Sécurité & Mot de passe</span>
+            <span>{t('prof_tab_security')}</span>
           </button>
 
           <button
@@ -396,7 +398,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
             className={`profile-tab-pill ${activeTab === 'preferences' ? 'active' : ''}`}
           >
             <Settings size={16} />
-            <span>3. Paramètres & Alertes</span>
+            <span>{t('prof_tab_prefs')}</span>
           </button>
         </div>
 
@@ -448,7 +450,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               <div className="profile-section-card">
                 <div className="profile-section-header">
                   <Camera size={18} color="var(--s2t-red)" />
-                  <span>Photo de Profil & Avatar</span>
+                  <span>{t('prof_sec_avatar')}</span>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
@@ -483,7 +485,8 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                       style={{
                         position: 'absolute',
                         bottom: 0,
-                        right: 0,
+                        right: isRtl ? 'auto' : 0,
+                        left: isRtl ? 0 : 'auto',
                         width: '26px',
                         height: '26px',
                         borderRadius: '50%',
@@ -496,7 +499,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                         cursor: 'pointer',
                         boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
                       }}
-                      title="Changer la photo"
+                      title={t('prof_btn_upload')}
                     >
                       <Camera size={13} />
                     </button>
@@ -521,7 +524,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                         style={{ gap: '0.4rem', fontSize: '0.8rem' }}
                       >
                         <Upload size={14} />
-                        <span>Importer une photo</span>
+                        <span>{t('prof_btn_upload')}</span>
                       </button>
 
                       {formData.avatar && (
@@ -532,12 +535,12 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                           style={{ gap: '0.4rem', color: 'var(--s2t-red)', fontSize: '0.8rem' }}
                         >
                           <Trash2 size={14} />
-                          <span>Supprimer</span>
+                          <span>{t('prof_btn_delete_photo')}</span>
                         </button>
                       )}
                     </div>
                     <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                      Formats acceptés : JPG, PNG, WEBP (Max 5 Mo). Compression automatique.
+                      {t('prof_avatar_hint')}
                     </span>
                   </div>
                 </div>
@@ -545,7 +548,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                 {/* Preset Executive Avatars */}
                 <div style={{ marginTop: '0.25rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
                   <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.5rem' }}>
-                    Ou choisir un avatar officiel S2T :
+                    {t('prof_avatar_presets_label')}
                   </span>
                   <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     {PRESET_AVATARS.map((preset, index) => (
@@ -566,7 +569,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                           transition: 'all 0.2s ease',
                           boxShadow: formData.avatar === preset ? '0 0 8px var(--s2t-red-glow)' : 'none'
                         }}
-                        title={`Choisir l'avatar modèle ${index + 1}`}
+                        title={t('prof_avatar_preset_title').replace('{num}', index + 1)}
                       >
                         <img src={preset} alt={`Avatar ${index + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </button>
@@ -579,38 +582,38 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               <div className="profile-section-card">
                 <div className="profile-section-header">
                   <User size={18} color="var(--s2t-red)" />
-                  <span>Coordonnées Personnelles & Accès</span>
+                  <span>{t('prof_sec_identity')}</span>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">Nom & Prénom *</label>
+                    <label className="form-label">{t('prof_label_fullname')}</label>
                     <div style={{ position: 'relative' }}>
-                      <User size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                      <User size={16} style={{ position: 'absolute', left: isRtl ? 'auto' : '0.9rem', right: isRtl ? '0.9rem' : 'auto', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                       <input
                         type="text"
                         className="form-input"
-                        style={{ paddingLeft: '2.5rem' }}
+                        style={{ paddingLeft: isRtl ? '1rem' : '2.5rem', paddingRight: isRtl ? '2.5rem' : '1rem' }}
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
-                        placeholder="Nom et prénom"
+                        placeholder={t('prof_ph_fullname')}
                       />
                     </div>
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">Email Professionnel *</label>
+                    <label className="form-label">{t('prof_label_email')}</label>
                     <div style={{ position: 'relative' }}>
-                      <Mail size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                      <Mail size={16} style={{ position: 'absolute', left: isRtl ? 'auto' : '0.9rem', right: isRtl ? '0.9rem' : 'auto', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                       <input
                         type="email"
                         className="form-input"
-                        style={{ paddingLeft: '2.5rem' }}
+                        style={{ paddingLeft: isRtl ? '1rem' : '2.5rem', paddingRight: isRtl ? '2.5rem' : '1rem' }}
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
-                        placeholder="nom@entreprise.tn"
+                        placeholder={t('prof_ph_email')}
                       />
                     </div>
                   </div>
@@ -618,22 +621,22 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">Téléphone Direct</label>
+                    <label className="form-label">{t('prof_label_phone')}</label>
                     <div style={{ position: 'relative' }}>
-                      <Phone size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                      <Phone size={16} style={{ position: 'absolute', left: isRtl ? 'auto' : '0.9rem', right: isRtl ? '0.9rem' : 'auto', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                       <input
                         type="tel"
                         className="form-input"
-                        style={{ paddingLeft: '2.5rem' }}
+                        style={{ paddingLeft: isRtl ? '1rem' : '2.5rem', paddingRight: isRtl ? '2.5rem' : '1rem' }}
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="+216 71 --- ---"
+                        placeholder={t('prof_ph_phone')}
                       />
                     </div>
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">Statut Session</label>
+                    <label className="form-label">{t('prof_label_role')}</label>
                     <div style={{
                       padding: '0.75rem 0.9rem',
                       background: 'var(--bg-secondary)',
@@ -648,7 +651,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                       height: '42px'
                     }}>
                       {user?.role === 'admin' ? <ShieldCheck size={16} /> : <Building2 size={16} />}
-                      <span>{user?.role === 'admin' ? 'Admin S2T — Direction Juridique & Finance' : 'Entreprise Hébergée (Client)'}</span>
+                      <span>{user?.role === 'admin' ? t('prof_role_admin_tag') : t('prof_role_client_tag')}</span>
                     </div>
                   </div>
                 </div>
@@ -658,54 +661,54 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               <div className="profile-section-card">
                 <div className="profile-section-header">
                   <Building2 size={18} color="var(--s2t-blue)" />
-                  <span>Informations Entreprise & Statut Hébergement</span>
+                  <span>{t('prof_sec_company')}</span>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">Raison Sociale de l'Entité</label>
+                    <label className="form-label">{t('prof_label_company')}</label>
                     <div style={{ position: 'relative' }}>
-                      <Building2 size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                      <Building2 size={16} style={{ position: 'absolute', left: isRtl ? 'auto' : '0.9rem', right: isRtl ? '0.9rem' : 'auto', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                       <input
                         type="text"
                         className="form-input"
-                        style={{ paddingLeft: '2.5rem' }}
+                        style={{ paddingLeft: isRtl ? '1rem' : '2.5rem', paddingRight: isRtl ? '2.5rem' : '1rem' }}
                         value={formData.companyName}
                         onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                        placeholder="Nom légal de la société"
+                        placeholder={t('prof_ph_company')}
                       />
                     </div>
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">Matricule Fiscal</label>
+                    <label className="form-label">{t('prof_label_fiscal')}</label>
                     <div style={{ position: 'relative' }}>
-                      <FileSpreadsheet size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                      <FileSpreadsheet size={16} style={{ position: 'absolute', left: isRtl ? 'auto' : '0.9rem', right: isRtl ? '0.9rem' : 'auto', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                       <input
                         type="text"
                         className="form-input"
-                        style={{ paddingLeft: '2.5rem' }}
+                        style={{ paddingLeft: isRtl ? '1rem' : '2.5rem', paddingRight: isRtl ? '2.5rem' : '1rem' }}
                         value={formData.fiscalId}
                         onChange={(e) => setFormData({ ...formData, fiscalId: e.target.value })}
-                        placeholder="Ex: 1234567/A/M/000"
+                        placeholder={t('prof_ph_fiscal')}
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Secteur d'Activité TIC Éligible (Loi n°2001-50)</label>
+                  <label className="form-label">{t('prof_label_sector')}</label>
                   <select
                     className="form-select"
                     value={formData.activityType}
                     onChange={(e) => setFormData({ ...formData, activityType: e.target.value })}
                   >
-                    <option value="Édition Logiciels & IA">Édition Logiciels & IA (Intelligence Artificielle)</option>
-                    <option value="Télécoms & Réseaux">Télécommunications, Réseaux & 5G</option>
-                    <option value="Cybersécurité & Cloud">Cybersécurité, Infrastructure & Cloud</option>
-                    <option value="IoT & Systèmes Embarqués">IoT, Systèmes Embarqués & Robotique</option>
-                    <option value="FinTech & Services Numériques">FinTech & Services Numériques Avancés</option>
-                    <option value="Direction Juridique & Financière S2T">Direction Juridique & Financière S2T</option>
+                    <option value="Édition Logiciels & IA">{t('prof_sector_software')}</option>
+                    <option value="Télécoms & Réseaux">{t('prof_sector_telecom')}</option>
+                    <option value="Cybersécurité & Cloud">{t('prof_sector_cyber')}</option>
+                    <option value="IoT & Systèmes Embarqués">{t('prof_sector_iot')}</option>
+                    <option value="FinTech & Services Numériques">{t('prof_sector_fintech')}</option>
+                    <option value="Direction Juridique & Financière S2T">{t('prof_sector_admin')}</option>
                   </select>
                 </div>
               </div>
@@ -718,32 +721,33 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               <div className="profile-section-card">
                 <div className="profile-section-header">
                   <KeyRound size={18} color="var(--s2t-red)" />
-                  <span>Mise à Jour du Mot de Passe</span>
+                  <span>{t('prof_sec_pwd')}</span>
                 </div>
 
                 <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', margin: 0 }}>
-                  Laissez les champs ci-dessous vides si vous ne souhaitez pas modifier votre mot de passe actuel.
+                  {t('prof_pwd_desc')}
                 </p>
 
                 {/* Mot de passe actuel (optionnel si non requis) */}
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Mot de passe actuel (si modification)</label>
+                  <label className="form-label">{t('prof_label_curr_pwd')}</label>
                   <div style={{ position: 'relative' }}>
-                    <Lock size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <Lock size={16} style={{ position: 'absolute', left: isRtl ? 'auto' : '0.9rem', right: isRtl ? '0.9rem' : 'auto', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
                       type={showCurrentPassword ? 'text' : 'password'}
                       className="form-input"
-                      style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+                      style={{ paddingLeft: isRtl ? '2.5rem' : '2.5rem', paddingRight: isRtl ? '2.5rem' : '2.5rem' }}
                       value={formData.currentPassword}
                       onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
-                      placeholder="Votre mot de passe actuel..."
+                      placeholder={t('prof_ph_curr_pwd')}
                     />
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                       style={{
                         position: 'absolute',
-                        right: '0.75rem',
+                        right: isRtl ? 'auto' : '0.75rem',
+                        left: isRtl ? '0.75rem' : 'auto',
                         top: '50%',
                         transform: 'translateY(-50%)',
                         background: 'none',
@@ -751,7 +755,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                         color: 'var(--text-muted)',
                         cursor: 'pointer'
                       }}
-                      title={showCurrentPassword ? 'Masquer' : 'Afficher'}
+                      title={showCurrentPassword ? t('prof_pwd_hide') : t('prof_pwd_show')}
                     >
                       {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -760,16 +764,16 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">Nouveau Mot de Passe (min. 6 car.)</label>
+                    <label className="form-label">{t('prof_label_new_pwd')}</label>
                     <div style={{ position: 'relative' }}>
-                      <Lock size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                      <Lock size={16} style={{ position: 'absolute', left: isRtl ? 'auto' : '0.9rem', right: isRtl ? '0.9rem' : 'auto', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         className="form-input"
-                        style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+                        style={{ paddingLeft: isRtl ? '2.5rem' : '2.5rem', paddingRight: isRtl ? '2.5rem' : '2.5rem' }}
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        placeholder="Nouveau mot de passe..."
+                        placeholder={t('prof_ph_new_pwd')}
                         minLength={6}
                       />
                       <button
@@ -777,7 +781,8 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                         onClick={() => setShowPassword(!showPassword)}
                         style={{
                           position: 'absolute',
-                          right: '0.75rem',
+                          right: isRtl ? 'auto' : '0.75rem',
+                          left: isRtl ? '0.75rem' : 'auto',
                           top: '50%',
                           transform: 'translateY(-50%)',
                           background: 'none',
@@ -785,7 +790,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                           color: 'var(--text-muted)',
                           cursor: 'pointer'
                         }}
-                        title={showPassword ? 'Masquer' : 'Afficher'}
+                        title={showPassword ? t('prof_pwd_hide') : t('prof_pwd_show')}
                       >
                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
@@ -793,23 +798,24 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">Confirmer le Mot de Passe</label>
+                    <label className="form-label">{t('prof_label_confirm_pwd')}</label>
                     <div style={{ position: 'relative' }}>
-                      <Lock size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                      <Lock size={16} style={{ position: 'absolute', left: isRtl ? 'auto' : '0.9rem', right: isRtl ? '0.9rem' : 'auto', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         className="form-input"
-                        style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+                        style={{ paddingLeft: isRtl ? '2.5rem' : '2.5rem', paddingRight: isRtl ? '2.5rem' : '2.5rem' }}
                         value={formData.confirmPassword}
                         onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                        placeholder="Confirmer le mot de passe..."
+                        placeholder={t('prof_ph_confirm_pwd')}
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         style={{
                           position: 'absolute',
-                          right: '0.75rem',
+                          right: isRtl ? 'auto' : '0.75rem',
+                          left: isRtl ? '0.75rem' : 'auto',
                           top: '50%',
                           transform: 'translateY(-50%)',
                           background: 'none',
@@ -817,7 +823,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                           color: 'var(--text-muted)',
                           cursor: 'pointer'
                         }}
-                        title={showConfirmPassword ? 'Masquer' : 'Afficher'}
+                        title={showConfirmPassword ? t('prof_pwd_hide') : t('prof_pwd_show')}
                       >
                         {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
@@ -829,12 +835,12 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                 {formData.password && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                      <span style={{ color: 'var(--text-secondary)' }}>Niveau de robustesse :</span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{t('prof_pwd_strength_label')}</span>
                       <span style={{ 
                         fontWeight: 700, 
                         color: passStrength < 50 ? 'var(--s2t-red)' : passStrength < 80 ? 'orange' : '#10B981' 
                       }}>
-                        {passStrength < 50 ? 'Faible' : passStrength < 80 ? 'Moyen' : 'Robuste & Sécurisé'}
+                        {passStrength < 50 ? t('prof_pwd_weak') : passStrength < 80 ? t('prof_pwd_medium') : t('prof_pwd_strong')}
                       </span>
                     </div>
                     <div style={{ height: '5px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
@@ -853,7 +859,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               <div className="profile-section-card">
                 <div className="profile-section-header">
                   <ShieldCheck size={18} color="var(--s2t-teal)" />
-                  <span>Historique & Audit de Sécurité du Compte</span>
+                  <span>{t('prof_sec_audit')}</span>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
@@ -880,7 +886,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                       <Clock size={18} />
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Dernière modification mot de passe</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{t('prof_audit_last_pwd_change')}</div>
                       <div style={{ fontSize: '0.825rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                         {formatDate(securityMeta.lastPasswordChange)}
                       </div>
@@ -910,7 +916,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                       <Laptop size={18} />
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Dernière connexion active</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{t('prof_audit_last_login')}</div>
                       <div style={{ fontSize: '0.825rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                         {formatDate(securityMeta.lastLogin)}
                       </div>
@@ -923,7 +929,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               <div className="profile-section-card">
                 <div className="profile-section-header">
                   <Shield size={18} color="var(--s2t-teal)" />
-                  <span>Protocole de Sécurité & Session Active</span>
+                  <span>{t('prof_sec_crypto')}</span>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.8rem' }}>
@@ -937,7 +943,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                     gap: '0.5rem'
                   }}>
                     <CheckCircle2 size={16} color="#10B981" />
-                    <span>Authentification JWT chiffrée & protégée</span>
+                    <span>{t('prof_crypto_jwt')}</span>
                   </div>
 
                   <div style={{
@@ -950,7 +956,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                     gap: '0.5rem'
                   }}>
                     <CheckCircle2 size={16} color="#10B981" />
-                    <span>Chiffrement SSL 256-bit pour chaque requête</span>
+                    <span>{t('prof_crypto_ssl')}</span>
                   </div>
                 </div>
               </div>
@@ -964,7 +970,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               <div className="profile-section-card">
                 <div className="profile-section-header">
                   <Sun size={18} color="var(--s2t-red)" />
-                  <span>Thème Visuel de l'Interface</span>
+                  <span>{t('prof_sec_theme')}</span>
                 </div>
 
                 <div className="theme-select-grid">
@@ -985,13 +991,13 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                     }}>
                       <Moon size={20} />
                     </div>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Mode Sombre</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{t('prof_theme_dark')}</div>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                      Optimisé pour le confort visuel & contraste élevé
+                      {t('prof_theme_dark_desc')}
                     </span>
                     {theme === 'dark' && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--s2t-red)', fontSize: '0.75rem', fontWeight: 700 }}>
-                        <Check size={14} /> Actif
+                        <Check size={14} /> {t('prof_theme_active')}
                       </div>
                     )}
                   </button>
@@ -1013,13 +1019,13 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                     }}>
                       <Sun size={20} />
                     </div>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Mode Clair</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{t('prof_theme_light')}</div>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                      Style lumineux avec arrière-plan transparent
+                      {t('prof_theme_light_desc')}
                     </span>
                     {theme === 'light' && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--s2t-red)', fontSize: '0.75rem', fontWeight: 700 }}>
-                        <Check size={14} /> Actif
+                        <Check size={14} /> {t('prof_theme_active')}
                       </div>
                     )}
                   </button>
@@ -1030,7 +1036,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               <div className="profile-section-card">
                 <div className="profile-section-header">
                   <Globe size={18} color="var(--s2t-blue)" />
-                  <span>Langue d'Affichage de la Plateforme</span>
+                  <span>{t('prof_sec_lang')}</span>
                 </div>
 
                 <div className="lang-select-grid">
@@ -1063,7 +1069,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               <div className="profile-section-card">
                 <div className="profile-section-header">
                   <Bell size={18} color="var(--s2t-teal)" />
-                  <span>Notifications & Alertes Réglementaires</span>
+                  <span>{t('prof_sec_notifs')}</span>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -1073,10 +1079,10 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                   >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                       <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                        Alerte d'échéance de redevance locative (Article 6.3)
+                        {t('prof_notif_rent_title')}
                       </span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        Rappel automatique avant le 5 de chaque mois civil
+                        {t('prof_notif_rent_desc')}
                       </span>
                     </div>
                     <div className={`custom-toggle ${notifications.rentAlert ? 'checked' : ''}`}>
@@ -1090,10 +1096,10 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                   >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                       <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                        Suivi des relances automatiques à J+15 et J+30
+                        {t('prof_notif_reminders_title')}
                       </span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        Alerte sur les factures impayées avec décompte des pénalités
+                        {t('prof_notif_reminders_desc')}
                       </span>
                     </div>
                     <div className={`custom-toggle ${notifications.reminders ? 'checked' : ''}`}>
@@ -1107,10 +1113,10 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                   >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                       <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                        Alerte de renouvellement de contrat d'hébergement (Article 2)
+                        {t('prof_notif_renewal_title')}
                       </span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        Notification 30 jours avant le terme du contrat
+                        {t('prof_notif_renewal_desc')}
                       </span>
                     </div>
                     <div className={`custom-toggle ${notifications.renewalAlert ? 'checked' : ''}`}>
@@ -1124,10 +1130,10 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
                   >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                       <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                        Notifications et quittances électroniques par Email
+                        {t('prof_notif_email_title')}
                       </span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        Réception immédiate des accusés de paiement et avenants validés
+                        {t('prof_notif_email_desc')}
                       </span>
                     </div>
                     <div className={`custom-toggle ${notifications.emailNotif ? 'checked' : ''}`}>
@@ -1144,7 +1150,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
         <div className="profile-modal-footer">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--s2t-teal)', fontSize: '0.75rem', fontWeight: 600 }}>
             <ShieldCheck size={16} />
-            <span>Session Active Sécurisée — S2T Technopark</span>
+            <span>{t('prof_footer_session')}</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -1155,7 +1161,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               disabled={loading}
               style={{ padding: '0.55rem 1.25rem' }}
             >
-              Fermer
+              {t('prof_btn_close')}
             </button>
             <button
               type="submit"
@@ -1164,7 +1170,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, initialTab = 'profile' }) => {
               style={{ gap: '0.5rem', padding: '0.55rem 1.35rem' }}
             >
               <Save size={16} />
-              <span>{loading ? 'Enregistrement...' : 'Enregistrer les modifications'}</span>
+              <span>{loading ? t('prof_btn_saving') : t('prof_btn_save')}</span>
             </button>
           </div>
         </div>
