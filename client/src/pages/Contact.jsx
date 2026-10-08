@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   MapPin, 
   Phone, 
@@ -14,12 +15,13 @@ import {
 } from 'lucide-react';
 
 const Contact = () => {
+  const { t, language } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     company: '',
-    subject: 'Demande d\'hébergement & Superficie',
+    subject: "Demande d'hébergement & Superficie",
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
@@ -32,24 +34,24 @@ const Contact = () => {
 
   const faqs = [
     {
-      q: 'Comment candidater pour un espace au Pôle El Ghazala ?',
-      a: 'Toute entreprise exerçant dans le secteur des TIC peut soumettre sa candidature en ligne via le bouton Inscription ou en transmettant son dossier d\'activité au service d\'incubation S2T.',
+      q: t('contact_faq1_q'),
+      a: t('contact_faq1_a'),
     },
     {
-      q: 'Comment s\'applique la tarification de la redevance (Article 6) ?',
-      a: 'La redevance locative annuelle est fixée selon l\'ancienneté en pépinière : 30 DT HTVA/m² pour la 1ère année, 55 DT HTVA/m² pour la 2ème année, et 75 DT HTVA/m² pour la 3ème année et au-delà.',
+      q: t('contact_faq2_q'),
+      a: t('contact_faq2_a'),
     },
     {
-      q: 'Quel est le montant du dépôt de garantie (Article 7) ?',
-      a: 'Le dépôt de garantie (caution) correspond à deux (2) mois de redevance locative TTC, versé sur le compte bancaire de la S2T auprès de l\'Agence Ariana Nord.',
+      q: t('contact_faq3_q'),
+      a: t('contact_faq3_a'),
     },
     {
-      q: 'Comment demander un avenant pour augmenter ou réduire ma superficie ?',
-      a: 'Les entreprises hébergées peuvent soumettre une demande d\'avenant directement depuis leur Espace Client (Dashboard). La demande est traitée par le service juridique et financier pour actualisation du contrat.',
+      q: t('contact_faq4_q'),
+      a: t('contact_faq4_a'),
     },
     {
-      q: 'Quels sont les délais de règlement des factures ?',
-      a: 'Conformément à l\'Article 6.3 du contrat d\'hébergement, les redevances sont payables d\'avance avant le 5 de chaque mois par ordre permanent ou virement bancaire.',
+      q: t('contact_faq5_q'),
+      a: t('contact_faq5_a'),
     },
   ];
 
@@ -64,13 +66,13 @@ const Contact = () => {
       }}>
         <div className="container" style={{ maxWidth: '850px' }}>
           <span className="badge" style={{ background: 'var(--accent-light)', color: 'var(--s2t-teal)', marginBottom: '1.25rem' }}>
-            Service Relations Résidents & Partenaires
+            {t('contact_badge')}
           </span>
           <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', marginBottom: '1.25rem' }}>
-            Contactez la <span className="gradient-text">Direction S2T</span>
+            {t('contact_title')} <span className="gradient-text">{t('contact_title_sub')}</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.6 }}>
-            Une équipe dédiée à votre écoute pour toute demande d'hébergement, renseignement juridique ou suivi de facturation.
+            {t('contact_desc')}
           </p>
         </div>
       </section>
@@ -84,58 +86,58 @@ const Contact = () => {
         }}>
           {/* Left Column: Direct Contact Info */}
           <div>
-            <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>Nos Coordonnées</h2>
+            <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>{t('contact_info_title')}</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: 1.6 }}>
-              Retrouvez nos services administratifs, juridiques et financiers au siège du Pôle El Ghazala.
+              {t('contact_info_desc')}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div className="glass-card" style={{ padding: '1.25rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'var(--primary-light)', color: 'var(--s2t-red)' }}>
+                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'var(--primary-light)', color: 'var(--s2t-red)', flexShrink: 0 }}>
                   <MapPin size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>Adresse Principale</h4>
+                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>{t('contact_addr_title')}</h4>
                   <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                    Pôle Technologique El Ghazala, Route de Raoued Km 3.5, 2088 Ariana, Tunisie
+                    {t('contact_addr_val')}
                   </p>
                 </div>
               </div>
 
               <div className="glass-card" style={{ padding: '1.25rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'var(--secondary-light)', color: 'var(--s2t-blue)' }}>
+                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'var(--secondary-light)', color: 'var(--s2t-blue)', flexShrink: 0 }}>
                   <Phone size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>Téléphone & Fax</h4>
+                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>{t('contact_phone_title')}</h4>
                   <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                    Standard : +216 71 857 000 <br />
-                    Fax : +216 71 856 000
+                    {t('contact_phone_standard')} +216 71 857 000 <br />
+                    {t('contact_phone_fax')} +216 71 856 000
                   </p>
                 </div>
               </div>
 
               <div className="glass-card" style={{ padding: '1.25rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'var(--accent-light)', color: 'var(--s2t-teal)' }}>
+                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'var(--accent-light)', color: 'var(--s2t-teal)', flexShrink: 0 }}>
                   <Mail size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>Emails Dédiés</h4>
+                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>{t('contact_email_title')}</h4>
                   <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                    Facturation : facturation@s2t.tn <br />
-                    Affaires Juridiques : juridique@s2t.tn
+                    {t('contact_email_billing')} facturation@s2t.tn <br />
+                    {t('contact_email_legal')} juridique@s2t.tn
                   </p>
                 </div>
               </div>
 
               <div className="glass-card" style={{ padding: '1.25rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B' }}>
+                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B', flexShrink: 0 }}>
                   <Clock size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>Horaires d'Ouverture</h4>
+                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>{t('contact_hours_title')}</h4>
                   <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                    Du Lundi au Vendredi : 08h00 — 17h00
+                    {t('contact_hours_val')}
                   </p>
                 </div>
               </div>
@@ -144,9 +146,9 @@ const Contact = () => {
 
           {/* Right Column: Contact Form */}
           <div className="glass-card" style={{ padding: '2.5rem' }}>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Envoyez-nous un Message</h3>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{t('contact_form_title')}</h3>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.75rem' }}>
-              Remplissez le formulaire ci-dessous et notre équipe vous répondra sous 24h ouvrées.
+              {t('contact_form_desc')}
             </p>
 
             {submitted ? (
@@ -159,31 +161,31 @@ const Contact = () => {
                 textAlign: 'center',
               }}>
                 <CheckCircle2 size={42} style={{ margin: '0 auto 0.75rem' }} />
-                <h4 style={{ fontSize: '1.2rem', marginBottom: '0.35rem' }}>Message Envoyé avec Succès !</h4>
+                <h4 style={{ fontSize: '1.2rem', marginBottom: '0.35rem' }}>{t('contact_success_title')}</h4>
                 <p style={{ fontSize: '0.875rem' }}>
-                  Votre demande a été transmise aux services compétents de S2T.
+                  {t('contact_success_sub')}
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
-                    <label className="form-label">Nom & Prénom *</label>
+                    <label className="form-label">{t('contact_field_name')}</label>
                     <input
                       type="text"
                       className="form-input"
-                      placeholder="ex: Ahmed Mansour"
+                      placeholder={t('contact_ph_name')}
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Société / Startup</label>
+                    <label className="form-label">{t('contact_field_company')}</label>
                     <input
                       type="text"
                       className="form-input"
-                      placeholder="ex: DigitalTech"
+                      placeholder={t('contact_ph_company')}
                       value={formData.company}
                       onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                     />
@@ -192,22 +194,22 @@ const Contact = () => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
-                    <label className="form-label">Email Professionnel *</label>
+                    <label className="form-label">{t('contact_field_email')}</label>
                     <input
                       type="email"
                       className="form-input"
-                      placeholder="contact@societe.tn"
+                      placeholder={t('contact_ph_email')}
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       required
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Téléphone</label>
+                    <label className="form-label">{t('contact_field_phone')}</label>
                     <input
                       type="tel"
                       className="form-input"
-                      placeholder="+216 -- --- ---"
+                      placeholder={t('contact_ph_phone')}
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     />
@@ -215,25 +217,25 @@ const Contact = () => {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Objet de la Demande</label>
+                  <label className="form-label">{t('contact_field_subject')}</label>
                   <select
                     className="form-select"
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   >
-                    <option value="Demande d'hébergement & Superficie">🏢 Demande d'hébergement & Superficie</option>
-                    <option value="Affaires Juridiques & Contrat">⚖️ Affaires Juridiques & Contrat d'Hébergement</option>
-                    <option value="Facturation & Paiement de Redevance">💰 Facturation & Paiement de Redevance</option>
-                    <option value="Demande d'Avenant / Modification">📝 Demande d'Avenant / Modification de bail</option>
-                    <option value="Autre demande">💬 Autre demande</option>
+                    <option value="Demande d'hébergement & Superficie">{t('contact_opt_hosting')}</option>
+                    <option value="Affaires Juridiques & Contrat">{t('contact_opt_legal')}</option>
+                    <option value="Facturation & Paiement de Redevance">{t('contact_opt_billing')}</option>
+                    <option value="Demande d'Avenant / Modification">{t('contact_opt_amendment')}</option>
+                    <option value="Autre demande">{t('contact_opt_other')}</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Message *</label>
+                  <label className="form-label">{t('contact_field_message')}</label>
                   <textarea
                     className="form-textarea"
-                    placeholder="Précisez votre demande, la superficie souhaitée ou le numéro de contrat concerné..."
+                    placeholder={t('contact_ph_message')}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     required
@@ -245,8 +247,8 @@ const Contact = () => {
                   className="btn btn-primary"
                   style={{ width: '100%', gap: '0.5rem', padding: '0.85rem' }}
                 >
-                  <Send size={16} />
-                  <span>Envoyer la Demande</span>
+                  <Send size={16} style={{ transform: language === 'ar' ? 'rotate(180deg)' : 'none' }} />
+                  <span>{t('contact_btn_send')}</span>
                 </button>
               </form>
             )}
@@ -258,9 +260,9 @@ const Contact = () => {
       <section className="container" style={{ padding: '3rem 1.5rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <span className="badge" style={{ background: 'var(--secondary-light)', color: 'var(--s2t-blue)', marginBottom: '0.75rem' }}>
-            Foire Aux Questions
+            {t('contact_faq_badge')}
           </span>
-          <h2 style={{ fontSize: '2rem' }}>Questions Fréquentes des Entreprises</h2>
+          <h2 style={{ fontSize: '2rem' }}>{t('contact_faq_title')}</h2>
         </div>
 
         <div style={{ maxWidth: '850px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -281,7 +283,7 @@ const Contact = () => {
                   fontSize: '1rem',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  textAlign: 'left',
+                  textAlign: language === 'ar' ? 'right' : 'left',
                 }}
               >
                 <span>{faq.q}</span>
@@ -304,6 +306,7 @@ const Contact = () => {
                   lineHeight: 1.6,
                   borderTop: '1px solid var(--border-color)',
                   paddingTop: '1rem',
+                  textAlign: language === 'ar' ? 'right' : 'left',
                 }}>
                   {faq.a}
                 </div>
@@ -317,3 +320,4 @@ const Contact = () => {
 };
 
 export default Contact;
+
