@@ -117,28 +117,13 @@ const Register = () => {
   // --------------------------------------------------------------------------
   if (submittedCandidate) {
     return (
-      <div 
-        dir={isRtl ? 'rtl' : 'ltr'}
-        style={{
-          minHeight: 'calc(100vh - 120px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '3rem 1rem',
-        }}
-      >
-        <div className="glass-card" style={{
-          width: '100%',
-          maxWidth: '620px',
-          padding: '2.5rem',
-          boxShadow: 'var(--shadow-lg)',
-          animation: 'fadeIn 0.3s ease-out',
-        }}>
+      <div className="auth-page-wrapper">
+        <div className="glass-card auth-card" style={{ maxWidth: '620px' }}>
           {/* Header Icon */}
-          <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+          <div className="auth-header" style={{ marginBottom: '1.5rem' }}>
             <div style={{
-              width: '64px',
-              height: '64px',
+              width: '56px',
+              height: '56px',
               borderRadius: '50%',
               background: 'rgba(245, 158, 11, 0.12)',
               border: '2px solid rgba(245, 158, 11, 0.4)',
@@ -146,10 +131,10 @@ const Register = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 1rem',
+              margin: '0 auto 0.85rem',
               boxShadow: '0 0 20px rgba(245, 158, 11, 0.25)',
             }}>
-              <Clock size={32} />
+              <Clock size={28} />
             </div>
 
             <span style={{
@@ -168,10 +153,10 @@ const Register = () => {
               {t('reg_success_badge')}
             </span>
 
-            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 0.5rem', color: 'var(--text-primary)' }}>
+            <h2 className="auth-title" style={{ margin: '0 0 0.5rem' }}>
               {t('reg_success_title')}
             </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5 }}>
+            <p className="auth-subtitle">
               {t('reg_success_desc_prefix')} <strong style={{ color: 'var(--text-primary)' }}>{submittedCandidate.companyName}</strong> {t('reg_success_desc_suffix')}
             </p>
           </div>
@@ -181,15 +166,15 @@ const Register = () => {
             background: 'var(--bg-secondary)',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--border-color)',
-            padding: '1.25rem',
-            marginBottom: '1.5rem',
+            padding: '1.15rem 1rem',
+            marginBottom: '1.25rem',
           }}>
             <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--s2t-blue)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.03em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <FileCheck size={16} />
               <span>{t('reg_recap_title')}</span>
             </h4>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.85rem' }}>
+            <div className="auth-grid-2" style={{ gap: '0.75rem', fontSize: '0.85rem' }}>
               <div>
                 <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>{t('reg_recap_company')}</span>
                 <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{submittedCandidate.companyName}</span>
@@ -246,7 +231,7 @@ const Register = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: '1.75rem',
+            marginBottom: '1.5rem',
             flexWrap: 'wrap',
             gap: '0.5rem'
           }}>
@@ -269,7 +254,7 @@ const Register = () => {
             <Link
               to="/login"
               className="btn btn-primary"
-              style={{ flex: 1, justifyContent: 'center', gap: '0.5rem', padding: '0.75rem' }}
+              style={{ flex: 1, minWidth: '160px', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem' }}
             >
               <span>{t('reg_btn_to_login')}</span>
               <ArrowRight size={16} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
