@@ -17,6 +17,7 @@ import {
 
 const Login = () => {
   const { t, language } = useLanguage();
+  const isRtl = language === 'ar';
   const [activeTab, setActiveTab] = useState('client'); // 'client' | 'admin'
   const [email, setEmail] = useState('client@s2t.tn');
   const [password, setPassword] = useState('client123456');
@@ -64,61 +65,27 @@ const Login = () => {
   };
 
   return (
-    <div style={{
-      minHeight: 'calc(100vh - 120px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '3rem 1rem',
-    }}>
-      <div className="glass-card" style={{
-        width: '100%',
-        maxWidth: '480px',
-        padding: '2.5rem',
-        boxShadow: 'var(--shadow-lg)',
-      }}>
+    <div className="auth-page-wrapper">
+      <div className="glass-card auth-card">
         {/* Logo & Header */}
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+        <div className="auth-header">
           <img
             src="/s2t-logo.svg"
             alt="Logo S2T"
-            style={{ height: '40px', margin: '0 auto 1rem', display: 'block' }}
+            className="auth-logo"
           />
-          <h2 style={{ fontSize: '1.6rem', marginBottom: '0.35rem' }}>{t('login_title')}</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+          <h2 className="auth-title">{t('login_title')}</h2>
+          <p className="auth-subtitle">
             {t('login_subtitle')}
           </p>
         </div>
 
         {/* Dual Role Selector Tabs */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '0.5rem',
-          background: 'var(--bg-tertiary)',
-          padding: '4px',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '1.75rem',
-          border: '1px solid var(--border-color)',
-        }}>
+        <div className="auth-role-tabs">
           <button
             type="button"
             onClick={() => handleTabSwitch('client')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.4rem',
-              padding: '0.65rem 0.5rem',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              borderRadius: 'var(--radius-sm)',
-              border: 'none',
-              cursor: 'pointer',
-              background: activeTab === 'client' ? 'var(--s2t-blue)' : 'transparent',
-              color: activeTab === 'client' ? '#ffffff' : 'var(--text-secondary)',
-              transition: 'var(--transition)',
-            }}
+            className={`auth-role-btn client ${activeTab === 'client' ? 'active' : ''}`}
           >
             <Building2 size={16} />
             <span>{t('login_tab_client')}</span>
@@ -127,21 +94,7 @@ const Login = () => {
           <button
             type="button"
             onClick={() => handleTabSwitch('admin')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.4rem',
-              padding: '0.65rem 0.5rem',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              borderRadius: 'var(--radius-sm)',
-              border: 'none',
-              cursor: 'pointer',
-              background: activeTab === 'admin' ? 'var(--s2t-red)' : 'transparent',
-              color: activeTab === 'admin' ? '#ffffff' : 'var(--text-secondary)',
-              transition: 'var(--transition)',
-            }}
+            className={`auth-role-btn admin ${activeTab === 'admin' ? 'active' : ''}`}
           >
             <ShieldCheck size={16} />
             <span>{t('login_tab_admin')}</span>
@@ -150,20 +103,7 @@ const Login = () => {
 
         {/* Pending Approval Alert Banner */}
         {error && (error.includes('attente') || error.includes('pending') || error.includes('انتظار')) ? (
-          <div style={{
-            background: 'rgba(245, 158, 11, 0.12)',
-            border: '1px solid rgba(245, 158, 11, 0.35)',
-            color: '#F59E0B',
-            padding: '0.85rem 1rem',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '1.25rem',
-            fontSize: '0.85rem',
-            lineHeight: 1.5,
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '0.6rem',
-            boxShadow: '0 2px 10px rgba(245, 158, 11, 0.1)'
-          }}>
+          <div className="auth-alert-pending">
             <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
             <div>
               <strong style={{ display: 'block', marginBottom: '0.2rem' }}>{t('login_pending_title')}</strong>
@@ -171,18 +111,7 @@ const Login = () => {
             </div>
           </div>
         ) : error ? (
-          <div style={{
-            background: 'rgba(244, 63, 94, 0.12)',
-            border: '1px solid rgba(244, 63, 94, 0.3)',
-            color: 'var(--s2t-red)',
-            padding: '0.75rem 1rem',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '1.25rem',
-            fontSize: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}>
+          <div className="auth-alert-error">
             <AlertCircle size={16} style={{ flexShrink: 0 }} />
             <span>{error}</span>
           </div>
@@ -194,21 +123,11 @@ const Login = () => {
             <label className="form-label">
               {activeTab === 'client' ? t('login_label_email_client') : t('login_label_email_admin')}
             </label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={18} style={{
-                position: 'absolute',
-                [language === 'ar' ? 'right' : 'left']: '1rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'var(--text-muted)'
-              }} />
+            <div className="auth-input-wrapper">
+              <Mail size={18} className="auth-input-icon" />
               <input
                 type="email"
-                className="form-input"
-                style={{
-                  [language === 'ar' ? 'paddingRight' : 'paddingLeft']: '2.75rem',
-                  [language === 'ar' ? 'paddingLeft' : 'paddingRight']: '1rem',
-                }}
+                className="form-input auth-input"
                 placeholder={t('login_ph_email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -219,21 +138,11 @@ const Login = () => {
 
           <div className="form-group">
             <label className="form-label">{t('login_label_password')}</label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={18} style={{
-                position: 'absolute',
-                [language === 'ar' ? 'right' : 'left']: '1rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'var(--text-muted)'
-              }} />
+            <div className="auth-input-wrapper">
+              <Lock size={18} className="auth-input-icon" />
               <input
                 type={showPassword ? 'text' : 'password'}
-                className="form-input"
-                style={{
-                  [language === 'ar' ? 'paddingRight' : 'paddingLeft']: '2.75rem',
-                  [language === 'ar' ? 'paddingLeft' : 'paddingRight']: '2.75rem',
-                }}
+                className="form-input auth-input with-toggle"
                 placeholder={t('login_ph_password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -241,18 +150,9 @@ const Login = () => {
               />
               <button
                 type="button"
+                className="auth-password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  [language === 'ar' ? 'left' : 'right']: '0.75rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-muted)',
-                  cursor: 'pointer',
-                  padding: '0.25rem',
-                }}
+                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -261,8 +161,7 @@ const Login = () => {
 
           <button
             type="submit"
-            className={activeTab === 'client' ? 'btn btn-blue' : 'btn btn-primary'}
-            style={{ width: '100%', marginTop: '0.75rem', padding: '0.85rem' }}
+            className={`btn auth-submit-btn ${activeTab === 'client' ? 'btn-blue' : 'btn-primary'}`}
             disabled={loading}
           >
             {loading 
@@ -272,32 +171,17 @@ const Login = () => {
         </form>
 
         {/* Quick Demo Pre-fill helper */}
-        <div style={{
-          marginTop: '1.5rem',
-          padding: '0.85rem 1rem',
-          borderRadius: 'var(--radius-md)',
-          background: 'var(--bg-tertiary)',
-          border: '1px solid var(--border-color)',
-          fontSize: '0.8rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <span style={{ color: 'var(--text-secondary)' }}>{t('login_demo_label')}</span>
-          <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+        <div className="auth-demo-box">
+          <span className="auth-demo-label">{t('login_demo_label')}</span>
+          <span className="auth-demo-val">
             {activeTab === 'client' ? t('login_demo_client') : t('login_demo_admin')}
           </span>
         </div>
 
         {/* Register link */}
-        <p style={{
-          textAlign: 'center',
-          marginTop: '1.75rem',
-          fontSize: '0.875rem',
-          color: 'var(--text-secondary)'
-        }}>
+        <p className="auth-footer-prompt">
           {t('login_register_prompt')}{' '}
-          <Link to="/register" style={{ color: 'var(--s2t-red)', fontWeight: 600 }}>
+          <Link to="/register" className="auth-footer-link">
             {t('login_register_link')}
           </Link>
         </p>
@@ -307,4 +191,3 @@ const Login = () => {
 };
 
 export default Login;
-

@@ -300,64 +300,27 @@ const Register = () => {
   // REGISTRATION FORM SCREEN
   // --------------------------------------------------------------------------
   return (
-    <div 
-      dir={isRtl ? 'rtl' : 'ltr'}
-      style={{
-        minHeight: 'calc(100vh - 120px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '3rem 1rem',
-      }}
-    >
-      <div className="glass-card" style={{
-        width: '100%',
-        maxWidth: '580px',
-        padding: '2.5rem',
-        boxShadow: 'var(--shadow-lg)',
-      }}>
+    <div className="auth-page-wrapper">
+      <div className="glass-card auth-card" style={{ maxWidth: '580px' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+        <div className="auth-header">
           <img
             src="/s2t-logo.svg"
             alt={t('reg_logo_alt')}
-            style={{ height: '38px', margin: '0 auto 1rem', display: 'block' }}
+            className="auth-logo"
           />
-          <h2 style={{ fontSize: '1.6rem', marginBottom: '0.35rem' }}>{t('reg_title')}</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+          <h2 className="auth-title">{t('reg_title')}</h2>
+          <p className="auth-subtitle">
             {t('reg_subtitle')}
           </p>
         </div>
 
         {/* Account Type Selector */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '0.5rem',
-          background: 'var(--bg-tertiary)',
-          padding: '4px',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '1.75rem',
-          border: '1px solid var(--border-color)',
-        }}>
+        <div className="auth-role-tabs">
           <button
             type="button"
             onClick={() => { setAccountType('client'); setError(''); }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.4rem',
-              padding: '0.65rem 0.5rem',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              borderRadius: 'var(--radius-sm)',
-              border: 'none',
-              cursor: 'pointer',
-              background: accountType === 'client' ? 'var(--s2t-blue)' : 'transparent',
-              color: accountType === 'client' ? '#ffffff' : 'var(--text-secondary)',
-              transition: 'var(--transition)',
-            }}
+            className={`auth-role-btn client ${accountType === 'client' ? 'active' : ''}`}
           >
             <Building2 size={16} />
             <span>{t('reg_tab_client')}</span>
@@ -366,21 +329,7 @@ const Register = () => {
           <button
             type="button"
             onClick={() => { setAccountType('admin'); setError(''); }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.4rem',
-              padding: '0.65rem 0.5rem',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              borderRadius: 'var(--radius-sm)',
-              border: 'none',
-              cursor: 'pointer',
-              background: accountType === 'admin' ? 'var(--s2t-red)' : 'transparent',
-              color: accountType === 'admin' ? '#ffffff' : 'var(--text-secondary)',
-              transition: 'var(--transition)',
-            }}
+            className={`auth-role-btn admin ${accountType === 'admin' ? 'active' : ''}`}
           >
             <ShieldCheck size={16} />
             <span>{t('reg_tab_admin')}</span>
@@ -434,18 +383,7 @@ const Register = () => {
 
         {/* Error Alert */}
         {error && (
-          <div style={{
-            background: 'rgba(244, 63, 94, 0.12)',
-            border: '1px solid rgba(244, 63, 94, 0.3)',
-            color: 'var(--s2t-red)',
-            padding: '0.75rem 1rem',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '1.5rem',
-            fontSize: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}>
+          <div className="auth-alert-error" style={{ marginBottom: '1.5rem' }}>
             <AlertCircle size={16} style={{ flexShrink: 0 }} />
             <span>{error}</span>
           </div>
@@ -455,7 +393,7 @@ const Register = () => {
         <form onSubmit={handleSubmit}>
           {accountType === 'client' ? (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="auth-grid-2">
                 <div className="form-group">
                   <label className="form-label">{t('reg_label_company')}</label>
                   <input
@@ -479,7 +417,7 @@ const Register = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="auth-grid-2">
                 <div className="form-group">
                   <label className="form-label">{t('reg_label_activity')}</label>
                   <select
@@ -524,7 +462,7 @@ const Register = () => {
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="auth-grid-2">
             <div className="form-group">
               <label className="form-label">{t('reg_label_rep_name')}</label>
               <input
@@ -561,7 +499,7 @@ const Register = () => {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="auth-grid-2">
             <div className="form-group">
               <label className="form-label">{t('reg_label_password')}</label>
               <input
@@ -636,20 +574,14 @@ const Register = () => {
 
           <button
             type="submit"
-            className={accountType === 'client' ? 'btn btn-blue' : 'btn btn-primary'}
-            style={{ width: '100%', marginTop: '0.5rem', padding: '0.85rem' }}
+            className={`btn auth-submit-btn ${accountType === 'client' ? 'btn-blue' : 'btn-primary'}`}
             disabled={loading}
           >
             {loading ? t('reg_btn_loading') : (accountType === 'client' ? t('reg_btn_submit_client') : t('reg_btn_submit_admin'))}
           </button>
         </form>
 
-        <p style={{
-          textAlign: 'center',
-          marginTop: '1.75rem',
-          fontSize: '0.875rem',
-          color: 'var(--text-secondary)'
-        }}>
+        <p className="auth-footer-prompt">
           {t('reg_already_account')}{' '}
           <Link to="/login" style={{ color: 'var(--s2t-blue)', fontWeight: 600 }}>
             {t('reg_link_login')}
