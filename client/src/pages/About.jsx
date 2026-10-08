@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   Building2, 
   Target, 
@@ -14,34 +15,66 @@ import {
 } from 'lucide-react';
 
 const About = () => {
+  const { t, language } = useLanguage();
+
   const technoparks = [
-    { name: 'Pôle Technologique El Ghazala', city: 'Ariana / Grand Tunis', focus: 'Télécoms, Logiciels, IA & IoT', size: '65 Hectares' },
-    { name: 'Technopark Manouba (Novation City)', city: 'Manouba', focus: 'Technologies Médicales & TIC', size: '52 Hectares' },
-    { name: 'Technopôle de Sfax', city: 'Sfax', focus: 'Informatique & Multimédia', size: '40 Hectares' },
-    { name: 'Technopôle de Sousse', city: 'Sousse', focus: 'Mécatronique & Électronique Intelligente', size: '56 Hectares' },
-    { name: 'Technoparc de Bizerte', city: 'Bizerte', focus: 'Agro-alimentaire & Énergies Renouvelables', size: '35 Hectares' },
-    { name: 'Technopôle de Médenine', city: 'Médenine', focus: 'Valorisation des Ressources Sahariennes', size: '30 Hectares' },
+    { 
+      name: t('about_park_1_name'), 
+      city: t('about_park_1_city'), 
+      focus: t('about_park_1_focus'), 
+      size: t('about_park_1_size') 
+    },
+    { 
+      name: t('about_park_2_name'), 
+      city: t('about_park_2_city'), 
+      focus: t('about_park_2_focus'), 
+      size: t('about_park_2_size') 
+    },
+    { 
+      name: t('about_park_3_name'), 
+      city: t('about_park_3_city'), 
+      focus: t('about_park_3_focus'), 
+      size: t('about_park_3_size') 
+    },
+    { 
+      name: t('about_park_4_name'), 
+      city: t('about_park_4_city'), 
+      focus: t('about_park_4_focus'), 
+      size: t('about_park_4_size') 
+    },
+    { 
+      name: t('about_park_5_name'), 
+      city: t('about_park_5_city'), 
+      focus: t('about_park_5_focus'), 
+      size: t('about_park_5_size') 
+    },
+    { 
+      name: t('about_park_6_name'), 
+      city: t('about_park_6_city'), 
+      focus: t('about_park_6_focus'), 
+      size: t('about_park_6_size') 
+    },
   ];
 
   const missions = [
     {
-      title: 'Aménagement & Infrastructures Intelligentes',
-      desc: 'Conception et gestion d\'espaces bureautiques modernes, de pépinières et de centres de données adaptés aux exigences des multinationales et startups TIC.',
+      title: t('about_mission_1_title'),
+      desc: t('about_mission_1_desc'),
       icon: Building2,
     },
     {
-      title: 'Incubation & Pépinière d\'Entreprises',
-      desc: 'Accompagnement juridique, technique et financier des porteurs de projets innovants avec des redevances locatives progressives et bonifiées.',
+      title: t('about_mission_2_title'),
+      desc: t('about_mission_2_desc'),
       icon: Target,
     },
     {
-      title: 'Animation de l\'Écosystème & Synergies',
-      desc: 'Création de passerelles directes entre les écoles d\'ingénieurs (Sup\'Com, INSAT, ENSI), les laboratoires de recherche et le tissu industriel.',
+      title: t('about_mission_3_title'),
+      desc: t('about_mission_3_desc'),
       icon: Users,
     },
     {
-      title: 'Cadre Juridique Sécurisé & Réglementaire',
-      desc: 'Application stricte des lois régissant les pôles technologiques (Loi n°2001-50 et Loi n°2006-37) pour garantir la pérennité contractuelle.',
+      title: t('about_mission_4_title'),
+      desc: t('about_mission_4_desc'),
       icon: ShieldCheck,
     },
   ];
@@ -57,13 +90,13 @@ const About = () => {
       }}>
         <div className="container" style={{ maxWidth: '850px' }}>
           <span className="badge" style={{ background: 'var(--secondary-light)', color: 'var(--s2t-blue)', marginBottom: '1.25rem' }}>
-            Histoire & Vision
+            {t('about_badge')}
           </span>
           <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', marginBottom: '1.25rem' }}>
-            À Propos de <span className="gradient-text">Smart Tunisian Technoparks</span>
+            {t('about_title')} <span className="gradient-text">{t('about_title_sub')}</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.6 }}>
-            Pionnier de l'économie du savoir et premier pôle technologique en Tunisie, S2T impulse l'innovation numérique, l'hébergement d'entreprises et la valorisation des compétences technologiques.
+            {t('about_desc')}
           </p>
         </div>
       </section>
@@ -78,30 +111,30 @@ const About = () => {
         }}>
           <div>
             <span style={{ color: 'var(--s2t-red)', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.85rem' }}>
-              Notre Vocation
+              {t('about_vocation_tag')}
             </span>
             <h2 style={{ fontSize: '2.1rem', margin: '0.5rem 0 1.25rem' }}>
-              Un catalyseur d'innovation technologique au cœur du Maghreb
+              {t('about_vocation_title')}
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.7, marginBottom: '1.25rem' }}>
-              Créé dans le cadre de la stratégie nationale de promotion des Technologies de l'Information et de la Communication, <strong>S2T (Smart Tunisian Technoparks)</strong> gère notamment le prestigieux <strong>Pôle Technologique El Ghazala</strong> à l'Ariana.
+              {t('about_vocation_p1')}
             </p>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.7, marginBottom: '1.75rem' }}>
-              S2T offre un environnement d'affaires d'excellence, doté d'infrastructures de télécommunication de pointe, d'un guichet unique administratif, juridique et financier pour accompagner les entreprises de l'incubation jusqu'au rayonnement international.
+              {t('about_vocation_p2')}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <CheckCircle2 size={18} color="var(--s2t-teal)" />
-                <span style={{ fontSize: '0.925rem' }}>Conformité réglementaire aux lois n°2001-50 et n°2006-37</span>
+                <CheckCircle2 size={18} color="var(--s2t-teal)" style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: '0.925rem' }}>{t('about_bullet_1')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <CheckCircle2 size={18} color="var(--s2t-teal)" />
-                <span style={{ fontSize: '0.925rem' }}>Partenariat étroit avec le Ministère des Technologies de la Communication</span>
+                <CheckCircle2 size={18} color="var(--s2t-teal)" style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: '0.925rem' }}>{t('about_bullet_2')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <CheckCircle2 size={18} color="var(--s2t-teal)" />
-                <span style={{ fontSize: '0.925rem' }}>Gestion transparente des baux d'hébergement & des redevances</span>
+                <CheckCircle2 size={18} color="var(--s2t-teal)" style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: '0.925rem' }}>{t('about_bullet_3')}</span>
               </div>
             </div>
           </div>
@@ -117,31 +150,32 @@ const About = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: 'var(--s2t-red)',
+                flexShrink: 0,
               }}>
                 <Award size={24} />
               </div>
               <div>
-                <h3 style={{ fontSize: '1.25rem' }}>Chiffres Clés S2T</h3>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Impact National & International</span>
+                <h3 style={{ fontSize: '1.25rem' }}>{t('about_stats_card_title')}</h3>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t('about_stats_card_sub')}</span>
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
               <div style={{ background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
                 <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--s2t-red)' }}>65 Ha</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Superficie globale aménagée</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t('about_stat_1_label')}</div>
               </div>
               <div style={{ background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
                 <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--s2t-blue)' }}>250+</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Sociétés résidentes</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t('about_stat_2_label')}</div>
               </div>
               <div style={{ background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
                 <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--s2t-teal)' }}>98%</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Diplômés de l'enseignement supérieur</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t('about_stat_3_label')}</div>
               </div>
               <div style={{ background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
                 <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#8B5CF6' }}>1999</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Année de création du pôle</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t('about_stat_4_label')}</div>
               </div>
             </div>
           </div>
@@ -151,9 +185,9 @@ const About = () => {
       {/* Missions Grid */}
       <section className="container" style={{ padding: '3rem 1.5rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Nos Missions Stratégiques</h2>
+          <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{t('about_missions_title')}</h2>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto' }}>
-            Des engagements forts pour dynamiser l'économie numérique tunisienne.
+            {t('about_missions_desc')}
           </p>
         </div>
 
@@ -176,6 +210,7 @@ const About = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginBottom: '1.25rem',
+                  flexShrink: 0,
                 }}>
                   <Icon size={24} />
                 </div>
@@ -192,9 +227,9 @@ const About = () => {
       {/* Technopark Network in Tunisia */}
       <section className="container" style={{ padding: '3rem 1.5rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Le Réseau National des Technoparcs</h2>
+          <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{t('about_parks_title')}</h2>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '650px', margin: '0 auto' }}>
-            Un maillage territorial intelligent connecté pour favoriser l'émergence de champions technologiques.
+            {t('about_parks_desc')}
           </p>
         </div>
 
@@ -210,6 +245,7 @@ const About = () => {
                 borderRadius: '10px',
                 background: 'var(--secondary-light)',
                 color: 'var(--s2t-blue)',
+                flexShrink: 0,
               }}>
                 <MapPin size={20} />
               </div>
@@ -219,7 +255,7 @@ const About = () => {
                   {p.city} • {p.size}
                 </div>
                 <div style={{ fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
-                  Spécialisation : {p.focus}
+                  {t('about_park_specialization')} {p.focus}
                 </div>
               </div>
             </div>
@@ -231,3 +267,4 @@ const About = () => {
 };
 
 export default About;
+
