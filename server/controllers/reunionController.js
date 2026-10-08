@@ -1,5 +1,6 @@
 import Reunion from '../models/Reunion.js';
 import User from '../models/User.js';
+import Email from '../models/Email.js';
 import { createNotification } from '../services/notificationService.js';
 
 // Official S2T Rooms Definition
@@ -695,3 +696,97 @@ export const getReunionStats = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors du calcul des statistiques de réunions' });
   }
 };
+
+/**
+ * @desc    Send meeting minutes / summary by email & notification to participants
+ * @route   POST /api/reunions/:id/send-minutes or POST /api/reunions/send-minutes
+ * @access  Private
+ */
+export const sendMeetingMinutes = async (req, res) => {
+  try {
+    const user = req.user;
+    const { id } = req.params;
+    const { title, room, notes, recipients, customSubject } = req.body;
+
+    let meeting = null;
+    if (id && id.match(/^[0-9a-fA-F]{24}$/)) {
+      meeting = await Reunion.findById(id);
+      if (meeting) {
+        meeting.notes = notes || meeting.notes;
+        meeting.status = 'termine';
+        await meeting.save();
+      }
+    }
+
+    const meetingTitle = meeting?.title || title || 'Visioconférence S2T';
+    const roomName = meeting?.room || room || 'Salle Virtuelle S2T';
+    const subject = customSubject || `📋 Compte-Rendu de Réunion : ${meetingTitle}`;
+    const emailBody = `Bonjour,\n\nVeuillez trouver ci-joint le compte-rendu officiel et la synthèse des décisions prises lors de la réunion :\n\n📌 Titre : ${meetingTitle}\n🏢 Salle : ${roomName}\n📅 Date : ${new Date().toLocaleDateString('fr-FR')}\n👤 Rédigé par : ${user.name} (${user.companyName || 'Direction S2T'})\n\n---\n### 📝 Notes & Synthèse de la Session :\n\n${notes || 'Aucune note spécifique saisie.'}\n\n---\nDirection Smart Tunisian Technoparks (S2T)\nPôle Technologique El Ghazala\nhttps://www.s2t.tn`;
+
+    // Determine recipients list
+    let targetUsers = [];
+    if (Array.isArray(recipients) && recipients.length > 0) {
+      targetUsers = await User.find({
+        $or: [
+          { email: { $in: recipients } },
+          { _id: { $in: recipients.filter(r => r.match(/^[0-9a-fA-F]{24}$/)) } },
+        ],
+      });
+    } else {
+      // Default to meeting organizer and current user, plus admins if user is client
+      const defaultEmails = [user.email];
+      if (meeting?.organizerEmail) defaultEmails.push(meeting.organizerEmail);
+      targetUsers = await User.find({ email: { $in: defaultEmails } });
+    }
+
+    // Ensure current user is included if list is empty
+    if (targetUsers.length === 0) {
+      targetUsers = [user];
+    }
+
+    // Create Email records in database
+    const createdEmails = [];
+    for (const recipientUser of targetUsers) {
+      const newEmail = await Email.create({
+        sender: user._id,
+        senderName: user.name,
+        senderEmail: user.email,
+        senderRole: user.role,
+        recipient: recipientUser._id,
+        recipientName: recipientUser.name,
+        recipientEmail: recipientUser.email,
+        subject,
+        body: emailBody,
+        category: 'reservation',
+        tag: 'Réunion',
+        tagColor: '#06B6D4',
+      });
+      createdEmails.push(newEmail);
+
+      // Create notification
+      await createNotification({
+        recipient: recipientUser._id,
+        recipientEmail: recipientUser.email,
+        recipientRole: recipientUser.role,
+        title: '📋 Nouveau Compte-Rendu de Réunion',
+        description: `Le compte-rendu pour "${meetingTitle}" (${roomName}) vous a été transmis par ${user.name}.`,
+        type: 'reunion',
+        category: 'Réservation',
+        severity: 'info',
+        actionText: 'Consulter dans la boîte mail',
+        actionLink: '/email',
+        metadata: { reunionId: meeting?._id, emailId: newEmail._id },
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Compte-rendu envoyé avec succès à ${targetUsers.length} destinataire(s)`,
+      emailsCount: createdEmails.length,
+    });
+  } catch (error) {
+    console.error('Erreur sendMeetingMinutes:', error);
+    res.status(500).json({ message: 'Erreur lors de l\'envoi du compte-rendu par email' });
+  }
+};
+

@@ -109,6 +109,7 @@ export const reunionAPI = {
   update: (id, data) => api.put(`/reunions/${id}`, data),
   updateStatus: (id, status, cancellationReason) => api.patch(`/reunions/${id}/status`, { status, cancellationReason }),
   delete: (id) => api.delete(`/reunions/${id}`),
+  sendMinutes: (id, data) => api.post(id ? `/reunions/${id}/send-minutes` : '/reunions/send-minutes', data),
 };
 
 // Health Check

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { reunionAPI } from '../services/api';
 import { getSocket } from '../services/socket';
@@ -80,6 +81,7 @@ const SUGGESTED_SLOTS = [
 ];
 
 const ReunionsPage = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const isClient = user?.role === 'client';
@@ -390,6 +392,20 @@ const ReunionsPage = () => {
             <span>Actualiser</span>
           </button>
 
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            style={{ borderColor: 'var(--s2t-cyan)', color: 'var(--s2t-cyan)', gap: '0.4rem' }}
+            onClick={() => {
+              const instantId = `instant-${Date.now().toString(36)}`;
+              navigate(`/meeting/${instantId}`, { state: { meetingTitle: 'Visio Instantanée S2T' } });
+            }}
+            title="Démarrer une visioconférence 4K instantanée"
+          >
+            <Video size={15} />
+            <span>Visio Instantanée</span>
+          </button>
+
           <button 
             type="button" 
             onClick={() => {
@@ -664,17 +680,25 @@ const ReunionsPage = () => {
                       </div>
 
                       <div className="meeting-card-quick-actions">
-                        {meet.isVisio && isConfirmed && meet.visioLink && (
-                          <a
-                            href={meet.visioLink}
-                            target="_blank"
-                            rel="noreferrer"
+                        {meet.isVisio && isConfirmed && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const targetRoomId = meet.id || meet._id;
+                              navigate(`/meeting/${targetRoomId}`, {
+                                state: {
+                                  meetingTitle: meet.title,
+                                  meetingRoom: meet.room,
+                                  meetingDate: meet.formattedDate || meet.date,
+                                }
+                              });
+                            }}
                             className="btn btn-primary btn-sm join-visio-btn"
                             title="Rejoindre la visioconférence sécurisée S2T"
                           >
                             <Video size={14} />
-                            <span>Visio</span>
-                          </a>
+                            <span>Rejoindre Visio</span>
+                          </button>
                         )}
 
                         {meet.isOwner && !isCancelled && !isRejected && (

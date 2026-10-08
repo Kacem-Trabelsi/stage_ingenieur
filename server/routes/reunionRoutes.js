@@ -9,6 +9,7 @@ import {
   getRooms,
   getReunionStats,
   getBookedSlots,
+  sendMeetingMinutes,
 } from '../controllers/reunionController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -20,6 +21,7 @@ router.use(protect);
 router.get('/rooms', getRooms);
 router.get('/stats', getReunionStats);
 router.get('/booked-slots', getBookedSlots);
+router.post('/send-minutes', sendMeetingMinutes);
 
 router.route('/')
   .get(getReunions)
@@ -31,5 +33,6 @@ router.route('/:id')
   .delete(deleteReunion);
 
 router.patch('/:id/status', updateReunionStatus);
+router.post('/:id/send-minutes', sendMeetingMinutes);
 
 export default router;

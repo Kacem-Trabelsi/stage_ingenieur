@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
@@ -18,17 +18,20 @@ import EmailPage from './pages/EmailPage';
 import NotificationsPage from './pages/NotificationsPage';
 import ChatPage from './pages/ChatPage';
 import ReunionsPage from './pages/ReunionsPage';
+import MeetingRoomPage from './pages/MeetingRoomPage';
 import NotFound from './pages/NotFound';
 
 function MainLayout() {
   const { t } = useLanguage();
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const isMeetingPage = location.pathname.startsWith('/meeting');
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
+      {!isMeetingPage && <Navbar />}
       
-      <main style={{ flex: 1 }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Routes>
           {/* Public Home: if user is authenticated in a session, redirect straight to dashboard */}
           <Route
@@ -89,19 +92,30 @@ function MainLayout() {
             <Route path="/reunions" element={<ReunionsPage />} />
           </Route>
 
+          {/* Dedicated Fullscreen Online Meeting Room */}
+          <Route
+            path="/meeting/:id"
+            element={
+              <ProtectedRoute>
+                <MeetingRoomPage />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 
-      {/* S2T Footer (Clean minimal footer in session, full footer in public) */}
-      <footer style={{
-        borderTop: '1px solid var(--border-color)',
-        padding: isAuthenticated ? '1.25rem 0' : '3.5rem 0 2rem',
-        background: 'var(--bg-secondary)',
-        color: 'var(--text-secondary)',
-        fontSize: '0.85rem',
-        marginTop: 'auto',
-      }}>
+      {/* S2T Footer (Clean minimal footer in session, full footer in public, hidden in meeting room) */}
+      {!isMeetingPage && (
+        <footer style={{
+          borderTop: '1px solid var(--border-color)',
+          padding: isAuthenticated ? '1.25rem 0' : '3.5rem 0 2rem',
+          background: 'var(--bg-secondary)',
+          color: 'var(--text-secondary)',
+          fontSize: '0.85rem',
+          marginTop: 'auto',
+        }}>
         {!isAuthenticated ? (
           <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2.5rem', marginBottom: '2.5rem' }}>
             {/* Col 1: S2T Info */}
@@ -166,6 +180,7 @@ function MainLayout() {
           </div>
         </div>
       </footer>
+      )}
     </div>
   );
 }
