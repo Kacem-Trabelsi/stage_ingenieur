@@ -843,6 +843,14 @@ button, input, select, textarea {
   color: #fb7185;
 }
 
+[dir="rtl"] .user-popover-item {
+  text-align: right;
+}
+
+[dir="rtl"] .user-popover-item:hover {
+  transform: translateX(-2px);
+}
+
 .user-popover-divider {
   height: 1px;
   background: var(--border-color);

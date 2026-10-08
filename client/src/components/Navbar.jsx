@@ -139,14 +139,14 @@ const Navbar = () => {
               <>
                 <ShieldCheck size={16} color="var(--s2t-red)" style={{ flexShrink: 0 }} />
                 <span className="navbar-session-text">
-                  {language === 'ar' ? 'فضاء الإدارة المالية والقانونية S2T' : 'Session Administration — Juridique & Finance S2T'}
+                  {t('nav_session_admin')}
                 </span>
               </>
             ) : (
               <>
                 <Building2 size={16} color="var(--s2t-blue)" style={{ flexShrink: 0 }} />
                 <span className="navbar-session-text">
-                  {language === 'ar' ? `فضاء المؤسسة المقيمة — ${user?.companyName || user?.name}` : `Espace Entreprise Hébergée — ${user?.companyName || user?.name}`}
+                  {t('nav_session_client').replace('{name}', user?.companyName || user?.name || '')}
                 </span>
               </>
             )}
@@ -260,7 +260,7 @@ const Navbar = () => {
             onClick={toggleTheme}
             className="theme-switch-btn"
             aria-label="Changer de thème"
-            title={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
+            title={theme === 'dark' ? (language === 'ar' ? 'التبديل إلى الوضع الفاتح' : language === 'en' ? 'Switch to light mode' : 'Passer en mode clair') : (language === 'ar' ? 'التبديل إلى الوضع الداكن' : language === 'en' ? 'Switch to dark mode' : 'Passer en mode sombre')}
           >
             {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
           </button>
@@ -277,7 +277,7 @@ const Navbar = () => {
                   style={{
                     borderLeft: user?.role === 'admin' ? '3px solid var(--s2t-red)' : '3px solid var(--s2t-blue)',
                   }}
-                  title="Mon compte et paramètres"
+                  title={t('nav_account_tooltip')}
                 >
                   <div className="nav-user-avatar" style={{ background: user?.role === 'admin' ? 'var(--s2t-red)' : 'var(--s2t-blue)' }}>
                     {user?.avatar ? (
@@ -302,7 +302,7 @@ const Navbar = () => {
 
                 {/* Floating User Popover Dropdown */}
                 {userMenuOpen && (
-                  <div className="user-popover-dropdown">
+                  <div className="user-popover-dropdown" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                     {/* User Identity Header */}
                     <div className="user-popover-header">
                       <div style={{
@@ -342,7 +342,7 @@ const Navbar = () => {
                           color: user?.role === 'admin' ? 'var(--s2t-red)' : 'var(--s2t-blue)',
                           fontWeight: 600
                         }}>
-                          {user?.role === 'admin' ? 'Admin S2T Juridique & Finance' : (user?.companyName || 'Entreprise Hébergée')}
+                          {user?.role === 'admin' ? t('nav_role_admin_sub') : (user?.companyName || t('nav_role_client_sub'))}
                         </div>
                         <div style={{
                           fontSize: '0.7rem',
@@ -363,7 +363,7 @@ const Navbar = () => {
                       onClick={() => openProfileTab('profile')}
                     >
                       <User size={16} color="var(--s2t-red)" />
-                      <span>Mon Profil</span>
+                      <span>{t('nav_profile')}</span>
                     </button>
 
                     {/* 2. Bouton Settings / Paramètres */}
@@ -373,7 +373,7 @@ const Navbar = () => {
                       onClick={() => openProfileTab('preferences')}
                     >
                       <Settings size={16} color="var(--s2t-teal)" />
-                      <span>Paramètres & Sécurité</span>
+                      <span>{t('nav_settings')}</span>
                     </button>
 
                     <div className="user-popover-divider" />
@@ -385,7 +385,7 @@ const Navbar = () => {
                       onClick={handleLogout}
                     >
                       <LogOut size={16} />
-                      <span>Déconnexion</span>
+                      <span>{t('nav_logout')}</span>
                     </button>
                   </div>
                 )}
