@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   Building2, 
   ShieldCheck, 
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 
 const Login = () => {
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState('client'); // 'client' | 'admin'
   const [email, setEmail] = useState('client@s2t.tn');
   const [password, setPassword] = useState('client123456');
@@ -41,7 +43,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('Veuillez renseigner votre email et mot de passe');
+      setError(t('login_error_empty'));
       return;
     }
 
@@ -54,7 +56,7 @@ const Login = () => {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-        'Identifiants incorrects ou serveur indisponible.'
+        t('login_error_invalid')
       );
     } finally {
       setLoading(false);
@@ -82,9 +84,9 @@ const Login = () => {
             alt="Logo S2T"
             style={{ height: '40px', margin: '0 auto 1rem', display: 'block' }}
           />
-          <h2 style={{ fontSize: '1.6rem', marginBottom: '0.35rem' }}>Portail Sécurisé S2T</h2>
+          <h2 style={{ fontSize: '1.6rem', marginBottom: '0.35rem' }}>{t('login_title')}</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-            Accédez à vos services de gestion de contrats & de facturation
+            {t('login_subtitle')}
           </p>
         </div>
 
@@ -119,7 +121,7 @@ const Login = () => {
             }}
           >
             <Building2 size={16} />
-            <span>Entreprise Hébergée</span>
+            <span>{t('login_tab_client')}</span>
           </button>
 
           <button
@@ -142,12 +144,12 @@ const Login = () => {
             }}
           >
             <ShieldCheck size={16} />
-            <span>Admin (Juridique/Finance)</span>
+            <span>{t('login_tab_admin')}</span>
           </button>
         </div>
 
         {/* Pending Approval Alert Banner */}
-        {error && error.includes('attente d\'approbation') ? (
+        {error && (error.includes('attente') || error.includes('pending') || error.includes('انتظار')) ? (
           <div style={{
             background: 'rgba(245, 158, 11, 0.12)',
             border: '1px solid rgba(245, 158, 11, 0.35)',
@@ -164,7 +166,7 @@ const Login = () => {
           }}>
             <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
             <div>
-              <strong style={{ display: 'block', marginBottom: '0.2rem' }}>Compte en attente d'approbation</strong>
+              <strong style={{ display: 'block', marginBottom: '0.2rem' }}>{t('login_pending_title')}</strong>
               <span>{error}</span>
             </div>
           </div>
@@ -190,12 +192,12 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">
-              {activeTab === 'client' ? 'Email de l\'entreprise hébergée' : 'Email administrateur S2T'}
+              {activeTab === 'client' ? t('login_label_email_client') : t('login_label_email_admin')}
             </label>
             <div style={{ position: 'relative' }}>
               <Mail size={18} style={{
                 position: 'absolute',
-                left: '1rem',
+                [language === 'ar' ? 'right' : 'left']: '1rem',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 color: 'var(--text-muted)'
@@ -203,8 +205,11 @@ const Login = () => {
               <input
                 type="email"
                 className="form-input"
-                style={{ paddingLeft: '2.75rem' }}
-                placeholder="votre.email@s2t.tn"
+                style={{
+                  [language === 'ar' ? 'paddingRight' : 'paddingLeft']: '2.75rem',
+                  [language === 'ar' ? 'paddingLeft' : 'paddingRight']: '1rem',
+                }}
+                placeholder={t('login_ph_email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -213,11 +218,11 @@ const Login = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Mot de passe</label>
+            <label className="form-label">{t('login_label_password')}</label>
             <div style={{ position: 'relative' }}>
               <Lock size={18} style={{
                 position: 'absolute',
-                left: '1rem',
+                [language === 'ar' ? 'right' : 'left']: '1rem',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 color: 'var(--text-muted)'
@@ -225,8 +230,11 @@ const Login = () => {
               <input
                 type={showPassword ? 'text' : 'password'}
                 className="form-input"
-                style={{ paddingLeft: '2.75rem', paddingRight: '2.75rem' }}
-                placeholder="••••••••"
+                style={{
+                  [language === 'ar' ? 'paddingRight' : 'paddingLeft']: '2.75rem',
+                  [language === 'ar' ? 'paddingLeft' : 'paddingRight']: '2.75rem',
+                }}
+                placeholder={t('login_ph_password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -236,7 +244,7 @@ const Login = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 style={{
                   position: 'absolute',
-                  right: '0.75rem',
+                  [language === 'ar' ? 'left' : 'right']: '0.75rem',
                   top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'none',
@@ -257,7 +265,9 @@ const Login = () => {
             style={{ width: '100%', marginTop: '0.75rem', padding: '0.85rem' }}
             disabled={loading}
           >
-            {loading ? 'Authentification...' : `Se connecter (${activeTab === 'client' ? 'Espace Résident' : 'Espace S2T'})`}
+            {loading 
+              ? t('login_btn_loading') 
+              : (activeTab === 'client' ? t('login_btn_submit_client') : t('login_btn_submit_admin'))}
           </button>
         </form>
 
@@ -273,9 +283,9 @@ const Login = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <span style={{ color: 'var(--text-secondary)' }}>Compte Démo Actif :</span>
+          <span style={{ color: 'var(--text-secondary)' }}>{t('login_demo_label')}</span>
           <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-            {activeTab === 'client' ? 'InnovTech (client@s2t.tn)' : 'Direction (admin@s2t.tn)'}
+            {activeTab === 'client' ? t('login_demo_client') : t('login_demo_admin')}
           </span>
         </div>
 
@@ -286,9 +296,9 @@ const Login = () => {
           fontSize: '0.875rem',
           color: 'var(--text-secondary)'
         }}>
-          Nouvelle entreprise ?{' '}
+          {t('login_register_prompt')}{' '}
           <Link to="/register" style={{ color: 'var(--s2t-red)', fontWeight: 600 }}>
-            Déposer une demande d'hébergement
+            {t('login_register_link')}
           </Link>
         </p>
       </div>
@@ -297,3 +307,4 @@ const Login = () => {
 };
 
 export default Login;
+
