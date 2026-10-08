@@ -18,7 +18,7 @@ import {
   Layers
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import { S2T_CONVENTION_ARTICLES } from '../data/s2tArticlesData';
+import { getS2TArticles } from '../data/s2tArticlesData';
 
 const LegalArticlesModal = ({ 
   isOpen, 
@@ -30,7 +30,14 @@ const LegalArticlesModal = ({
 }) => {
   const { t, language } = useLanguage();
   const isRtl = language === 'ar';
-  const modalTitle = title || t('articles_modal_default_title');
+
+  const articlesList = useMemo(() => {
+    return getS2TArticles(language);
+  }, [language]);
+
+  const modalTitle = title || (contractInfo?.companyName 
+    ? t('articles_modal_title_company').replace('{company}', contractInfo.companyName) 
+    : t('articles_modal_default_title'));
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('ALL');
@@ -39,26 +46,29 @@ const LegalArticlesModal = ({
   // Extract all unique tags
   const allTags = useMemo(() => {
     const tags = new Set();
-    S2T_CONVENTION_ARTICLES.forEach(a => {
+    articlesList.forEach(a => {
       if (a.tag) tags.add(a.tag);
     });
     return ['ALL', ...Array.from(tags)];
-  }, []);
+  }, [articlesList]);
 
   // Filtered articles
   const filteredArticles = useMemo(() => {
-    return S2T_CONVENTION_ARTICLES.filter(art => {
-      const matchSearch = searchTerm === '' || 
-        art.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        art.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        art.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        art.summary.toLowerCase().includes(searchTerm.toLowerCase());
+    const term = searchTerm.trim().toLowerCase();
+    return articlesList.filter(art => {
+      const matchSearch = !term || 
+        art.number.toLowerCase().includes(term) ||
+        art.title.toLowerCase().includes(term) ||
+        art.content.toLowerCase().includes(term) ||
+        art.summary.toLowerCase().includes(term) ||
+        (art.tag && art.tag.toLowerCase().includes(term)) ||
+        (art.highlights && art.highlights.some(h => h.toLowerCase().includes(term)));
 
       const matchTag = selectedTag === 'ALL' || art.tag === selectedTag;
 
       return matchSearch && matchTag;
     });
-  }, [searchTerm, selectedTag]);
+  }, [articlesList, searchTerm, selectedTag]);
 
   const handlePrint = () => {
     window.print();
@@ -224,6 +234,7 @@ const LegalArticlesModal = ({
               />
               {searchTerm && (
                 <button
+                  type="button"
                   onClick={() => setSearchTerm('')}
                   style={{ position: 'absolute', [isRtl ? 'left' : 'right']: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
                 >
@@ -235,14 +246,14 @@ const LegalArticlesModal = ({
             {/* Quick jump dropdown on mobile / small screens */}
             <select
               className="form-select"
-              style={{ width: 'auto', height: '36px', fontSize: '0.8rem', borderRadius: '8px', paddingRight: '2rem' }}
+              style={{ width: 'auto', height: '36px', fontSize: '0.8rem', borderRadius: '8px', paddingRight: isRtl ? '2rem' : '1rem', paddingLeft: isRtl ? '1rem' : '2rem' }}
               onChange={(e) => {
                 if (e.target.value) handleJumpToArticle(e.target.value);
               }}
               defaultValue=""
             >
               <option value="" disabled>{t('articles_quick_jump')}</option>
-              {S2T_CONVENTION_ARTICLES.map(art => (
+              {articlesList.map(art => (
                 <option key={art.id} value={art.id}>
                   {art.number} : {art.title}
                 </option>
@@ -262,7 +273,7 @@ const LegalArticlesModal = ({
             <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600, [isRtl ? 'marginLeft' : 'marginRight']: '0.25rem', whiteSpace: 'nowrap' }}>
               {t('articles_articles_nav')}
             </span>
-            {S2T_CONVENTION_ARTICLES.map(art => (
+            {articlesList.map(art => (
               <button
                 key={art.id}
                 type="button"
@@ -281,7 +292,7 @@ const LegalArticlesModal = ({
                 }}
                 title={art.title}
               >
-                Art. {art.id}
+                {isRtl ? `فصل ${art.id}` : `Art. ${art.id}`}
               </button>
             ))}
           </div>
