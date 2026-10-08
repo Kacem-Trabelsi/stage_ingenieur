@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { getSocket } from '../services/socket';
 import { reunionAPI } from '../services/api';
 import {
@@ -15,7 +16,6 @@ import {
   Users,
   Settings,
   PhoneOff,
-  Share2,
   Copy,
   Check,
   Maximize,
@@ -30,18 +30,11 @@ import {
   Pin,
   X,
   Send,
-  MoreVertical,
   CheckCircle2,
   AlertCircle,
-  HelpCircle,
   LayoutGrid,
   SquareUserRound,
   Download,
-  Flame,
-  ThumbsUp,
-  Heart,
-  PartyPopper,
-  Zap,
   Info,
   PenTool,
   Eraser,
@@ -50,11 +43,7 @@ import {
   Lock,
   Unlock,
   Mail,
-  Sliders,
-  RotateCcw,
   Trash2,
-  Camera,
-  UserMinus,
   Sparkle,
   Plus
 } from 'lucide-react';
@@ -118,18 +107,20 @@ const MeetingRoomPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const isRtl = language === 'ar';
 
   // Meeting Metadata
   const [meetingDetails, setMeetingDetails] = useState(null);
-  const [roomTitle, setRoomTitle] = useState('Visioconférence Sécurisée S2T');
-  const [roomLocationName, setRoomLocationName] = useState('Salle Virtuelle Pôle Technologique El Ghazala');
+  const [roomTitle, setRoomTitle] = useState(t('meet_lobby_default_title'));
+  const [roomLocationName, setRoomLocationName] = useState(t('meet_lobby_default_loc'));
   const [isRoomLocked, setIsRoomLocked] = useState(false);
 
   // Pre-join Lobby State
   const [inLobby, setInLobby] = useState(true);
-  const [participantName, setParticipantName] = useState(user?.name || 'Visiteur S2T');
-  const [companyName, setCompanyName] = useState(user?.companyName || (user?.role === 'admin' ? 'Direction S2T' : 'Entreprise Invitée'));
-  const [userRole, setUserRole] = useState(user?.role || 'client');
+  const [participantName, setParticipantName] = useState(user?.name || t('meet_lobby_visitor'));
+  const [companyName, setCompanyName] = useState(user?.companyName || (user?.role === 'admin' ? t('meet_lobby_dir_s2t') : t('meet_lobby_guest_company')));
+  const [userRole] = useState(user?.role || 'client');
 
   // Media States
   const [isAudioMuted, setIsAudioMuted] = useState(false);
@@ -176,8 +167,8 @@ const MeetingRoomPage = () => {
   const [chatMessages, setChatMessages] = useState([
     {
       id: 'welcome-system',
-      sender: { name: 'Direction S2T (Système)', companyName: 'Smart Tunisian Technoparks', role: 'admin' },
-      text: 'Bienvenue dans la salle de réunion sécurisée S2T 4K. La session est chiffrée de bout en bout.',
+      sender: { name: `${t('meet_lobby_dir_s2t')} (${t('nav_admin_space') || 'Admin'})`, companyName: 'Smart Tunisian Technoparks', role: 'admin' },
+      text: t('meet_system_welcome_msg'),
       timestamp: Date.now(),
     },
   ]);
@@ -196,7 +187,7 @@ const MeetingRoomPage = () => {
 
   // Live Speech Subtitles / Captions
   const [isCaptionsEnabled, setIsCaptionsEnabled] = useState(false);
-  const [captionLang, setCaptionLang] = useState('fr-FR');
+  const [captionLang] = useState(language === 'ar' ? 'ar-TN' : language === 'en' ? 'en-US' : 'fr-FR');
   const [liveCaption, setLiveCaption] = useState(null); // { speaker, text, timestamp }
   const speechRecognitionRef = useRef(null);
 
@@ -205,7 +196,7 @@ const MeetingRoomPage = () => {
   const [userVotedOption, setUserVotedOption] = useState(null);
   const [showCreatePollModal, setShowCreatePollModal] = useState(false);
   const [newPollQuestion, setNewPollQuestion] = useState('');
-  const [newPollOptions, setNewPollOptions] = useState(['Pour / Favorable', 'Contre / Défavorable', 'Abstention']);
+  const [newPollOptions, setNewPollOptions] = useState([t('meet_poll_opt_yes'), t('meet_poll_opt_no'), t('meet_poll_opt_abstain')]);
 
   // Collaborative Whiteboard
   const whiteboardCanvasRef = useRef(null);
@@ -220,9 +211,15 @@ const MeetingRoomPage = () => {
   const [reactionsMenuOpen, setReactionsMenuOpen] = useState(false);
 
   // Shared Notes & Minutes
-  const [meetingNotes, setMeetingNotes] = useState(
-    `# Ordre du Jour — Réunion S2T\n- Date : ${new Date().toLocaleDateString('fr-FR')}\n- Salle : ${roomLocationName}\n\n### Points clés discutés :\n1. Présentation des objectifs trimestriels\n2. Accompagnement technique & hébergement\n3. Prochaines étapes et calendrier de déploiement\n\n### Décisions prises :\n- Validation du planning\n`
-  );
+  const [meetingNotes, setMeetingNotes] = useState(() => {
+    if (language === 'ar') {
+      return `# جدول أعمال الاجتماع — S2T\n- التاريخ : ${new Date().toLocaleDateString('ar-TN')}\n- القاعة : ${roomLocationName}\n\n### النقاط الرئيسية للمناقشة :\n1. عرض الأهداف المرحلية\n2. المرافقة الفنية وعقود الإيواء\n3. الخطوات القادمة وجدول التنفيذ\n\n### القرارات المتخذة :\n- المصادقة على روزنامة العمل\n`;
+    }
+    if (language === 'en') {
+      return `# Meeting Agenda — S2T\n- Date: ${new Date().toLocaleDateString('en-US')}\n- Room: ${roomLocationName}\n\n### Key Discussion Points:\n1. Presentation of quarterly objectives\n2. Technical support & hosting agreements\n3. Next steps and deployment schedule\n\n### Decisions Made:\n- Schedule approval\n`;
+    }
+    return `# Ordre du Jour — Réunion S2T\n- Date : ${new Date().toLocaleDateString('fr-FR')}\n- Salle : ${roomLocationName}\n\n### Points clés discutés :\n1. Présentation des objectifs trimestriels\n2. Accompagnement technique & hébergement\n3. Prochaines étapes et calendrier de déploiement\n\n### Décisions prises :\n- Validation du planning\n`;
+  });
   const [isGeneratingAiSummary, setIsGeneratingAiSummary] = useState(false);
   const [emailMinutesModalOpen, setEmailMinutesModalOpen] = useState(false);
   const [emailRecipientsInput, setEmailRecipientsInput] = useState('');
@@ -482,7 +479,7 @@ const MeetingRoomPage = () => {
       if (socket) {
         socket.emit('meeting-screen-share', { meetingId, isScreenSharing: false });
       }
-      showToast('Partage d\'écran arrêté', 'info');
+      showToast(t('meet_toast_screenshare_stop'), 'info');
     } else {
       try {
         const displayStream = await navigator.mediaDevices.getDisplayMedia({
@@ -532,7 +529,7 @@ const MeetingRoomPage = () => {
         if (socket) {
           socket.emit('meeting-screen-share', { meetingId, isScreenSharing: true });
         }
-        showToast('Partage d\'écran 4K activé', 'success');
+        showToast(t('meet_toast_screenshare_start'), 'success');
       } catch (err) {
         console.warn('Partage d’écran annulé ou non autorisé:', err);
       }
@@ -547,12 +544,12 @@ const MeetingRoomPage = () => {
         mediaRecorderRef.current.stop();
       }
       setIsRecording(false);
-      showToast('Enregistrement terminé et prêt au téléchargement', 'success');
+      showToast(t('meet_toast_rec_finished'), 'success');
     } else {
       try {
         const streamToRecord = screenStreamRef.current || localStreamRef.current;
         if (!streamToRecord) {
-          showToast('Aucun flux audio/vidéo disponible pour l\'enregistrement', 'error');
+          showToast(t('meet_toast_rec_no_stream'), 'error');
           return;
         }
 
@@ -590,10 +587,10 @@ const MeetingRoomPage = () => {
         recorder.start(1000);
         mediaRecorderRef.current = recorder;
         setIsRecording(true);
-        showToast('Enregistrement de la session 4K en cours...', 'info');
+        showToast(t('meet_toast_rec_started'), 'info');
       } catch (err) {
         console.error('Erreur MediaRecorder:', err);
-        showToast('Impossible d\'initialiser l\'enregistrement local', 'error');
+        showToast(t('meet_toast_rec_error'), 'error');
       }
     }
   };
@@ -607,7 +604,7 @@ const MeetingRoomPage = () => {
       try {
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRec) {
-          showToast('La reconnaissance vocale n\'est pas supportée sur ce navigateur', 'error');
+          showToast(t('meet_toast_captions_unsupported'), 'error');
           setIsCaptionsEnabled(false);
           return;
         }
@@ -646,7 +643,7 @@ const MeetingRoomPage = () => {
 
         recognition.start();
         speechRecognitionRef.current = recognition;
-        showToast('Sous-titres en direct activés', 'success');
+        showToast(t('meet_toast_captions_on'), 'success');
       } catch (err) {
         console.warn('Erreur activation sous-titres:', err);
         setIsCaptionsEnabled(false);
@@ -657,7 +654,7 @@ const MeetingRoomPage = () => {
         speechRecognitionRef.current = null;
       }
       setLiveCaption(null);
-      showToast('Sous-titres désactivés', 'info');
+      showToast(t('meet_toast_captions_off'), 'info');
     }
   };
 
@@ -703,7 +700,7 @@ const MeetingRoomPage = () => {
     const fullUrl = window.location.href;
     navigator.clipboard.writeText(fullUrl).then(() => {
       setCopiedLink(true);
-      showToast('Lien d\'invitation copié dans le presse-papiers', 'success');
+      showToast(t('meet_toast_link_copied'), 'success');
       setTimeout(() => setCopiedLink(false), 2500);
     });
   };
@@ -842,7 +839,7 @@ const MeetingRoomPage = () => {
     const handleUserJoined = (newParticipant) => {
       if (newParticipant.socketId === socket.id) return;
       playAudioChime('join');
-      showToast(`${newParticipant.user?.name || 'Un participant'} a rejoint la réunion`, 'info');
+      showToast(t('meet_toast_user_joined').replace('{name}', newParticipant.user?.name || t('meet_p_fallback_name')), 'info');
 
       setRemoteParticipants(prev => {
         if (prev.some(p => p.socketId === newParticipant.socketId)) return prev;
@@ -858,7 +855,7 @@ const MeetingRoomPage = () => {
       let peer = peerConnectionsRef.current.get(fromSocketId);
 
       if (type === 'offer') {
-        const pc = createPeerConnection(fromSocketId, { name: 'Participant S2T' });
+        const pc = createPeerConnection(fromSocketId, { name: t('meet_p_fallback_name') });
         try {
           await pc.setRemoteDescription(new RTCSessionDescription(signalData));
           
@@ -936,7 +933,7 @@ const MeetingRoomPage = () => {
     };
 
     // Listener: Hand Changed
-    const handleHandChanged = ({ socketId, isHandRaised: raised, name }) => {
+    const handleHandChanged = ({ socketId, isHandRaised: raised }) => {
       if (raised) playAudioChime('hand');
       setRemoteParticipants(prev =>
         prev.map(p => (p.socketId === socketId ? { ...p, isHandRaised: raised } : p))
@@ -1001,7 +998,7 @@ const MeetingRoomPage = () => {
       setActivePoll(poll);
       setUserVotedOption(null);
       playAudioChime('poll');
-      showToast(`Nouveau sondage en direct : "${poll.question}"`, 'info');
+      showToast(t('meet_toast_poll_new').replace('{q}', poll.question), 'info');
       setActiveDrawer('polls');
     };
 
@@ -1011,7 +1008,7 @@ const MeetingRoomPage = () => {
 
     const handlePollClosed = (poll) => {
       setActivePoll(poll);
-      showToast('Le sondage a été clôturé par l\'organisateur', 'info');
+      showToast(t('meet_toast_poll_closed'), 'info');
     };
 
     // Listener: Host Actions
@@ -1021,7 +1018,7 @@ const MeetingRoomPage = () => {
         if (audioTrack && audioTrack.enabled) {
           audioTrack.enabled = false;
           setIsAudioMuted(true);
-          showToast('Votre microphone a été coupé par l\'organisateur S2T', 'info');
+          showToast(t('meet_toast_force_muted'), 'info');
         }
       }
     };
@@ -1029,16 +1026,16 @@ const MeetingRoomPage = () => {
     const handleLowerAllHands = () => {
       setIsHandRaised(false);
       setRemoteParticipants(prev => prev.map(p => ({ ...p, isHandRaised: false })));
-      showToast('Toutes les mains levées ont été baissées', 'info');
+      showToast(t('meet_toast_hands_lowered'), 'info');
     };
 
     const handleLockChanged = ({ isLocked }) => {
       setIsRoomLocked(isLocked);
-      showToast(isLocked ? '🔒 La salle a été verrouillée' : '🔓 La salle est désormais ouverte', 'info');
+      showToast(isLocked ? t('meet_toast_room_locked') : t('meet_toast_room_unlocked'), 'info');
     };
 
     const handleKicked = () => {
-      alert('Vous avez été retiré de la réunion par l\'organisateur S2T.');
+      alert(t('meet_toast_kicked'));
       navigate('/reunions');
     };
 
@@ -1100,7 +1097,7 @@ const MeetingRoomPage = () => {
 
       socket.emit('leave-meeting-room', { meetingId });
     };
-  }, [inLobby, meetingId, participantName, companyName, userRole, activeDrawer, createPeerConnection, user, navigate]);
+  }, [inLobby, meetingId, participantName, companyName, userRole, activeDrawer, createPeerConnection, user, navigate, t]);
 
   // 18. Whiteboard Drawing Mechanics
   const startDrawing = (e) => {
@@ -1178,7 +1175,7 @@ const MeetingRoomPage = () => {
     if (socket) {
       socket.emit('meeting-whiteboard-clear', { meetingId });
     }
-    showToast('Tableau blanc réinitialisé', 'info');
+    showToast(t('meet_toast_wb_cleared'), 'info');
   };
 
   const downloadWhiteboard = () => {
@@ -1189,7 +1186,7 @@ const MeetingRoomPage = () => {
     a.href = image;
     a.download = `Tableau-Blanc-S2T-${new Date().toISOString().split('T')[0]}.png`;
     a.click();
-    showToast('Image du tableau blanc téléchargée', 'success');
+    showToast(t('meet_toast_wb_downloaded'), 'success');
   };
 
   // 19. Interactive Live Poll Creation & Voting
@@ -1199,7 +1196,7 @@ const MeetingRoomPage = () => {
 
     const filteredOptions = newPollOptions.filter(o => o.trim().length > 0);
     if (filteredOptions.length < 2) {
-      showToast('Veuillez spécifier au moins 2 options', 'error');
+      showToast(t('meet_modal_poll_label_opts'), 'error');
       return;
     }
 
@@ -1214,7 +1211,7 @@ const MeetingRoomPage = () => {
       });
       setShowCreatePollModal(false);
       setNewPollQuestion('');
-      showToast('Sondage lancé auprès de tous les participants', 'success');
+      showToast(t('meet_toast_poll_new').replace('{q}', newPollQuestion.trim()), 'success');
     }
   };
 
@@ -1229,7 +1226,7 @@ const MeetingRoomPage = () => {
         pollId: activePoll.id,
         optionId,
       });
-      showToast('Votre vote a été enregistré en toute sécurité', 'success');
+      showToast(t('meet_toast_vote_saved'), 'success');
     }
   };
 
@@ -1247,21 +1244,62 @@ const MeetingRoomPage = () => {
   const insertPollResultsInNotes = () => {
     if (!activePoll) return;
     const totalVotes = activePoll.options.reduce((acc, curr) => acc + curr.votes, 0);
-    const resultsText = `\n\n### 📊 Résultat du Vote / Sondage : "${activePoll.question}"\n- **Date :** ${new Date().toLocaleTimeString('fr-FR')}\n- **Total des votants :** ${totalVotes}\n` +
-      activePoll.options.map(opt => {
-        const pct = totalVotes > 0 ? Math.round((opt.votes / totalVotes) * 100) : 0;
-        return `  - ${opt.text} : **${opt.votes} vote(s)** (${pct}%)`;
-      }).join('\n') + '\n';
+    let resultsText = '';
+    if (language === 'ar') {
+      resultsText = `\n\n### 📊 نتيجة التصويت / الاستطلاع : "${activePoll.question}"\n- **التاريخ :** ${new Date().toLocaleTimeString('ar-TN')}\n- **مجموع المصوتين :** ${totalVotes}\n` +
+        activePoll.options.map(opt => {
+          const pct = totalVotes > 0 ? Math.round((opt.votes / totalVotes) * 100) : 0;
+          return `  - ${opt.text} : **${opt.votes} صوت** (${pct}%)`;
+        }).join('\n') + '\n';
+    } else if (language === 'en') {
+      resultsText = `\n\n### 📊 Poll / Vote Results: "${activePoll.question}"\n- **Time:** ${new Date().toLocaleTimeString('en-US')}\n- **Total Voters:** ${totalVotes}\n` +
+        activePoll.options.map(opt => {
+          const pct = totalVotes > 0 ? Math.round((opt.votes / totalVotes) * 100) : 0;
+          return `  - ${opt.text} : **${opt.votes} vote(s)** (${pct}%)`;
+        }).join('\n') + '\n';
+    } else {
+      resultsText = `\n\n### 📊 Résultat du Vote / Sondage : "${activePoll.question}"\n- **Date :** ${new Date().toLocaleTimeString('fr-FR')}\n- **Total des votants :** ${totalVotes}\n` +
+        activePoll.options.map(opt => {
+          const pct = totalVotes > 0 ? Math.round((opt.votes / totalVotes) * 100) : 0;
+          return `  - ${opt.text} : **${opt.votes} vote(s)** (${pct}%)`;
+        }).join('\n') + '\n';
+    }
 
     setMeetingNotes(prev => prev + resultsText);
-    showToast('Résultats du sondage ajoutés au compte-rendu', 'success');
+    showToast(t('meet_toast_notes_poll_added'), 'success');
   };
 
   // 20. AI Meeting Summary Generator
   const handleGenerateAiSummary = () => {
     setIsGeneratingAiSummary(true);
     setTimeout(() => {
-      const summaryNote = `\n\n---
+      let summaryNote = '';
+      if (language === 'ar') {
+        summaryNote = `\n\n---
+### 🤖 محضر الاجتماع الفوري بالذكاء الاصطناعي S2T (${new Date().toLocaleTimeString('ar-TN', { hour: '2-digit', minute: '2-digit' })})
+- **حالة الجلسة :** اجتماع نشط، اكتمل النصاب القانوني.
+- **النقاط التي تمت مناقشتها :**
+  1. المصادقة على مواعيد الإيواء واستعمال القاعات متعددة الخدمات.
+  2. مراجعة البنية التحتية للاتصالات وشبكة الألياف البصرية عالية التدفق 10Gbps.
+  3. المتابعة الإدارية ومطابقة الإجراءات التنظيمية لـ S2T.
+- **الإجراءات المعتمدة :**
+  - [x] إرسال التقرير لجميع المشاركين المتصلين.
+  - [ ] استكمال إجراءات الحجز في المنظومة المركزية S2T.
+`;
+      } else if (language === 'en') {
+        summaryNote = `\n\n---
+### 🤖 AI-Generated Meeting Minutes S2T (${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })})
+- **Session Status:** Active WebRTC video conference, quorum achieved.
+- **Key Reviewed Points:**
+  1. Approval of hosting schedule and access to multipurpose facilities.
+  2. Telecom infrastructure review & dedicated high-speed fiber optics (10 Gbps).
+  3. S2T regulatory compliance and administrative tracking.
+- **Action Items:**
+  - [x] Shared meeting minutes with connected participants.
+  - [ ] Finalize reservation in S2T central schedule.
+`;
+      } else {
+        summaryNote = `\n\n---
 ### 🤖 Compte-Rendu Automatisé IA S2T (${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })})
 - **Statut de la session :** Visioconférence active, quorum atteint.
 - **Points examinés :**
@@ -1272,6 +1310,7 @@ const MeetingRoomPage = () => {
   - [x] Partage du compte-rendu aux participants connectés.
   - [ ] Clôture de la réservation dans le planning central S2T.
 `;
+      }
       setMeetingNotes(prev => prev + summaryNote);
       setIsGeneratingAiSummary(false);
 
@@ -1279,12 +1318,12 @@ const MeetingRoomPage = () => {
         ...prev,
         {
           id: `ai-note-${Date.now()}`,
-          sender: { name: 'Assistant IA S2T', companyName: 'Intelligence Artificielle', role: 'admin' },
-          text: '⚡ Le compte-rendu instantané de la réunion a été généré et ajouté à vos notes partagées !',
+          sender: { name: language === 'ar' ? 'مساعد الذكاء الاصطناعي S2T' : language === 'en' ? 'S2T AI Assistant' : 'Assistant IA S2T', companyName: 'Intelligence Artificielle', role: 'admin' },
+          text: t('meet_ai_welcome_msg'),
           timestamp: Date.now(),
         },
       ]);
-      showToast('Synthèse IA générée avec succès', 'success');
+      showToast(t('meet_toast_ai_generated'), 'success');
     }, 1500);
   };
 
@@ -1307,15 +1346,15 @@ const MeetingRoomPage = () => {
         recipients: recipientEmails,
       });
 
-      setEmailSuccessMessage('Le compte-rendu officiel a été transmis par email avec succès !');
-      showToast('Compte-rendu officiel envoyé par email', 'success');
+      setEmailSuccessMessage(t('meet_modal_email_success'));
+      showToast(t('meet_toast_email_sent'), 'success');
       setTimeout(() => {
         setEmailMinutesModalOpen(false);
         setEmailSuccessMessage('');
       }, 2000);
     } catch (err) {
       console.error('Erreur envoi email compte-rendu:', err);
-      showToast('Erreur lors de l\'envoi du compte-rendu par email', 'error');
+      showToast(t('meet_toast_email_error'), 'error');
     } finally {
       setIsSendingEmail(false);
     }
@@ -1327,9 +1366,9 @@ const MeetingRoomPage = () => {
     if (!socket) return;
     socket.emit('meeting-host-action', { meetingId, action, targetSocketId });
 
-    if (action === 'mute-all') showToast('Tous les microphones ont été coupés', 'info');
-    if (action === 'lower-all-hands') showToast('Toutes les mains levées ont été baissées', 'info');
-    if (action === 'lock-room') showToast(isRoomLocked ? 'Salle déverrouillée' : 'Salle verrouillée aux nouveaux arrivants', 'info');
+    if (action === 'mute-all') showToast(t('meet_p_btn_mute_all'), 'info');
+    if (action === 'lower-all-hands') showToast(t('meet_toast_hands_lowered'), 'info');
+    if (action === 'lock-room') showToast(isRoomLocked ? t('meet_toast_room_unlocked') : t('meet_toast_room_locked'), 'info');
   };
 
   // Enter / Leave Meeting
@@ -1373,7 +1412,7 @@ const MeetingRoomPage = () => {
   // =========================================================================
   if (inLobby) {
     return (
-      <div className="meeting-lobby-page">
+      <div className="meeting-lobby-page" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="lobby-ambient-glow glow-1" />
         <div className="lobby-ambient-glow glow-2" />
 
@@ -1384,7 +1423,7 @@ const MeetingRoomPage = () => {
               <img src="/s2t-logo.svg" alt="S2T Logo" style={{ height: '38px' }} />
               <div className="lobby-sec-badge">
                 <Shield size={14} color="var(--s2t-cyan)" />
-                <span>Visioconférence 4K Sécurisée S2T</span>
+                <span>{t('meet_lobby_tag')}</span>
               </div>
             </div>
             <button
@@ -1393,7 +1432,7 @@ const MeetingRoomPage = () => {
               onClick={() => navigate('/reunions')}
             >
               <X size={16} />
-              <span>Retour au planning</span>
+              <span>{t('meet_lobby_back')}</span>
             </button>
           </div>
 
@@ -1417,13 +1456,13 @@ const MeetingRoomPage = () => {
                       {participantName ? participantName.charAt(0).toUpperCase() : 'U'}
                     </div>
                     <p style={{ margin: '0.8rem 0 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                      Votre caméra est désactivée
+                      {t('meet_lobby_cam_disabled')}
                     </p>
                   </div>
                 )}
 
                 {/* Local Mic Volume Level Indicator Bar */}
-                <div className="lobby-volume-meter" title="Niveau sonore du micro">
+                <div className="lobby-volume-meter" title={t('meet_lobby_mic_level')}>
                   <div className="volume-icon">
                     {isAudioMuted ? <VolumeX size={14} color="#EF4444" /> : <Volume2 size={14} color="var(--s2t-cyan)" />}
                   </div>
@@ -1441,7 +1480,7 @@ const MeetingRoomPage = () => {
                 {/* Watermark Badge */}
                 <div className="lobby-video-overlay-badge">
                   <Radio size={12} className="pulse-dot" />
-                  <span>Aperçu WebRTC HD • {videoQuality}</span>
+                  <span>{t('meet_lobby_preview_badge').replace('{quality}', videoQuality)}</span>
                 </div>
 
                 {/* Quick Controls */}
@@ -1450,7 +1489,7 @@ const MeetingRoomPage = () => {
                     type="button"
                     className={`lobby-ctrl-btn ${isAudioMuted ? 'muted' : 'active'}`}
                     onClick={handleToggleMic}
-                    title={isAudioMuted ? 'Activer le micro' : 'Couper le micro'}
+                    title={isAudioMuted ? t('meet_lobby_tooltip_mic_on') : t('meet_lobby_tooltip_mic_off')}
                   >
                     {isAudioMuted ? <MicOff size={20} /> : <Mic size={20} />}
                   </button>
@@ -1459,7 +1498,7 @@ const MeetingRoomPage = () => {
                     type="button"
                     className={`lobby-ctrl-btn ${isVideoDisabled ? 'disabled' : 'active'}`}
                     onClick={handleToggleVideo}
-                    title={isVideoDisabled ? 'Activer la caméra' : 'Désactiver la caméra'}
+                    title={isVideoDisabled ? t('meet_lobby_tooltip_cam_on') : t('meet_lobby_tooltip_cam_off')}
                   >
                     {isVideoDisabled ? <VideoOff size={20} /> : <Video size={20} />}
                   </button>
@@ -1468,7 +1507,7 @@ const MeetingRoomPage = () => {
                     type="button"
                     className="lobby-ctrl-btn active"
                     onClick={() => setSettingsModalOpen(true)}
-                    title="Paramètres audio & vidéo"
+                    title={t('meet_lobby_tooltip_settings')}
                   >
                     <Settings size={20} />
                   </button>
@@ -1479,15 +1518,15 @@ const MeetingRoomPage = () => {
               <div className="lobby-hardware-checklist">
                 <div className="check-item">
                   <CheckCircle2 size={16} color="#10B981" />
-                  <span>Suppression de bruit & annulation d'écho active</span>
+                  <span>{t('meet_lobby_check_1')}</span>
                 </div>
                 <div className="check-item">
                   <CheckCircle2 size={16} color="#10B981" />
-                  <span>Chiffrement DTLS-SRTP 256 bits conforme S2T</span>
+                  <span>{t('meet_lobby_check_2')}</span>
                 </div>
                 <div className="check-item">
                   <CheckCircle2 size={16} color="#10B981" />
-                  <span>Serveurs WebRTC hébergés en Tunisie (El Ghazala)</span>
+                  <span>{t('meet_lobby_check_3')}</span>
                 </div>
               </div>
             </div>
@@ -1495,7 +1534,7 @@ const MeetingRoomPage = () => {
             {/* Right: Info & Settings Panel */}
             <div className="lobby-info-card">
               <div className="lobby-info-header">
-                <span className="lobby-pre-tag">Salle de Réunion Virtuelle S2T</span>
+                <span className="lobby-pre-tag">{t('meet_lobby_room_tag')}</span>
                 <h1 className="lobby-title">{roomTitle}</h1>
                 <p className="lobby-subtitle">
                   <span style={{ color: 'var(--s2t-cyan)', fontWeight: 600 }}>{roomLocationName}</span>
@@ -1506,28 +1545,28 @@ const MeetingRoomPage = () => {
 
               {/* Participant Profile Configuration */}
               <div className="lobby-form-section">
-                <label className="lobby-form-label">Votre nom complet</label>
+                <label className="lobby-form-label">{t('meet_lobby_label_name')}</label>
                 <input
                   type="text"
                   className="lobby-input"
                   value={participantName}
                   onChange={(e) => setParticipantName(e.target.value)}
-                  placeholder="Ex: Mohamed Trabelsi"
+                  placeholder={t('meet_lobby_ph_name')}
                 />
 
-                <label className="lobby-form-label" style={{ marginTop: '1rem' }}>Entreprise ou Organisme</label>
+                <label className="lobby-form-label" style={{ marginTop: '1rem' }}>{t('meet_lobby_label_company')}</label>
                 <input
                   type="text"
                   className="lobby-input"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder="Ex: Entreprise Résidente S2T"
+                  placeholder={t('meet_lobby_ph_company')}
                 />
 
                 {/* Device Quick Selectors in Lobby */}
                 {videoDevices.length > 1 && (
                   <>
-                    <label className="lobby-form-label" style={{ marginTop: '1rem' }}>Caméra</label>
+                    <label className="lobby-form-label" style={{ marginTop: '1rem' }}>{t('meet_lobby_label_camera')}</label>
                     <select
                       className="lobby-input"
                       value={selectedVideoDevice}
@@ -1549,14 +1588,14 @@ const MeetingRoomPage = () => {
                   onClick={handleJoinMeeting}
                 >
                   <Video size={20} />
-                  <span>Rejoindre la Réunion Sécurisée</span>
+                  <span>{t('meet_lobby_btn_join')}</span>
                 </button>
               </div>
 
               {/* Security Footnote */}
               <div className="lobby-security-footer">
                 <Shield size={14} color="var(--text-muted)" />
-                <span>Accès réservé aux entreprises hébergées et invités autorisés par la Direction S2T.</span>
+                <span>{t('meet_lobby_sec_footer')}</span>
               </div>
             </div>
 
@@ -1570,7 +1609,7 @@ const MeetingRoomPage = () => {
   // VIEW 2: ACTIVE ONLINE MEETING ROOM
   // =========================================================================
   return (
-    <div className={`meeting-room-wrapper ${isFullscreen ? 'is-fullscreen' : ''}`}>
+    <div className={`meeting-room-wrapper ${isFullscreen ? 'is-fullscreen' : ''}`} dir={isRtl ? 'rtl' : 'ltr'}>
       
       {/* Toast Notification Banner */}
       {toastMessage && (
@@ -1598,26 +1637,26 @@ const MeetingRoomPage = () => {
         <div className="top-bar-left">
           <div className="meeting-live-badge">
             <Radio size={14} className="live-pulse-icon" />
-            <span>DIRECT</span>
+            <span>{t('meet_top_live')}</span>
           </div>
 
           {isRecording && (
             <div className="meeting-rec-badge">
               <span className="rec-dot" />
-              <span>REC {formatTime(recordingSeconds)}</span>
+              <span>{t('meet_top_rec')} {formatTime(recordingSeconds)}</span>
             </div>
           )}
 
           {isRoomLocked && (
-            <div className="meeting-locked-badge" title="Salle verrouillée">
+            <div className="meeting-locked-badge" title={t('meet_top_locked')}>
               <Lock size={12} />
-              <span>Verrouillée</span>
+              <span>{t('meet_top_locked')}</span>
             </div>
           )}
 
           <div className="meeting-title-info">
             <h2 className="top-room-title">{roomTitle}</h2>
-            <span className="top-room-subtitle">{roomLocationName} • Durée : {formatTime(meetingSeconds)}</span>
+            <span className="top-room-subtitle">{roomLocationName} • {t('meet_top_duration')} {formatTime(meetingSeconds)}</span>
           </div>
         </div>
 
@@ -1627,10 +1666,10 @@ const MeetingRoomPage = () => {
             type="button"
             className="top-icon-btn"
             onClick={() => setSecurityModalOpen(true)}
-            title="Connexion Sécurisée S2T"
+            title={t('meet_top_tooltip_security')}
           >
             <Shield size={18} color="var(--s2t-cyan)" />
-            <span className="btn-label-desktop">Chiffré</span>
+            <span className="btn-label-desktop">{t('meet_top_btn_encrypted')}</span>
           </button>
 
           {/* Copy Invite Link */}
@@ -1638,10 +1677,10 @@ const MeetingRoomPage = () => {
             type="button"
             className="top-icon-btn"
             onClick={handleCopyMeetingLink}
-            title="Copier le lien d'invitation"
+            title={t('meet_top_tooltip_copy')}
           >
             {copiedLink ? <Check size={18} color="#10B981" /> : <Copy size={18} />}
-            <span className="btn-label-desktop">{copiedLink ? 'Copié !' : 'Inviter'}</span>
+            <span className="btn-label-desktop">{copiedLink ? t('meet_top_btn_copied') : t('meet_top_btn_invite')}</span>
           </button>
 
           {/* Collaborative Whiteboard Stage Mode */}
@@ -1649,10 +1688,10 @@ const MeetingRoomPage = () => {
             type="button"
             className={`top-icon-btn ${layoutMode === 'whiteboard' ? 'active' : ''}`}
             onClick={() => setLayoutMode(prev => (prev === 'whiteboard' ? 'grid' : 'whiteboard'))}
-            title="Tableau Blanc Collaboratif"
+            title={t('meet_top_tooltip_whiteboard')}
           >
             <PenTool size={18} />
-            <span className="btn-label-desktop">Tableau</span>
+            <span className="btn-label-desktop">{t('meet_top_btn_whiteboard')}</span>
           </button>
 
           {/* Layout Mode Switcher */}
@@ -1660,10 +1699,10 @@ const MeetingRoomPage = () => {
             type="button"
             className={`top-icon-btn ${layoutMode === 'speaker' ? 'active' : ''}`}
             onClick={() => setLayoutMode(prev => (prev === 'grid' ? 'speaker' : 'grid'))}
-            title={layoutMode === 'grid' ? 'Mode Intervenant Unique' : 'Mode Grille Galerie'}
+            title={layoutMode === 'grid' ? t('meet_top_tooltip_speaker') : t('meet_top_tooltip_grid')}
           >
             {layoutMode === 'grid' ? <SquareUserRound size={18} /> : <LayoutGrid size={18} />}
-            <span className="btn-label-desktop">{layoutMode === 'grid' ? 'Focus' : 'Grille'}</span>
+            <span className="btn-label-desktop">{layoutMode === 'grid' ? t('meet_top_btn_focus') : t('meet_top_btn_grid')}</span>
           </button>
 
           {/* Settings Modal */}
@@ -1671,7 +1710,7 @@ const MeetingRoomPage = () => {
             type="button"
             className="top-icon-btn"
             onClick={() => setSettingsModalOpen(true)}
-            title="Paramètres de session"
+            title={t('meet_top_tooltip_settings')}
           >
             <Settings size={18} />
           </button>
@@ -1681,7 +1720,7 @@ const MeetingRoomPage = () => {
             type="button"
             className="top-icon-btn"
             onClick={handleToggleFullscreen}
-            title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'}
+            title={isFullscreen ? t('meet_top_tooltip_exit_fullscreen') : t('meet_top_tooltip_fullscreen')}
           >
             {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
           </button>
@@ -1699,14 +1738,14 @@ const MeetingRoomPage = () => {
             <div className="screenshare-alert-bar">
               <div className="alert-content">
                 <ScreenShare size={18} color="var(--s2t-cyan)" />
-                <span>Vous partagez votre écran en haute définition (1080p 60fps)</span>
+                <span>{t('meet_screenshare_alert')}</span>
               </div>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
                 onClick={handleToggleScreenShare}
               >
-                Arrêter le partage
+                {t('meet_screenshare_btn_stop')}
               </button>
             </div>
           )}
@@ -1731,7 +1770,7 @@ const MeetingRoomPage = () => {
                     type="button"
                     className={`wb-btn ${whiteboardTool === 'pen' ? 'active' : ''}`}
                     onClick={() => setWhiteboardTool('pen')}
-                    title="Stylo / Pinceau"
+                    title={t('meet_wb_tool_pen')}
                   >
                     <PenTool size={18} />
                   </button>
@@ -1739,7 +1778,7 @@ const MeetingRoomPage = () => {
                     type="button"
                     className={`wb-btn ${whiteboardTool === 'highlighter' ? 'active' : ''}`}
                     onClick={() => setWhiteboardTool('highlighter')}
-                    title="Surligneur"
+                    title={t('meet_wb_tool_highlighter')}
                   >
                     <Sparkle size={18} />
                   </button>
@@ -1747,7 +1786,7 @@ const MeetingRoomPage = () => {
                     type="button"
                     className={`wb-btn ${whiteboardTool === 'eraser' ? 'active' : ''}`}
                     onClick={() => setWhiteboardTool('eraser')}
-                    title="Gomme"
+                    title={t('meet_wb_tool_eraser')}
                   >
                     <Eraser size={18} />
                   </button>
@@ -1772,7 +1811,7 @@ const MeetingRoomPage = () => {
 
                 {/* Brush Size */}
                 <div className="wb-brush-size">
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Épaisseur</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('meet_wb_brush_thickness')}</span>
                   <input
                     type="range"
                     min="2"
@@ -1791,19 +1830,19 @@ const MeetingRoomPage = () => {
                     type="button"
                     className="wb-action-btn"
                     onClick={clearWhiteboard}
-                    title="Effacer tout le tableau"
+                    title={t('meet_wb_btn_clear')}
                   >
                     <Trash2 size={16} color="#EF4444" />
-                    <span>Effacer</span>
+                    <span>{t('meet_wb_btn_clear')}</span>
                   </button>
                   <button
                     type="button"
                     className="wb-action-btn"
                     onClick={downloadWhiteboard}
-                    title="Télécharger l'image PNG"
+                    title={t('meet_wb_btn_export')}
                   >
                     <Download size={16} />
-                    <span>Exporter PNG</span>
+                    <span>{t('meet_wb_btn_export')}</span>
                   </button>
                 </div>
               </div>
@@ -1848,14 +1887,14 @@ const MeetingRoomPage = () => {
                         {participantName ? participantName.charAt(0).toUpperCase() : 'M'}
                       </div>
                     </div>
-                    <span className="avatar-caption">Caméra désactivée</span>
+                    <span className="avatar-caption">{t('meet_tile_cam_disabled')}</span>
                   </div>
                 )}
 
                 {/* Hand Raise Badge */}
                 {isHandRaised && (
                   <div className="tile-hand-raised-badge">
-                    <span>✋ Main levée</span>
+                    <span>{t('meet_tile_hand_raised')}</span>
                   </div>
                 )}
 
@@ -1863,19 +1902,19 @@ const MeetingRoomPage = () => {
                 <div className="tile-bottom-bar">
                   <div className="tile-user-meta">
                     <span className="tile-user-name">
-                      {participantName} <strong>(Vous)</strong>
-                      {userRole === 'admin' && <span className="role-tag admin">Hôte S2T</span>}
+                      {participantName} <strong>{t('meet_tile_you')}</strong>
+                      {userRole === 'admin' && <span className="role-tag admin">{t('meet_tile_host_tag')}</span>}
                     </span>
                     <span className="tile-user-company">{companyName}</span>
                   </div>
 
                   <div className="tile-indicators">
                     {isAudioMuted ? (
-                      <div className="mic-badge muted" title="Microphone coupé">
+                      <div className="mic-badge muted" title={t('meet_tile_tooltip_mic_muted')}>
                         <MicOff size={13} />
                       </div>
                     ) : (
-                      <div className="mic-badge active" title="Microphone activé">
+                      <div className="mic-badge active" title={t('meet_tile_tooltip_mic_active')}>
                         <Mic size={13} />
                       </div>
                     )}
@@ -1884,7 +1923,7 @@ const MeetingRoomPage = () => {
                       type="button"
                       className="tile-pin-btn"
                       onClick={() => setPinnedParticipantId(pinnedParticipantId === 'local' ? null : 'local')}
-                      title="Épingler cette vidéo"
+                      title={t('meet_tile_tooltip_pin')}
                     >
                       <Pin size={13} />
                     </button>
@@ -1932,14 +1971,14 @@ const MeetingRoomPage = () => {
                             {participant.user?.name ? participant.user.name.charAt(0).toUpperCase() : 'P'}
                           </div>
                         </div>
-                        <span className="avatar-caption">Caméra désactivée</span>
+                        <span className="avatar-caption">{t('meet_tile_cam_disabled')}</span>
                       </div>
                     )}
 
                     {/* Hand Raised Badge */}
                     {participant.isHandRaised && (
                       <div className="tile-hand-raised-badge">
-                        <span>✋ Main levée</span>
+                        <span>{t('meet_tile_hand_raised')}</span>
                       </div>
                     )}
 
@@ -1947,9 +1986,9 @@ const MeetingRoomPage = () => {
                     <div className="tile-bottom-bar">
                       <div className="tile-user-meta">
                         <span className="tile-user-name">
-                          {participant.user?.name || 'Participant S2T'}
+                          {participant.user?.name || t('meet_p_fallback_name')}
                           {participant.user?.role === 'admin' && (
-                            <span className="role-tag admin">Hôte S2T</span>
+                            <span className="role-tag admin">{t('meet_tile_host_tag')}</span>
                           )}
                         </span>
                         <span className="tile-user-company">
@@ -1959,11 +1998,11 @@ const MeetingRoomPage = () => {
 
                       <div className="tile-indicators">
                         {!hasAudio ? (
-                          <div className="mic-badge muted" title="Micro coupé">
+                          <div className="mic-badge muted" title={t('meet_tile_tooltip_mic_muted')}>
                             <MicOff size={13} />
                           </div>
                         ) : (
-                          <div className="mic-badge active" title="Micro actif">
+                          <div className="mic-badge active" title={t('meet_tile_tooltip_mic_active')}>
                             <Mic size={13} />
                           </div>
                         )}
@@ -1972,7 +2011,7 @@ const MeetingRoomPage = () => {
                           type="button"
                           className="tile-pin-btn"
                           onClick={() => setPinnedParticipantId(isPinned ? null : participant.socketId)}
-                          title="Épingler cette vidéo"
+                          title={t('meet_tile_tooltip_pin')}
                         >
                           <Pin size={13} />
                         </button>
@@ -1996,25 +2035,25 @@ const MeetingRoomPage = () => {
                 {activeDrawer === 'chat' && (
                   <>
                     <MessageSquare size={18} color="var(--s2t-cyan)" />
-                    <h3>Chat de la réunion</h3>
+                    <h3>{t('meet_drawer_chat_title')}</h3>
                   </>
                 )}
                 {activeDrawer === 'participants' && (
                   <>
                     <Users size={18} color="var(--s2t-blue)" />
-                    <h3>Participants ({totalCount})</h3>
+                    <h3>{t('meet_drawer_participants_title')} ({totalCount})</h3>
                   </>
                 )}
                 {activeDrawer === 'notes' && (
                   <>
                     <FileText size={18} color="var(--s2t-teal)" />
-                    <h3>Notes & IA Assistant</h3>
+                    <h3>{t('meet_drawer_notes_title')}</h3>
                   </>
                 )}
                 {activeDrawer === 'polls' && (
                   <>
                     <BarChart2 size={18} color="#F59E0B" />
-                    <h3>Sondages & Votes ({activePoll ? '1 Actif' : '0'})</h3>
+                    <h3>{t('meet_drawer_polls_title')} ({activePoll ? '1' : '0'})</h3>
                   </>
                 )}
               </div>
@@ -2023,7 +2062,7 @@ const MeetingRoomPage = () => {
                 type="button"
                 className="drawer-close-btn"
                 onClick={() => setActiveDrawer(null)}
-                title="Fermer le volet"
+                title={t('meet_drawer_tooltip_close')}
               >
                 <X size={18} />
               </button>
@@ -2077,13 +2116,13 @@ const MeetingRoomPage = () => {
                     className="drawer-chat-input"
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
-                    placeholder="Envoyer un message à tous..."
+                    placeholder={t('meet_chat_ph')}
                   />
                   <button
                     type="submit"
                     className="drawer-chat-send-btn"
                     disabled={!chatInput.trim()}
-                    title="Envoyer"
+                    title={t('meet_chat_tooltip_send')}
                   >
                     <Send size={16} />
                   </button>
@@ -2102,12 +2141,12 @@ const MeetingRoomPage = () => {
                     </div>
                     <div className="p-info">
                       <div className="p-name">
-                        {participantName} <span className="p-badge-me">Vous</span>
+                        {participantName} <span className="p-badge-me">{t('meet_p_badge_you')}</span>
                       </div>
                       <div className="p-sub">{companyName}</div>
                     </div>
                     <div className="p-status-icons">
-                      {isHandRaised && <span title="Main levée">✋</span>}
+                      {isHandRaised && <span title={t('meet_tile_hand_raised')}>✋</span>}
                       {isAudioMuted ? <MicOff size={15} color="#EF4444" /> : <Mic size={15} color="#10B981" />}
                       {isVideoDisabled ? <VideoOff size={15} color="#EF4444" /> : <Video size={15} color="#10B981" />}
                     </div>
@@ -2121,13 +2160,13 @@ const MeetingRoomPage = () => {
                       </div>
                       <div className="p-info">
                         <div className="p-name">
-                          {p.user?.name || 'Participant S2T'}
-                          {p.user?.role === 'admin' && <span className="p-badge-admin">Admin</span>}
+                          {p.user?.name || t('meet_p_fallback_name')}
+                          {p.user?.role === 'admin' && <span className="p-badge-admin">{t('meet_p_badge_admin')}</span>}
                         </div>
                         <div className="p-sub">{p.user?.companyName || 'Technopark'}</div>
                       </div>
                       <div className="p-status-icons">
-                        {p.isHandRaised && <span title="Main levée">✋</span>}
+                        {p.isHandRaised && <span title={t('meet_tile_hand_raised')}>✋</span>}
                         {p.isAudioOn === false ? <MicOff size={15} color="#EF4444" /> : <Mic size={15} color="#10B981" />}
                         {p.isVideoOn === false ? <VideoOff size={15} color="#EF4444" /> : <Video size={15} color="#10B981" />}
                       </div>
@@ -2138,7 +2177,7 @@ const MeetingRoomPage = () => {
                 {/* Host / Moderator Controls */}
                 {userRole === 'admin' && (
                   <div className="drawer-admin-actions">
-                    <h4 style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>Contrôles Modérateur S2T</h4>
+                    <h4 style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('meet_p_admin_controls')}</h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                       <button
                         type="button"
@@ -2147,7 +2186,7 @@ const MeetingRoomPage = () => {
                         onClick={() => handleHostAction('mute-all')}
                       >
                         <MicOff size={14} />
-                        <span>Couper tous les micros</span>
+                        <span>{t('meet_p_btn_mute_all')}</span>
                       </button>
 
                       <button
@@ -2157,7 +2196,7 @@ const MeetingRoomPage = () => {
                         onClick={() => handleHostAction('lower-all-hands')}
                       >
                         <Hand size={14} />
-                        <span>Baisser toutes les mains</span>
+                        <span>{t('meet_p_btn_lower_hands')}</span>
                       </button>
 
                       <button
@@ -2167,7 +2206,7 @@ const MeetingRoomPage = () => {
                         onClick={() => handleHostAction('lock-room')}
                       >
                         {isRoomLocked ? <Unlock size={14} /> : <Lock size={14} />}
-                        <span>{isRoomLocked ? 'Déverrouiller la salle' : 'Verrouiller la salle'}</span>
+                        <span>{isRoomLocked ? t('meet_p_btn_unlock_room') : t('meet_p_btn_lock_room')}</span>
                       </button>
                     </div>
                   </div>
@@ -2186,7 +2225,7 @@ const MeetingRoomPage = () => {
                     disabled={isGeneratingAiSummary}
                   >
                     <Sparkles size={15} className={isGeneratingAiSummary ? 'animate-spin' : ''} />
-                    <span>{isGeneratingAiSummary ? 'Synthèse en cours...' : 'Générer Synthèse IA S2T'}</span>
+                    <span>{isGeneratingAiSummary ? t('meet_notes_btn_ai_loading') : t('meet_notes_btn_ai')}</span>
                   </button>
                 </div>
 
@@ -2194,7 +2233,7 @@ const MeetingRoomPage = () => {
                   className="notes-textarea"
                   value={meetingNotes}
                   onChange={(e) => setMeetingNotes(e.target.value)}
-                  placeholder="Prenez des notes collaboratives en direct..."
+                  placeholder={t('meet_notes_ph')}
                 />
 
                 <div className="notes-footer-actions">
@@ -2208,11 +2247,11 @@ const MeetingRoomPage = () => {
                       a.href = url;
                       a.download = `Compte-Rendu-${roomTitle.replace(/\s+/g, '_')}.md`;
                       a.click();
-                      showToast('Notes exportées en Markdown', 'success');
+                      showToast(t('meet_toast_notes_exported'), 'success');
                     }}
                   >
                     <Download size={14} />
-                    <span>Exporter .md</span>
+                    <span>{t('meet_notes_btn_export')}</span>
                   </button>
 
                   <button
@@ -2221,7 +2260,7 @@ const MeetingRoomPage = () => {
                     onClick={() => setEmailMinutesModalOpen(true)}
                   >
                     <Mail size={14} />
-                    <span>Envoyer par Email</span>
+                    <span>{t('meet_notes_btn_email')}</span>
                   </button>
                 </div>
               </div>
@@ -2233,16 +2272,16 @@ const MeetingRoomPage = () => {
                 {activePoll ? (
                   <div className="active-poll-card glass-card">
                     <div className="poll-header-row">
-                      <span className="poll-tag">Sondage en Direct</span>
+                      <span className="poll-tag">{t('meet_poll_tag')}</span>
                       {activePoll.isClosed ? (
-                        <span className="poll-status-closed">Clôturé</span>
+                        <span className="poll-status-closed">{t('meet_poll_status_closed')}</span>
                       ) : (
-                        <span className="poll-status-active">En cours</span>
+                        <span className="poll-status-active">{t('meet_poll_status_active')}</span>
                       )}
                     </div>
 
                     <h4 className="poll-question-title">{activePoll.question}</h4>
-                    <p className="poll-author">Lancé par {activePoll.createdBy}</p>
+                    <p className="poll-author">{t('meet_poll_author_prefix')} {activePoll.createdBy}</p>
 
                     <div className="poll-options-list">
                       {activePoll.options.map((opt) => {
@@ -2270,8 +2309,8 @@ const MeetingRoomPage = () => {
                     </div>
 
                     <div className="poll-footer-meta">
-                      <span>Total : {activePoll.options.reduce((acc, curr) => acc + curr.votes, 0)} vote(s)</span>
-                      {userVotedOption !== null && <span style={{ color: '#10B981' }}>✓ Votre vote est comptabilisé</span>}
+                      <span>{t('meet_poll_total_votes').replace('{count}', activePoll.options.reduce((acc, curr) => acc + curr.votes, 0))}</span>
+                      {userVotedOption !== null && <span style={{ color: '#10B981' }}>{t('meet_poll_voted_badge')}</span>}
                     </div>
 
                     {/* Poll Controls for Host */}
@@ -2282,7 +2321,7 @@ const MeetingRoomPage = () => {
                           className="btn btn-secondary btn-sm"
                           onClick={handleClosePoll}
                         >
-                          Clôturer le vote
+                          {t('meet_poll_btn_close')}
                         </button>
                       )}
 
@@ -2291,14 +2330,14 @@ const MeetingRoomPage = () => {
                         className="btn btn-ghost btn-sm"
                         onClick={insertPollResultsInNotes}
                       >
-                        Insérer dans les notes
+                        {t('meet_poll_btn_insert_notes')}
                       </button>
                     </div>
                   </div>
                 ) : (
                   <div className="no-poll-state">
                     <BarChart2 size={36} color="var(--text-muted)" />
-                    <p>Aucun sondage actif pour l'instant</p>
+                    <p>{t('meet_poll_empty')}</p>
                   </div>
                 )}
 
@@ -2309,7 +2348,7 @@ const MeetingRoomPage = () => {
                   onClick={() => setShowCreatePollModal(true)}
                 >
                   <Plus size={16} />
-                  <span>Nouveau Sondage en Direct</span>
+                  <span>{t('meet_poll_btn_new')}</span>
                 </button>
               </div>
             )}
@@ -2329,20 +2368,20 @@ const MeetingRoomPage = () => {
               type="button"
               className={`dock-btn ${isAudioMuted ? 'btn-danger-state' : 'btn-normal'}`}
               onClick={handleToggleMic}
-              title={isAudioMuted ? 'Activer le microphone' : 'Couper le microphone'}
+              title={isAudioMuted ? t('meet_dock_mic_on') : t('meet_dock_mic_off')}
             >
               {isAudioMuted ? <MicOff size={20} /> : <Mic size={20} />}
-              <span className="dock-tooltip">{isAudioMuted ? 'Activer Micro' : 'Couper Micro'}</span>
+              <span className="dock-tooltip">{isAudioMuted ? t('meet_dock_mic_on') : t('meet_dock_mic_off')}</span>
             </button>
 
             <button
               type="button"
               className={`dock-btn ${isVideoDisabled ? 'btn-danger-state' : 'btn-normal'}`}
               onClick={handleToggleVideo}
-              title={isVideoDisabled ? 'Activer la caméra' : 'Désactiver la caméra'}
+              title={isVideoDisabled ? t('meet_dock_cam_on') : t('meet_dock_cam_off')}
             >
               {isVideoDisabled ? <VideoOff size={20} /> : <Video size={20} />}
-              <span className="dock-tooltip">{isVideoDisabled ? 'Activer Caméra' : 'Couper Caméra'}</span>
+              <span className="dock-tooltip">{isVideoDisabled ? t('meet_dock_cam_on') : t('meet_dock_cam_off')}</span>
             </button>
           </div>
 
@@ -2354,40 +2393,40 @@ const MeetingRoomPage = () => {
               type="button"
               className={`dock-btn ${isScreenSharing ? 'btn-active-state' : 'btn-normal'}`}
               onClick={handleToggleScreenShare}
-              title={isScreenSharing ? 'Arrêter le partage' : 'Partager l\'écran'}
+              title={isScreenSharing ? t('meet_dock_screen_stop') : t('meet_dock_screen_start')}
             >
               <ScreenShare size={20} />
-              <span className="dock-tooltip">{isScreenSharing ? 'Arrêter Partage' : 'Partager Écran'}</span>
+              <span className="dock-tooltip">{isScreenSharing ? t('meet_dock_screen_stop') : t('meet_dock_screen_start')}</span>
             </button>
 
             <button
               type="button"
               className={`dock-btn ${layoutMode === 'whiteboard' ? 'btn-active-state' : 'btn-normal'}`}
               onClick={() => setLayoutMode(prev => (prev === 'whiteboard' ? 'grid' : 'whiteboard'))}
-              title="Tableau Blanc Collaboratif"
+              title={t('meet_dock_whiteboard')}
             >
               <PenTool size={20} />
-              <span className="dock-tooltip">Tableau Blanc</span>
+              <span className="dock-tooltip">{t('meet_dock_whiteboard')}</span>
             </button>
 
             <button
               type="button"
               className={`dock-btn ${isHandRaised ? 'btn-amber-state' : 'btn-normal'}`}
               onClick={handleToggleHand}
-              title={isHandRaised ? 'Baisser la main' : 'Lever la main'}
+              title={isHandRaised ? t('meet_dock_hand_lower') : t('meet_dock_hand_raise')}
             >
               <Hand size={20} />
-              <span className="dock-tooltip">{isHandRaised ? 'Baisser la Main' : 'Lever la Main'}</span>
+              <span className="dock-tooltip">{isHandRaised ? t('meet_dock_hand_lower') : t('meet_dock_hand_raise')}</span>
             </button>
 
             <button
               type="button"
               className={`dock-btn ${isCaptionsEnabled ? 'btn-active-state' : 'btn-normal'}`}
               onClick={handleToggleCaptions}
-              title={isCaptionsEnabled ? 'Désactiver les sous-titres' : 'Sous-titres en direct'}
+              title={isCaptionsEnabled ? t('meet_dock_captions_off') : t('meet_dock_captions_on')}
             >
               <Subtitles size={20} />
-              <span className="dock-tooltip">{isCaptionsEnabled ? 'Désactiver Sous-titres' : 'Sous-titres IA'}</span>
+              <span className="dock-tooltip">{isCaptionsEnabled ? t('meet_dock_captions_off') : t('meet_dock_captions_on')}</span>
             </button>
 
             {/* Reactions Popover Menu */}
@@ -2396,21 +2435,21 @@ const MeetingRoomPage = () => {
                 type="button"
                 className={`dock-btn ${reactionsMenuOpen ? 'btn-active-state' : 'btn-normal'}`}
                 onClick={() => setReactionsMenuOpen(!reactionsMenuOpen)}
-                title="Envoyer une réaction"
+                title={t('meet_dock_reactions')}
               >
                 <Smile size={20} />
-                <span className="dock-tooltip">Réactions</span>
+                <span className="dock-tooltip">{t('meet_dock_reactions')}</span>
               </button>
 
               {reactionsMenuOpen && (
                 <div className="reactions-floating-menu glass-card">
                   {[
-                    { emoji: '👏', label: 'Bravo' },
-                    { emoji: '❤️', label: 'J\'adore' },
-                    { emoji: '🎉', label: 'Fête' },
-                    { emoji: '🔥', label: 'Super' },
-                    { emoji: '👍', label: 'D\'accord' },
-                    { emoji: '🚀', label: 'Décollage' },
+                    { emoji: '👏', label: language === 'ar' ? 'أحسنت' : language === 'en' ? 'Clap' : 'Bravo' },
+                    { emoji: '❤️', label: language === 'ar' ? 'أحببته' : language === 'en' ? 'Love' : 'J\'adore' },
+                    { emoji: '🎉', label: language === 'ar' ? 'احتفال' : language === 'en' ? 'Party' : 'Fête' },
+                    { emoji: '🔥', label: language === 'ar' ? 'رائع' : language === 'en' ? 'Fire' : 'Super' },
+                    { emoji: '👍', label: language === 'ar' ? 'موافق' : language === 'en' ? 'Agree' : 'D\'accord' },
+                    { emoji: '🚀', label: language === 'ar' ? 'انطلاق' : language === 'en' ? 'Rocket' : 'Décollage' },
                   ].map(r => (
                     <button
                       key={r.emoji}
@@ -2431,10 +2470,10 @@ const MeetingRoomPage = () => {
               type="button"
               className={`dock-btn ${isRecording ? 'btn-rec-state' : 'btn-normal'}`}
               onClick={handleToggleRecording}
-              title={isRecording ? 'Arrêter et télécharger l\'enregistrement' : 'Enregistrer la réunion 4K'}
+              title={isRecording ? t('meet_dock_rec_stop') : t('meet_dock_rec_start')}
             >
               {isRecording ? <StopCircle size={20} color="#EF4444" /> : <Radio size={20} />}
-              <span className="dock-tooltip">{isRecording ? 'Arrêter REC' : 'Enregistrer'}</span>
+              <span className="dock-tooltip">{isRecording ? t('meet_dock_rec_stop') : t('meet_dock_rec_start')}</span>
             </button>
           </div>
 
@@ -2449,44 +2488,44 @@ const MeetingRoomPage = () => {
                 setActiveDrawer(prev => (prev === 'chat' ? null : 'chat'));
                 setUnreadChatCount(0);
               }}
-              title="Chat en direct"
+              title={t('meet_dock_chat')}
             >
               <MessageSquare size={20} />
               {unreadChatCount > 0 && (
                 <span className="dock-counter-pill">{unreadChatCount}</span>
               )}
-              <span className="dock-tooltip">Chat</span>
+              <span className="dock-tooltip">{t('meet_dock_chat')}</span>
             </button>
 
             <button
               type="button"
               className={`dock-btn ${activeDrawer === 'participants' ? 'btn-active-state' : 'btn-normal'}`}
               onClick={() => setActiveDrawer(prev => (prev === 'participants' ? null : 'participants'))}
-              title="Liste des participants"
+              title={t('meet_dock_participants')}
             >
               <Users size={20} />
               <span className="dock-counter-pill static">{totalCount}</span>
-              <span className="dock-tooltip">Participants</span>
+              <span className="dock-tooltip">{t('meet_dock_participants')}</span>
             </button>
 
             <button
               type="button"
               className={`dock-btn ${activeDrawer === 'polls' ? 'btn-active-state' : 'btn-normal'}`}
               onClick={() => setActiveDrawer(prev => (prev === 'polls' ? null : 'polls'))}
-              title="Sondages et votes"
+              title={t('meet_dock_polls')}
             >
               <BarChart2 size={20} />
-              <span className="dock-tooltip">Sondages</span>
+              <span className="dock-tooltip">{t('meet_dock_polls')}</span>
             </button>
 
             <button
               type="button"
               className={`dock-btn ${activeDrawer === 'notes' ? 'btn-active-state' : 'btn-normal'}`}
               onClick={() => setActiveDrawer(prev => (prev === 'notes' ? null : 'notes'))}
-              title="Notes et Compte-Rendu IA"
+              title={t('meet_dock_notes')}
             >
               <FileText size={20} />
-              <span className="dock-tooltip">Notes IA</span>
+              <span className="dock-tooltip">{t('meet_dock_notes')}</span>
             </button>
           </div>
 
@@ -2498,10 +2537,10 @@ const MeetingRoomPage = () => {
               type="button"
               className="dock-btn btn-hangup"
               onClick={() => setLeaveModalOpen(true)}
-              title="Quitter la réunion"
+              title={t('meet_dock_hangup')}
             >
               <PhoneOff size={22} />
-              <span className="dock-tooltip">Quitter</span>
+              <span className="dock-tooltip">{t('meet_dock_hangup')}</span>
             </button>
           </div>
 
@@ -2510,12 +2549,12 @@ const MeetingRoomPage = () => {
 
       {/* CREATE LIVE POLL MODAL */}
       {showCreatePollModal && (
-        <div className="meeting-modal-overlay" onClick={() => setShowCreatePollModal(false)}>
+        <div className="meeting-modal-overlay" onClick={() => setShowCreatePollModal(false)} dir={isRtl ? 'rtl' : 'ltr'}>
           <div className="glass-card meeting-modal-card" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title-with-icon">
                 <BarChart2 size={22} color="#F59E0B" />
-                <h3>Créer un Sondage en Direct</h3>
+                <h3>{t('meet_modal_poll_title')}</h3>
               </div>
               <button
                 type="button"
@@ -2528,17 +2567,17 @@ const MeetingRoomPage = () => {
 
             <form onSubmit={handleCreatePoll}>
               <div className="modal-body">
-                <label className="lobby-form-label">Question posée aux participants</label>
+                <label className="lobby-form-label">{t('meet_modal_poll_label_q')}</label>
                 <input
                   type="text"
                   className="lobby-input"
                   value={newPollQuestion}
                   onChange={(e) => setNewPollQuestion(e.target.value)}
-                  placeholder="Ex: Approuvez-vous le calendrier des livrables T3 ?"
+                  placeholder={t('meet_modal_poll_ph_q')}
                   required
                 />
 
-                <label className="lobby-form-label" style={{ marginTop: '1rem' }}>Options de vote</label>
+                <label className="lobby-form-label" style={{ marginTop: '1rem' }}>{t('meet_modal_poll_label_opts')}</label>
                 {newPollOptions.map((opt, idx) => (
                   <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <input
@@ -2550,7 +2589,7 @@ const MeetingRoomPage = () => {
                         updated[idx] = e.target.value;
                         setNewPollOptions(updated);
                       }}
-                      placeholder={`Option ${idx + 1}`}
+                      placeholder={`${t('meet_modal_poll_opt_prefix')} ${idx + 1}`}
                       required
                     />
                     {newPollOptions.length > 2 && (
@@ -2573,7 +2612,7 @@ const MeetingRoomPage = () => {
                     onClick={() => setNewPollOptions([...newPollOptions, ''])}
                   >
                     <Plus size={14} />
-                    <span>Ajouter une option</span>
+                    <span>{t('meet_modal_poll_btn_add_opt')}</span>
                   </button>
                 )}
               </div>
@@ -2584,13 +2623,13 @@ const MeetingRoomPage = () => {
                   className="btn btn-secondary btn-sm"
                   onClick={() => setShowCreatePollModal(false)}
                 >
-                  Annuler
+                  {t('meet_modal_poll_btn_cancel')}
                 </button>
                 <button
                   type="submit"
                   className="btn btn-primary btn-sm"
                 >
-                  Diffuser le sondage
+                  {t('meet_modal_poll_btn_submit')}
                 </button>
               </div>
             </form>
@@ -2600,12 +2639,12 @@ const MeetingRoomPage = () => {
 
       {/* EMAIL MEETING MINUTES MODAL */}
       {emailMinutesModalOpen && (
-        <div className="meeting-modal-overlay" onClick={() => setEmailMinutesModalOpen(false)}>
+        <div className="meeting-modal-overlay" onClick={() => setEmailMinutesModalOpen(false)} dir={isRtl ? 'rtl' : 'ltr'}>
           <div className="glass-card meeting-modal-card" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title-with-icon">
                 <Mail size={22} color="var(--s2t-cyan)" />
-                <h3>Transmettre le Compte-Rendu par Email</h3>
+                <h3>{t('meet_modal_email_title')}</h3>
               </div>
               <button
                 type="button"
@@ -2625,16 +2664,16 @@ const MeetingRoomPage = () => {
                   </div>
                 )}
 
-                <label className="lobby-form-label">Destinataires (séparés par des virgules)</label>
+                <label className="lobby-form-label">{t('meet_modal_email_label_to')}</label>
                 <input
                   type="text"
                   className="lobby-input"
                   value={emailRecipientsInput}
                   onChange={(e) => setEmailRecipientsInput(e.target.value)}
-                  placeholder="direction@s2t.tn, contact@entreprise.tn"
+                  placeholder={t('meet_modal_email_ph_to')}
                 />
 
-                <label className="lobby-form-label" style={{ marginTop: '1rem' }}>Aperçu du contenu à expédier</label>
+                <label className="lobby-form-label" style={{ marginTop: '1rem' }}>{t('meet_modal_email_label_preview')}</label>
                 <textarea
                   className="notes-textarea"
                   style={{ height: '140px', fontSize: '0.8rem' }}
@@ -2649,7 +2688,7 @@ const MeetingRoomPage = () => {
                   className="btn btn-secondary btn-sm"
                   onClick={() => setEmailMinutesModalOpen(false)}
                 >
-                  Fermer
+                  {t('meet_modal_email_btn_close')}
                 </button>
                 <button
                   type="submit"
@@ -2657,7 +2696,7 @@ const MeetingRoomPage = () => {
                   disabled={isSendingEmail}
                 >
                   <Send size={15} />
-                  <span>{isSendingEmail ? 'Envoi en cours...' : 'Envoyer maintenant'}</span>
+                  <span>{isSendingEmail ? t('meet_modal_email_btn_sending') : t('meet_modal_email_btn_send')}</span>
                 </button>
               </div>
             </form>
@@ -2667,12 +2706,12 @@ const MeetingRoomPage = () => {
 
       {/* SETTINGS / HARDWARE MODAL */}
       {settingsModalOpen && (
-        <div className="meeting-modal-overlay" onClick={() => setSettingsModalOpen(false)}>
+        <div className="meeting-modal-overlay" onClick={() => setSettingsModalOpen(false)} dir={isRtl ? 'rtl' : 'ltr'}>
           <div className="glass-card meeting-modal-card" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title-with-icon">
                 <Settings size={22} color="var(--s2t-blue)" />
-                <h3>Paramètres Audio, Vidéo & Arrière-Plan</h3>
+                <h3>{t('meet_modal_settings_title')}</h3>
               </div>
               <button
                 type="button"
@@ -2685,7 +2724,7 @@ const MeetingRoomPage = () => {
 
             <div className="modal-body">
               {/* Microphone Selector */}
-              <label className="lobby-form-label">Microphone</label>
+              <label className="lobby-form-label">{t('meet_modal_settings_mic')}</label>
               <select
                 className="lobby-input"
                 value={selectedAudioDevice}
@@ -2697,7 +2736,7 @@ const MeetingRoomPage = () => {
               </select>
 
               {/* Camera Selector */}
-              <label className="lobby-form-label" style={{ marginTop: '1rem' }}>Caméra</label>
+              <label className="lobby-form-label" style={{ marginTop: '1rem' }}>{t('meet_modal_settings_cam')}</label>
               <select
                 className="lobby-input"
                 value={selectedVideoDevice}
@@ -2709,25 +2748,25 @@ const MeetingRoomPage = () => {
               </select>
 
               {/* Resolution / Quality */}
-              <label className="lobby-form-label" style={{ marginTop: '1rem' }}>Qualité vidéo WebRTC</label>
+              <label className="lobby-form-label" style={{ marginTop: '1rem' }}>{t('meet_modal_settings_quality')}</label>
               <select
                 className="lobby-input"
                 value={videoQuality}
                 onChange={(e) => setVideoQuality(e.target.value)}
               >
-                <option value="1080p">1080p Full HD (60 fps — Fibre Optique)</option>
-                <option value="720p">720p HD (30 fps — Recommandé)</option>
-                <option value="360p">360p Standard (Économiseur de bande passante)</option>
+                <option value="1080p">{t('meet_modal_settings_quality_1080p')}</option>
+                <option value="720p">{t('meet_modal_settings_quality_720p')}</option>
+                <option value="360p">{t('meet_modal_settings_quality_360p')}</option>
               </select>
 
               {/* Virtual Background Filter */}
-              <label className="lobby-form-label" style={{ marginTop: '1rem' }}>Effets d'Arrière-Plan</label>
+              <label className="lobby-form-label" style={{ marginTop: '1rem' }}>{t('meet_modal_settings_bg')}</label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginTop: '0.4rem' }}>
                 {[
-                  { id: 'normal', label: 'Naturel' },
-                  { id: 'blur', label: 'Flou Studio' },
-                  { id: 'technopark', label: 'Pôle S2T' },
-                  { id: 'studio', label: 'Contraste' },
+                  { id: 'normal', label: t('meet_filter_normal') },
+                  { id: 'blur', label: t('meet_filter_blur') },
+                  { id: 'technopark', label: t('meet_filter_technopark') },
+                  { id: 'studio', label: t('meet_filter_studio') },
                 ].map(item => (
                   <button
                     key={item.id}
@@ -2748,7 +2787,7 @@ const MeetingRoomPage = () => {
                 className="btn btn-primary btn-sm"
                 onClick={() => setSettingsModalOpen(false)}
               >
-                Enregistrer les paramètres
+                {t('meet_modal_settings_btn_save')}
               </button>
             </div>
           </div>
@@ -2757,12 +2796,12 @@ const MeetingRoomPage = () => {
 
       {/* SECURITY / ENCRYPTION INFO MODAL */}
       {securityModalOpen && (
-        <div className="meeting-modal-overlay" onClick={() => setSecurityModalOpen(false)}>
+        <div className="meeting-modal-overlay" onClick={() => setSecurityModalOpen(false)} dir={isRtl ? 'rtl' : 'ltr'}>
           <div className="glass-card meeting-modal-card" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title-with-icon">
                 <Shield size={22} color="var(--s2t-cyan)" />
-                <h3>Sécurité & Souveraineté S2T</h3>
+                <h3>{t('meet_modal_sec_title')}</h3>
               </div>
               <button
                 type="button"
@@ -2775,32 +2814,31 @@ const MeetingRoomPage = () => {
 
             <div className="modal-body">
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                Cette session de visioconférence est hébergée sur les serveurs certifiés du 
-                <strong> Pôle Technologique El Ghazala (S2T)</strong> et répond aux normes de sécurité les plus strictes.
+                {t('meet_modal_sec_desc')}
               </p>
 
               <div className="security-features-list">
                 <div className="sec-feature-item">
                   <CheckCircle2 size={16} color="#10B981" />
                   <div>
-                    <strong>Chiffrement WebRTC de bout en bout (E2EE)</strong>
-                    <p>Les flux audio, vidéo et partages d'écran sont chiffrés via DTLS-SRTP 256 bits.</p>
+                    <strong>{t('meet_sec_feat_1_title')}</strong>
+                    <p>{t('meet_sec_feat_1_desc')}</p>
                   </div>
                 </div>
 
                 <div className="sec-feature-item">
                   <CheckCircle2 size={16} color="#10B981" />
                   <div>
-                    <strong>Souveraineté des Données en Tunisie</strong>
-                    <p>Aucune fuite de données hors des datacenters certifiés Technopark.</p>
+                    <strong>{t('meet_sec_feat_2_title')}</strong>
+                    <p>{t('meet_sec_feat_2_desc')}</p>
                   </div>
                 </div>
 
                 <div className="sec-feature-item">
                   <CheckCircle2 size={16} color="#10B981" />
                   <div>
-                    <strong>Journalisation & Contrôle d'Accès</strong>
-                    <p>Seuls les résidents et invités autorisés avec jeton de session peuvent participer.</p>
+                    <strong>{t('meet_sec_feat_3_title')}</strong>
+                    <p>{t('meet_sec_feat_3_desc')}</p>
                   </div>
                 </div>
               </div>
@@ -2812,7 +2850,7 @@ const MeetingRoomPage = () => {
                 className="btn btn-primary btn-sm"
                 onClick={() => setSecurityModalOpen(false)}
               >
-                Compris
+                {t('meet_modal_sec_btn_ok')}
               </button>
             </div>
           </div>
@@ -2821,12 +2859,12 @@ const MeetingRoomPage = () => {
 
       {/* LEAVE CONFIRMATION MODAL */}
       {leaveModalOpen && (
-        <div className="meeting-modal-overlay" onClick={() => setLeaveModalOpen(false)}>
+        <div className="meeting-modal-overlay" onClick={() => setLeaveModalOpen(false)} dir={isRtl ? 'rtl' : 'ltr'}>
           <div className="glass-card meeting-modal-card" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title-with-icon">
                 <AlertCircle size={22} color="#EF4444" />
-                <h3>Quitter la visioconférence ?</h3>
+                <h3>{t('meet_modal_leave_title')}</h3>
               </div>
               <button
                 type="button"
@@ -2839,8 +2877,7 @@ const MeetingRoomPage = () => {
 
             <div className="modal-body">
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                Êtes-vous sûr de vouloir quitter la réunion <strong>{roomTitle}</strong> ?
-                Vous pourrez rejoindre à nouveau à tout moment depuis votre planning.
+                {t('meet_modal_leave_desc').replace('{title}', roomTitle)}
               </p>
             </div>
 
@@ -2850,7 +2887,7 @@ const MeetingRoomPage = () => {
                 className="btn btn-secondary btn-sm"
                 onClick={() => setLeaveModalOpen(false)}
               >
-                Rester dans la réunion
+                {t('meet_modal_leave_btn_stay')}
               </button>
               <button
                 type="button"
@@ -2858,7 +2895,7 @@ const MeetingRoomPage = () => {
                 style={{ background: '#EF4444', borderColor: '#EF4444' }}
                 onClick={handleLeaveMeeting}
               >
-                Quitter maintenant
+                {t('meet_modal_leave_btn_confirm')}
               </button>
             </div>
           </div>
