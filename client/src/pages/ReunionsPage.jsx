@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { reunionAPI } from '../services/api';
 import { getSocket } from '../services/socket';
 import { 
@@ -12,9 +13,6 @@ import {
   Plus, 
   CheckCircle2, 
   Building2, 
-  Tv, 
-  Wifi, 
-  Coffee, 
   Calendar as CalendarIcon, 
   X, 
   Check, 
@@ -83,6 +81,9 @@ const SUGGESTED_SLOTS = [
 const ReunionsPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const isRtl = language === 'ar';
+
   const isAdmin = user?.role === 'admin';
   const isClient = user?.role === 'client';
 
@@ -224,13 +225,17 @@ const ReunionsPage = () => {
     setConflictError('');
 
     if (isInvalidTimeRange) {
-      setConflictError("L'heure de début doit être strictement antérieure à l'heure de fin.");
+      setConflictError(t('reunion_modal_err_time_range'));
       return;
     }
 
     if (detectedConflict) {
       setConflictError(
-        `La salle "${bookingData.room}" est déjà réservée de ${detectedConflict.startTime} à ${detectedConflict.endTime} (${detectedConflict.title || 'Réservation en cours'}). Veuillez choisir un autre horaire.`
+        t('reunion_modal_err_conflict')
+          .replace('{room}', bookingData.room)
+          .replace('{start}', detectedConflict.startTime)
+          .replace('{end}', detectedConflict.endTime)
+          .replace('{title}', detectedConflict.title || '')
       );
       return;
     }
@@ -240,7 +245,7 @@ const ReunionsPage = () => {
     try {
       const res = await reunionAPI.create(bookingData);
       if (res.data?.success) {
-        setBookingSuccess(res.data.message || 'Votre réservation de salle a été enregistrée avec succès !');
+        setBookingSuccess(res.data.message || t('reunion_success_booking_default'));
         setBookingModalOpen(false);
         setBookingData({
           title: '',
@@ -258,7 +263,7 @@ const ReunionsPage = () => {
       }
     } catch (err) {
       console.error('Erreur réservation:', err);
-      const msg = err.response?.data?.message || 'Erreur lors de la réservation de la salle.';
+      const msg = err.response?.data?.message || t('reunion_modal_err_generic');
       setConflictError(msg);
     } finally {
       setIsSubmitting(false);
@@ -270,12 +275,16 @@ const ReunionsPage = () => {
     try {
       setIsSubmitting(true);
       await reunionAPI.updateStatus(meet.id || meet._id, 'confirme');
-      setBookingSuccess(`✅ La réservation "${meet.title}" dans la salle "${meet.room}" a été validée et confirmée !`);
+      setBookingSuccess(
+        t('reunion_success_approved_msg')
+          .replace('{title}', meet.title)
+          .replace('{room}', meet.room)
+      );
       fetchReunionsData();
       setTimeout(() => setBookingSuccess(''), 5000);
     } catch (err) {
       console.error('Erreur confirmation réservation:', err);
-      alert(err.response?.data?.message || 'Erreur lors de la confirmation de la réservation');
+      alert(err.response?.data?.message || t('reunion_modal_err_generic'));
     } finally {
       setIsSubmitting(false);
     }
@@ -286,20 +295,21 @@ const ReunionsPage = () => {
     e.preventDefault();
     if (!rejectModalMeeting) return;
 
-    const finalReason = rejectReason.trim() || selectedQuickReason || 'Créneau indisponible ou impératif technique';
+    const finalReason = rejectReason.trim() || selectedQuickReason || t('reunion_reason_default');
 
     try {
       setIsSubmitting(true);
       await reunionAPI.updateStatus(rejectModalMeeting.id || rejectModalMeeting._id, 'rejete', finalReason);
+      const rejectedTitle = rejectModalMeeting.title;
       setRejectModalMeeting(null);
       setRejectReason('');
       setSelectedQuickReason('');
-      setBookingSuccess(`❌ La demande de réservation pour "${rejectModalMeeting.title}" a été refusée.`);
+      setBookingSuccess(t('reunion_success_rejected_msg').replace('{title}', rejectedTitle));
       fetchReunionsData();
       setTimeout(() => setBookingSuccess(''), 5000);
     } catch (err) {
       console.error('Erreur refus réservation:', err);
-      alert(err.response?.data?.message || 'Erreur lors du refus de la réservation');
+      alert(err.response?.data?.message || t('reunion_modal_err_generic'));
     } finally {
       setIsSubmitting(false);
     }
@@ -315,12 +325,12 @@ const ReunionsPage = () => {
       await reunionAPI.updateStatus(cancelModalMeeting.id || cancelModalMeeting._id, 'annule', cancelReason);
       setCancelModalMeeting(null);
       setCancelReason('');
-      setBookingSuccess('La réservation de la réunion a été annulée avec succès.');
+      setBookingSuccess(t('reunion_success_cancelled_msg'));
       fetchReunionsData();
       setTimeout(() => setBookingSuccess(''), 5000);
     } catch (err) {
       console.error('Erreur annulation réunion:', err);
-      alert(err.response?.data?.message || 'Erreur lors de l\'annulation');
+      alert(err.response?.data?.message || t('reunion_modal_err_generic'));
     } finally {
       setIsSubmitting(false);
     }
@@ -328,18 +338,18 @@ const ReunionsPage = () => {
 
   // Delete Meeting (admin or owner)
   const handleDeleteMeeting = async (id, title) => {
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement la réunion "${title}" ?`)) {
+    if (!window.confirm(t('reunion_confirm_delete').replace('{title}', title))) {
       return;
     }
 
     try {
       await reunionAPI.delete(id);
       fetchReunionsData();
-      setBookingSuccess('Réunion supprimée avec succès.');
+      setBookingSuccess(t('reunion_success_deleted_msg'));
       setTimeout(() => setBookingSuccess(''), 4000);
     } catch (err) {
       console.error('Erreur suppression réunion:', err);
-      alert(err.response?.data?.message || 'Erreur lors de la suppression');
+      alert(err.response?.data?.message || t('reunion_modal_err_generic'));
     }
   };
 
@@ -367,17 +377,17 @@ const ReunionsPage = () => {
   });
 
   return (
-    <div className="reunions-page-container">
+    <div className="reunions-page-container" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Top Banner Header */}
       <div className="page-header-row">
         <div className="page-header-text">
           <div className="page-breadcrumb">
             <CalendarDays size={15} color="var(--s2t-cyan)" />
-            <span>{isClient ? 'Espace Entreprise Résidente' : 'Direction S2T Administration'} / Réunions & Salles</span>
+            <span>{isClient ? t('reunion_breadcrumb_client') : t('reunion_breadcrumb_admin')}</span>
           </div>
-          <h1 className="page-main-title">Gestion des Salles & Réservations S2T</h1>
+          <h1 className="page-main-title">{t('reunion_main_title')}</h1>
           <p className="page-subtitle">
-            Planifiez vos comités, réunions stratégiques et visioconférences 4K au Technopark El Ghazala en évitant les conflits d'horaires.
+            {t('reunion_subtitle')}
           </p>
         </div>
 
@@ -386,10 +396,10 @@ const ReunionsPage = () => {
             type="button"
             className="btn btn-secondary btn-sm"
             onClick={fetchReunionsData}
-            title="Actualiser le calendrier"
+            title={t('reunion_tooltip_refresh')}
           >
             <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
-            <span>Actualiser</span>
+            <span>{t('reunion_btn_refresh')}</span>
           </button>
 
           <button
@@ -398,12 +408,12 @@ const ReunionsPage = () => {
             style={{ borderColor: 'var(--s2t-cyan)', color: 'var(--s2t-cyan)', gap: '0.4rem' }}
             onClick={() => {
               const instantId = `instant-${Date.now().toString(36)}`;
-              navigate(`/meeting/${instantId}`, { state: { meetingTitle: 'Visio Instantanée S2T' } });
+              navigate(`/meeting/${instantId}`, { state: { meetingTitle: t('reunion_instant_visio_title') } });
             }}
-            title="Démarrer une visioconférence 4K instantanée"
+            title={t('reunion_tooltip_instant_visio')}
           >
             <Video size={15} />
-            <span>Visio Instantanée</span>
+            <span>{t('reunion_btn_instant_visio')}</span>
           </button>
 
           <button 
@@ -416,7 +426,7 @@ const ReunionsPage = () => {
             style={{ gap: '0.5rem' }}
           >
             <Plus size={18} />
-            <span>Réserver une Salle</span>
+            <span>{t('reunion_btn_book_room')}</span>
           </button>
         </div>
       </div>
@@ -438,10 +448,10 @@ const ReunionsPage = () => {
             </div>
             <div>
               <h4 className="admin-alert-title">
-                {pendingCount} Demande{pendingCount > 1 ? 's' : ''} de réservation en attente de votre validation
+                {pendingCount} {t('reunion_admin_alert_title')}
               </h4>
               <p className="admin-alert-sub">
-                Des entreprises résidentes attendent la confirmation de leur créneau de salle.
+                {t('reunion_admin_alert_sub')}
               </p>
             </div>
           </div>
@@ -450,7 +460,7 @@ const ReunionsPage = () => {
             className="btn btn-primary btn-sm admin-alert-btn"
             onClick={() => setActiveTab('pending')}
           >
-            Examiner les demandes ({pendingCount})
+            {t('reunion_admin_alert_btn')} ({pendingCount})
           </button>
         </div>
       )}
@@ -462,7 +472,7 @@ const ReunionsPage = () => {
             <CalendarIcon size={20} />
           </div>
           <div className="stat-info">
-            <span className="stat-label">Total Réservations</span>
+            <span className="stat-label">{t('reunion_stat_total')}</span>
             <h4 className="stat-value">{meetings.length}</h4>
           </div>
         </div>
@@ -472,7 +482,7 @@ const ReunionsPage = () => {
             <Clock size={20} />
           </div>
           <div className="stat-info">
-            <span className="stat-label">En Attente Validation</span>
+            <span className="stat-label">{t('reunion_stat_pending')}</span>
             <h4 className="stat-value" style={{ color: '#F59E0B' }}>{pendingCount}</h4>
           </div>
         </div>
@@ -482,7 +492,7 @@ const ReunionsPage = () => {
             <Activity size={20} />
           </div>
           <div className="stat-info">
-            <span className="stat-label">Confirmées S2T</span>
+            <span className="stat-label">{t('reunion_stat_confirmed')}</span>
             <h4 className="stat-value" style={{ color: '#10B981' }}>{confirmedCount}</h4>
           </div>
         </div>
@@ -492,7 +502,7 @@ const ReunionsPage = () => {
             <Video size={20} />
           </div>
           <div className="stat-info">
-            <span className="stat-label">Visioconférences 4K</span>
+            <span className="stat-label">{t('reunion_stat_visio')}</span>
             <h4 className="stat-value" style={{ color: '#8B5CF6' }}>
               {meetings.filter(m => m.isVisio && m.status === 'confirme').length}
             </h4>
@@ -508,7 +518,7 @@ const ReunionsPage = () => {
           className={`reunion-tab-btn ${activeTab === 'all' ? 'active-blue' : ''}`}
         >
           <Layers size={14} />
-          <span>Toutes ({meetings.length})</span>
+          <span>{t('reunion_tab_all')} ({meetings.length})</span>
         </button>
 
         <button
@@ -517,7 +527,7 @@ const ReunionsPage = () => {
           className={`reunion-tab-btn ${activeTab === 'pending' ? 'active-amber' : ''}`}
         >
           <Clock size={14} />
-          <span>À Valider (Admin)</span>
+          <span>{t('reunion_tab_pending')}</span>
           {pendingCount > 0 && (
             <span className="tab-counter-pill">
               {pendingCount}
@@ -531,7 +541,7 @@ const ReunionsPage = () => {
           className={`reunion-tab-btn ${activeTab === 'confirmed' ? 'active-green' : ''}`}
         >
           <CheckCircle2 size={14} />
-          <span>Confirmées ({confirmedCount})</span>
+          <span>{t('reunion_tab_confirmed')} ({confirmedCount})</span>
         </button>
 
         {isClient && (
@@ -541,7 +551,7 @@ const ReunionsPage = () => {
             className={`reunion-tab-btn ${activeTab === 'mine' ? 'active-teal' : ''}`}
           >
             <Users size={14} />
-            <span>Mes Réservations ({meetings.filter(m => m.isOwner).length})</span>
+            <span>{t('reunion_tab_mine')} ({meetings.filter(m => m.isOwner).length})</span>
           </button>
         )}
       </div>
@@ -552,7 +562,7 @@ const ReunionsPage = () => {
           <Search size={16} color="var(--text-muted)" />
           <input
             type="text"
-            placeholder="Rechercher par titre, entreprise, organisateur ou salle..."
+            placeholder={t('reunion_search_ph')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -571,7 +581,7 @@ const ReunionsPage = () => {
               value={roomFilter}
               onChange={(e) => setRoomFilter(e.target.value)}
             >
-              <option value="all">Toutes les salles</option>
+              <option value="all">{t('reunion_filter_all_rooms')}</option>
               {rooms.map(r => (
                 <option key={r.id} value={r.name}>{r.name}</option>
               ))}
@@ -583,11 +593,11 @@ const ReunionsPage = () => {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="all">Tous les statuts</option>
-            <option value="en_attente">En attente</option>
-            <option value="confirme">Confirmées</option>
-            <option value="rejete">Rejetées</option>
-            <option value="annule">Annulées</option>
+            <option value="all">{t('reunion_filter_all_statuses')}</option>
+            <option value="en_attente">{t('reunion_status_pending')}</option>
+            <option value="confirme">{t('reunion_status_confirmed')}</option>
+            <option value="rejete">{t('reunion_status_rejected')}</option>
+            <option value="annule">{t('reunion_status_cancelled')}</option>
           </select>
         </div>
       </div>
@@ -600,25 +610,25 @@ const ReunionsPage = () => {
           <div className="reunions-section-header">
             <CalendarIcon size={18} color="var(--s2t-blue)" />
             <span>
-              {activeTab === 'pending' ? 'Demandes de Réservation à Valider' : 'Planning des Réunions'} ({filteredMeetings.length})
+              {activeTab === 'pending' ? t('reunion_section_schedule_pending') : t('reunion_section_schedule')} ({filteredMeetings.length})
             </span>
           </div>
 
           {isLoading ? (
             <div className="reunions-loading-box">
               <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 0.75rem' }} />
-              <p style={{ margin: 0, fontWeight: 600 }}>Synchronisation du calendrier en direct...</p>
+              <p style={{ margin: 0, fontWeight: 600 }}>{t('reunion_loading_msg')}</p>
             </div>
           ) : filteredMeetings.length === 0 ? (
             <div className="glass-card reunions-empty-card">
               <CalendarDays size={40} style={{ opacity: 0.35, marginBottom: '0.75rem' }} />
               <h4 style={{ margin: '0 0 0.4rem', color: 'var(--text-primary)', fontWeight: 700 }}>
-                {activeTab === 'pending' ? 'Aucune demande en attente' : 'Aucune réunion trouvée'}
+                {activeTab === 'pending' ? t('reunion_empty_pending_title') : t('reunion_empty_title')}
               </h4>
               <p style={{ fontSize: '0.85rem', margin: 0, color: 'var(--text-secondary)' }}>
                 {activeTab === 'pending' 
-                  ? 'Toutes les réservations de salles ont été traitées et confirmées.'
-                  : 'Aucune réservation ne correspond à vos filtres. Cliquez sur "Réserver une Salle" pour planifier un créneau.'}
+                  ? t('reunion_empty_pending_desc')
+                  : t('reunion_empty_desc')}
               </p>
             </div>
           ) : (
@@ -649,28 +659,28 @@ const ReunionsPage = () => {
                         {isConfirmed && (
                           <span className="meeting-status-tag status-confirmed">
                             <CheckCheck size={13} />
-                            Confirmée & Scellée S2T
+                            {t('reunion_badge_confirmed')}
                           </span>
                         )}
 
                         {isPending && (
                           <span className="meeting-status-tag status-pending">
                             <Clock size={13} />
-                            En attente de validation Admin
+                            {t('reunion_badge_pending')}
                           </span>
                         )}
 
                         {isRejected && (
                           <span className="meeting-status-tag status-rejected">
                             <XCircle size={13} />
-                            Refusée par l'Administration
+                            {t('reunion_badge_rejected')}
                           </span>
                         )}
 
                         {isCancelled && (
                           <span className="meeting-status-tag status-cancelled">
                             <Ban size={13} />
-                            Annulée
+                            {t('reunion_badge_cancelled')}
                           </span>
                         )}
 
@@ -694,10 +704,10 @@ const ReunionsPage = () => {
                               });
                             }}
                             className="btn btn-primary btn-sm join-visio-btn"
-                            title="Rejoindre la visioconférence sécurisée S2T"
+                            title={t('reunion_tooltip_join_visio')}
                           >
                             <Video size={14} />
-                            <span>Rejoindre Visio</span>
+                            <span>{t('reunion_btn_join_visio')}</span>
                           </button>
                         )}
 
@@ -706,7 +716,7 @@ const ReunionsPage = () => {
                             type="button"
                             className="btn btn-ghost btn-sm action-icon-btn"
                             onClick={() => setCancelModalMeeting(meet)}
-                            title="Annuler cette réservation"
+                            title={t('reunion_tooltip_cancel')}
                           >
                             <Ban size={15} />
                           </button>
@@ -717,7 +727,7 @@ const ReunionsPage = () => {
                             type="button"
                             className="btn btn-ghost btn-sm action-icon-btn"
                             onClick={() => handleDeleteMeeting(meet.id || meet._id, meet.title)}
-                            title="Supprimer la réunion"
+                            title={t('reunion_tooltip_delete')}
                           >
                             <Trash2 size={15} />
                           </button>
@@ -741,7 +751,7 @@ const ReunionsPage = () => {
                       </div>
                       <div className="meeting-meta-pill">
                         <Users size={14} color="#10B981" />
-                        <span>{meet.participants} participants</span>
+                        <span>{meet.participants} {t('reunion_participants_unit')}</span>
                       </div>
                     </div>
 
@@ -749,14 +759,14 @@ const ReunionsPage = () => {
                     {isRejected && meet.cancellationReason && (
                       <div className="meeting-rejection-notice">
                         <Info size={15} style={{ flexShrink: 0 }} />
-                        <span><strong>Motif du refus :</strong> {meet.cancellationReason}</span>
+                        <span><strong>{t('reunion_rejection_reason_prefix')}</strong> {meet.cancellationReason}</span>
                       </div>
                     )}
 
                     {/* Notes */}
                     {meet.notes && (
                       <div className="meeting-card-note">
-                        <strong>Note :</strong> {meet.notes}
+                        <strong>{t('reunion_note_prefix')}</strong> {meet.notes}
                       </div>
                     )}
 
@@ -765,7 +775,7 @@ const ReunionsPage = () => {
                       <div className="admin-action-row">
                         <div className="admin-action-label">
                           <ShieldCheck size={16} color="#F59E0B" />
-                          <span>Validation Administrative Requise</span>
+                          <span>{t('reunion_admin_validation_req')}</span>
                         </div>
 
                         <div className="admin-action-buttons">
@@ -780,7 +790,7 @@ const ReunionsPage = () => {
                             disabled={isSubmitting}
                           >
                             <X size={14} />
-                            <span>Refuser</span>
+                            <span>{t('reunion_admin_btn_reject')}</span>
                           </button>
 
                           <button
@@ -790,7 +800,7 @@ const ReunionsPage = () => {
                             disabled={isSubmitting}
                           >
                             <Check size={14} />
-                            <span>Confirmer & Valider</span>
+                            <span>{t('reunion_admin_btn_approve')}</span>
                           </button>
                         </div>
                       </div>
@@ -800,16 +810,16 @@ const ReunionsPage = () => {
                     {isClient && isPending && (
                       <div className="client-pending-notice">
                         <Info size={14} color="#F59E0B" style={{ flexShrink: 0 }} />
-                        <span>Votre demande est en cours de validation par la Direction S2T. Vous recevrez une notification dès confirmation.</span>
+                        <span>{t('reunion_client_pending_notice')}</span>
                       </div>
                     )}
 
                     {/* Footer Info */}
                     <div className="meeting-card-footer">
-                      <span className="organizer-text">Organisateur : <strong>{meet.organizer}</strong></span>
+                      <span className="organizer-text">{t('reunion_organizer_label')} <strong>{meet.organizer}</strong></span>
                       <div className="amenities-text">
-                        {meet.needCoffee && <span style={{ color: '#F59E0B', fontWeight: 600 }}>☕ Pause Café S2T</span>}
-                        <span style={{ color: 'var(--s2t-teal)', fontWeight: 600 }}>Équipements réservés ✓</span>
+                        {meet.needCoffee && <span style={{ color: '#F59E0B', fontWeight: 600 }}>{t('reunion_coffee_amenity')}</span>}
+                        <span style={{ color: 'var(--s2t-teal)', fontWeight: 600 }}>{t('reunion_equipments_reserved')}</span>
                       </div>
                     </div>
                   </div>
@@ -823,7 +833,7 @@ const ReunionsPage = () => {
         <div className="reunions-rooms-col">
           <div className="reunions-section-header">
             <Building2 size={18} color="var(--s2t-red)" />
-            <span>Salles & Espaces de Conférence El Ghazala</span>
+            <span>{t('reunion_rooms_section_title')}</span>
           </div>
 
           <div className="s2t-rooms-showcase">
@@ -848,7 +858,7 @@ const ReunionsPage = () => {
                         backgroundColor: isOccupied ? 'rgba(239, 68, 68, 0.95)' : 'rgba(16, 185, 129, 0.95)'
                       }}
                     >
-                      {isOccupied ? 'Occupée' : 'Disponible'}
+                      {isOccupied ? t('reunion_room_status_occupied') : t('reunion_room_status_available')}
                     </span>
                   </div>
 
@@ -856,7 +866,7 @@ const ReunionsPage = () => {
                     <h4 className="s2t-room-title">{room.name}</h4>
                     <div className="s2t-room-loc">
                       <MapPin size={14} color="var(--s2t-red)" />
-                      <span>{room.location} • Capacité : {room.capacity}</span>
+                      <span>{room.location} • {t('reunion_room_capacity_label')} {room.capacity}</span>
                     </div>
 
                     <div className="s2t-room-equipments">
@@ -875,7 +885,7 @@ const ReunionsPage = () => {
                       className="btn btn-secondary btn-sm book-room-btn"
                     >
                       <CalendarDays size={14} />
-                      <span>Réserver cette salle</span>
+                      <span>{t('reunion_room_btn_book')}</span>
                     </button>
                   </div>
                 </div>
@@ -887,7 +897,7 @@ const ReunionsPage = () => {
 
       {/* Booking Modal with Visual Conflict Prevention */}
       {bookingModalOpen && (
-        <div className="modal-overlay" onClick={() => setBookingModalOpen(false)} style={{ zIndex: 1300 }}>
+        <div className="modal-overlay" onClick={() => setBookingModalOpen(false)} style={{ zIndex: 1300 }} dir={isRtl ? 'rtl' : 'ltr'}>
           <form 
             onSubmit={handleCreateBooking} 
             className="modal-container responsive-booking-modal" 
@@ -897,9 +907,9 @@ const ReunionsPage = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <CalendarDays size={20} color="var(--s2t-cyan)" />
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>Réserver une Salle de Réunion S2T</h3>
+                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>{t('reunion_modal_book_title')}</h3>
                   <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {isAdmin ? 'Création directe avec confirmation automatique' : 'Demande transmise à la Direction S2T pour validation'}
+                    {isAdmin ? t('reunion_modal_book_sub_admin') : t('reunion_modal_book_sub_client')}
                   </p>
                 </div>
               </div>
@@ -920,9 +930,13 @@ const ReunionsPage = () => {
                 <div className="modal-conflict-banner">
                   <AlertCircle size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
                   <div>
-                    <strong style={{ display: 'block', marginBottom: '2px' }}>⛔ Conflit d'horaire détecté :</strong>
+                    <strong style={{ display: 'block', marginBottom: '2px' }}>{t('reunion_modal_conflict_title')}</strong>
                     <span>
-                      {conflictError || `La salle "${bookingData.room}" est déjà occupée de ${detectedConflict?.startTime} à ${detectedConflict?.endTime} ("${detectedConflict?.title || 'Réservation active'}"). Impossible de réserver sur ce créneau.`}
+                      {conflictError || t('reunion_modal_conflict_msg')
+                        .replace('{room}', bookingData.room)
+                        .replace('{start}', detectedConflict?.startTime || '')
+                        .replace('{end}', detectedConflict?.endTime || '')
+                        .replace('{title}', detectedConflict?.title || '')}
                     </span>
                   </div>
                 </div>
@@ -930,12 +944,12 @@ const ReunionsPage = () => {
 
               {/* Title Input */}
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Titre ou Objet de la Réunion *</label>
+                <label className="form-label">{t('reunion_modal_label_title')}</label>
                 <input
                   type="text"
                   required
                   className="form-input"
-                  placeholder="Ex: Réunion Comité Stratégique / Démo Client Étranger"
+                  placeholder={t('reunion_modal_ph_title')}
                   value={bookingData.title}
                   onChange={(e) => setBookingData({ ...bookingData, title: e.target.value })}
                 />
@@ -943,7 +957,7 @@ const ReunionsPage = () => {
 
               {/* Room Selection */}
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Choix de la Salle S2T *</label>
+                <label className="form-label">{t('reunion_modal_label_room')}</label>
                 <select
                   className="form-select"
                   value={bookingData.room}
@@ -961,7 +975,7 @@ const ReunionsPage = () => {
               {/* Date & Time Selectors */}
               <div className="modal-datetime-grid">
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Date *</label>
+                  <label className="form-label">{t('reunion_modal_label_date')}</label>
                   <input
                     type="date"
                     required
@@ -976,7 +990,7 @@ const ReunionsPage = () => {
                 </div>
 
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Heure Début *</label>
+                  <label className="form-label">{t('reunion_modal_label_start')}</label>
                   <input
                     type="time"
                     required
@@ -991,7 +1005,7 @@ const ReunionsPage = () => {
                 </div>
 
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Heure Fin *</label>
+                  <label className="form-label">{t('reunion_modal_label_end')}</label>
                   <input
                     type="time"
                     required
@@ -1011,17 +1025,21 @@ const ReunionsPage = () => {
                 <div className="availability-card-header">
                   <span className="avail-title">
                     <CalendarCheck2 size={14} color="var(--s2t-blue)" />
-                    Créneaux du {bookingData.date} pour {bookingData.room} :
+                    {t('reunion_modal_avail_title')
+                      .replace('{date}', bookingData.date)
+                      .replace('{room}', bookingData.room)}
                   </span>
                   <span className="avail-count">
-                    {bookedSlotsForDate.length} créneau{bookedSlotsForDate.length > 1 ? 'x' : ''} réservé{bookedSlotsForDate.length > 1 ? 's' : ''}
+                    {bookedSlotsForDate.length === 1 
+                      ? t('reunion_modal_avail_count_single') 
+                      : t('reunion_modal_avail_count_plural').replace('{count}', bookedSlotsForDate.length)}
                   </span>
                 </div>
 
                 {bookedSlotsForDate.length === 0 ? (
                   <div className="avail-free-msg">
                     <CheckCircle2 size={15} />
-                    <span>✨ Salle 100% disponible toute la journée. Tous les créneaux sont libres.</span>
+                    <span>{t('reunion_modal_avail_free')}</span>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -1037,7 +1055,7 @@ const ReunionsPage = () => {
                     {/* Quick suggestion free slots */}
                     <div className="suggested-slots-section">
                       <span className="suggested-label">
-                        💡 Suggestions de créneaux rapides (cliquez pour sélectionner) :
+                        {t('reunion_modal_suggested_label')}
                       </span>
                       <div className="suggested-chips-group">
                         {SUGGESTED_SLOTS.map((slot, i) => {
@@ -1070,7 +1088,7 @@ const ReunionsPage = () => {
               {/* Participants & Amenities */}
               <div className="modal-options-grid">
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Nombre de Participants</label>
+                  <label className="form-label">{t('reunion_modal_label_participants')}</label>
                   <input
                     type="number"
                     min={1}
@@ -1082,7 +1100,7 @@ const ReunionsPage = () => {
                 </div>
 
                 <div className="form-group" style={{ margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <label className="form-label">Options d'Accueil S2T</label>
+                  <label className="form-label">{t('reunion_modal_label_options')}</label>
                   <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', height: '42px', flexWrap: 'wrap' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.825rem', cursor: 'pointer' }}>
                       <input
@@ -1090,7 +1108,7 @@ const ReunionsPage = () => {
                         checked={bookingData.isVisio}
                         onChange={(e) => setBookingData({ ...bookingData, isVisio: e.target.checked })}
                       />
-                      <span>Visio 4K WebRTC</span>
+                      <span>{t('reunion_modal_opt_visio')}</span>
                     </label>
 
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.825rem', cursor: 'pointer' }}>
@@ -1099,7 +1117,7 @@ const ReunionsPage = () => {
                         checked={bookingData.needCoffee}
                         onChange={(e) => setBookingData({ ...bookingData, needCoffee: e.target.checked })}
                       />
-                      <span>Pause Café S2T</span>
+                      <span>{t('reunion_modal_opt_coffee')}</span>
                     </label>
                   </div>
                 </div>
@@ -1107,11 +1125,11 @@ const ReunionsPage = () => {
 
               {/* Notes */}
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Remarques ou besoins techniques spécifiques (Optionnel)</label>
+                <label className="form-label">{t('reunion_modal_label_notes')}</label>
                 <textarea
                   className="form-textarea"
                   rows={2}
-                  placeholder="Ex: Besoin de 2 micros sans fil et câble HDMI..."
+                  placeholder={t('reunion_modal_ph_notes')}
                   value={bookingData.notes}
                   onChange={(e) => setBookingData({ ...bookingData, notes: e.target.value })}
                 />
@@ -1125,7 +1143,7 @@ const ReunionsPage = () => {
                 onClick={() => setBookingModalOpen(false)}
                 disabled={isSubmitting}
               >
-                Annuler
+                {t('reunion_modal_btn_cancel')}
               </button>
               <button 
                 type="submit" 
@@ -1141,17 +1159,17 @@ const ReunionsPage = () => {
                 {isSubmitting ? (
                   <>
                     <RefreshCw size={16} className="animate-spin" />
-                    <span>Traitement...</span>
+                    <span>{t('reunion_modal_btn_submitting')}</span>
                   </>
                 ) : detectedConflict ? (
                   <>
                     <AlertCircle size={16} />
-                    <span>Créneau Occupé (Conflit)</span>
+                    <span>{t('reunion_modal_btn_conflict')}</span>
                   </>
                 ) : (
                   <>
                     <Check size={16} />
-                    <span>{isAdmin ? 'Confirmer la réservation' : 'Transmettre la demande'}</span>
+                    <span>{isAdmin ? t('reunion_modal_btn_confirm_admin') : t('reunion_modal_btn_confirm_client')}</span>
                   </>
                 )}
               </button>
@@ -1162,7 +1180,7 @@ const ReunionsPage = () => {
 
       {/* Admin Reject Confirmation Modal */}
       {rejectModalMeeting && (
-        <div className="modal-overlay" onClick={() => setRejectModalMeeting(null)} style={{ zIndex: 1350 }}>
+        <div className="modal-overlay" onClick={() => setRejectModalMeeting(null)} style={{ zIndex: 1350 }} dir={isRtl ? 'rtl' : 'ltr'}>
           <form 
             onSubmit={handleAdminReject}
             className="modal-container responsive-reject-modal"
@@ -1171,7 +1189,7 @@ const ReunionsPage = () => {
             <div className="modal-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <XCircle size={22} color="#EF4444" />
-                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>Refuser la réservation de salle</h3>
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>{t('reunion_modal_reject_title')}</h3>
               </div>
               <button 
                 type="button" 
@@ -1185,17 +1203,20 @@ const ReunionsPage = () => {
 
             <div className="modal-body">
               <p style={{ margin: '0 0 1rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                Vous êtes sur le point de refuser la demande pour : <strong>"{rejectModalMeeting.title}"</strong> ({rejectModalMeeting.room}, le {rejectModalMeeting.formattedDate || rejectModalMeeting.date}).
+                {t('reunion_modal_reject_desc')
+                  .replace('{title}', rejectModalMeeting.title)
+                  .replace('{room}', rejectModalMeeting.room)
+                  .replace('{date}', rejectModalMeeting.formattedDate || rejectModalMeeting.date)}
               </p>
 
               <div style={{ marginBottom: '1rem' }}>
-                <label className="form-label" style={{ marginBottom: '0.4rem' }}>Motifs rapides fréquents :</label>
+                <label className="form-label" style={{ marginBottom: '0.4rem' }}>{t('reunion_modal_reject_quick_title')}</label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                   {[
-                    'Salle réservée pour un événement officiel Technopark',
-                    'Créneau indisponible en raison d\'une maintenance technique',
-                    'Dépassement de la capacité d\'accueil maximale autorisée',
-                    'Veuillez reformuler votre demande sur un autre horaire'
+                    t('reunion_reason_event'),
+                    t('reunion_reason_maint'),
+                    t('reunion_reason_capacity'),
+                    t('reunion_reason_reschedule')
                   ].map((reason, idx) => (
                     <label 
                       key={idx}
@@ -1217,11 +1238,11 @@ const ReunionsPage = () => {
               </div>
 
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Message explicatif ou personnalisé envoyé au résident</label>
+                <label className="form-label">{t('reunion_modal_reject_label_custom')}</label>
                 <textarea
                   className="form-textarea"
                   rows={2}
-                  placeholder="Précisez le motif du refus..."
+                  placeholder={t('reunion_modal_reject_ph_custom')}
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                 />
@@ -1235,7 +1256,7 @@ const ReunionsPage = () => {
                 onClick={() => setRejectModalMeeting(null)}
                 disabled={isSubmitting}
               >
-                Annuler
+                {t('reunion_modal_reject_btn_cancel')}
               </button>
               <button 
                 type="submit" 
@@ -1243,7 +1264,7 @@ const ReunionsPage = () => {
                 style={{ background: '#EF4444', borderColor: '#EF4444' }}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Traitement...' : 'Confirmer le refus'}
+                {isSubmitting ? t('reunion_modal_btn_submitting') : t('reunion_modal_reject_btn_confirm')}
               </button>
             </div>
           </form>
@@ -1252,7 +1273,7 @@ const ReunionsPage = () => {
 
       {/* Cancel Confirmation Modal */}
       {cancelModalMeeting && (
-        <div className="modal-overlay" onClick={() => setCancelModalMeeting(null)} style={{ zIndex: 1350 }}>
+        <div className="modal-overlay" onClick={() => setCancelModalMeeting(null)} style={{ zIndex: 1350 }} dir={isRtl ? 'rtl' : 'ltr'}>
           <form 
             onSubmit={handleConfirmCancel}
             className="modal-container responsive-cancel-modal"
@@ -1261,7 +1282,7 @@ const ReunionsPage = () => {
             <div className="modal-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <AlertCircle size={20} color="var(--s2t-red)" />
-                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>Annuler la réservation</h3>
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>{t('reunion_modal_cancel_title')}</h3>
               </div>
               <button 
                 type="button" 
@@ -1275,15 +1296,17 @@ const ReunionsPage = () => {
 
             <div className="modal-body">
               <p style={{ margin: '0 0 1rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                Êtes-vous sûr de vouloir annuler la réservation pour : <strong>"{cancelModalMeeting.title}"</strong> prévue le <strong>{cancelModalMeeting.formattedDate || cancelModalMeeting.date}</strong> ?
+                {t('reunion_modal_cancel_desc')
+                  .replace('{title}', cancelModalMeeting.title)
+                  .replace('{date}', cancelModalMeeting.formattedDate || cancelModalMeeting.date)}
               </p>
 
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Motif de l'annulation (Optionnel)</label>
+                <label className="form-label">{t('reunion_modal_cancel_label_reason')}</label>
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="Ex: Report de la réunion avec le client..."
+                  placeholder={t('reunion_modal_cancel_ph_reason')}
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
                 />
@@ -1297,7 +1320,7 @@ const ReunionsPage = () => {
                 onClick={() => setCancelModalMeeting(null)}
                 disabled={isSubmitting}
               >
-                Conserver
+                {t('reunion_modal_cancel_btn_keep')}
               </button>
               <button 
                 type="submit" 
@@ -1305,7 +1328,7 @@ const ReunionsPage = () => {
                 style={{ background: 'var(--s2t-red)', borderColor: 'var(--s2t-red)' }}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Traitement...' : 'Confirmer l\'annulation'}
+                {isSubmitting ? t('reunion_modal_btn_submitting') : t('reunion_modal_cancel_btn_confirm')}
               </button>
             </div>
           </form>
