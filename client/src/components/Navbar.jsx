@@ -393,7 +393,7 @@ const Navbar = () => {
             </div>
           ) : (
             /* Guest Public Actions */
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="navbar-guest-actions">
               <Link to="/login" className="btn btn-secondary btn-sm" style={{ gap: '0.4rem', padding: '0.45rem 0.85rem' }}>
                 <LogIn size={14} />
                 <span>{t('nav_login')}</span>

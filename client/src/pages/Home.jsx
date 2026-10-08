@@ -153,7 +153,7 @@ const Home = () => {
                   <div className="floating-chip-badge-icon" style={{ background: 'var(--primary-light)', color: 'var(--s2t-red)' }}>
                     <MapPin size={15} />
                   </div>
-                  <span>{t('home_floating_address')}</span>
+                  <span className="floating-chip-text">{t('home_floating_address')}</span>
                 </div>
 
                 {/* Main Building Photo */}
@@ -170,9 +170,9 @@ const Home = () => {
                   <div className="floating-chip-badge-icon" style={{ background: 'var(--secondary-light)', color: 'var(--s2t-blue)' }}>
                     <Building2 size={15} />
                   </div>
-                  <div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 800, lineHeight: 1.2 }}>{t('home_floating_companies_title')}</div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{t('home_floating_companies_sub')}</div>
+                  <div style={{ overflow: 'hidden' }}>
+                    <div className="floating-chip-title">{t('home_floating_companies_title')}</div>
+                    <div className="floating-chip-sub">{t('home_floating_companies_sub')}</div>
                   </div>
                 </div>
               </div>
