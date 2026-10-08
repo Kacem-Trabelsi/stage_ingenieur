@@ -134,6 +134,66 @@ const translations = {
     about_park_6_focus: 'Valorisation des Ressources Sahariennes',
     about_park_6_size: '30 Hectares',
 
+    // Blog Page Translations
+    blog_badge: 'Actualités & Publications',
+    blog_title: 'Blog du',
+    blog_title_sub: 'Pôle Technologique S2T',
+    blog_desc: 'Retrouvez les dernières annonces, guides juridiques, appels à projets et actualités de l\'écosystème Smart Tunisian Technoparks.',
+    blog_cat_all: 'Toutes les actualités',
+    blog_cat_incubation: 'Incubation & Pépinière',
+    blog_cat_juridique: 'Juridique & Réglementation',
+    blog_cat_evenements: 'Événements & Salons',
+    blog_cat_finance: 'Finance & Facturation',
+    blog_search_placeholder: 'Rechercher un article...',
+    blog_read_more: 'Lire l\'article',
+    blog_by_author: 'Par',
+    blog_close_modal: 'Fermer',
+    blog_art1_title: 'Lancement de la nouvelle session d\'hébergement au Pôle El Ghazala 2026',
+    blog_art1_date: '15 Mars 2026',
+    blog_art1_read_time: '4 min de lecture',
+    blog_art1_author: 'Direction de la Pépinière S2T',
+    blog_art1_excerpt: 'S2T ouvre les candidatures pour les startups et PME innovantes souhaitant bénéficier d\'un bureau équipé à tarif bonifié (Article 6 : 30 DT/m² la première année).',
+    blog_art1_content: `Le Pôle Technologique El Ghazala annonce l'ouverture officielle de l'appel à candidature pour l'intégration de la pépinière d'entreprises 2026.
+
+Ce programme offre aux jeunes entreprises sélectionnées :
+- Un local bureautique privatif avec charges comprises (Art. 2 du contrat d'hébergement).
+- Une redevance annuelle bonifiée de 30,000 DT HTVA/m² pour la première année.
+- Un accompagnement sur mesure pour la propriété intellectuelle, le financement et la mise en réseau.
+
+Les dossiers de candidature doivent être soumis via le portail en ligne avant le 30 Avril 2026.`,
+    blog_art2_title: 'Guide Pratique : Comprendre votre Contrat d\'Hébergement S2T (Articles 1 à 16)',
+    blog_art2_date: '02 Mars 2026',
+    blog_art2_read_time: '6 min de lecture',
+    blog_art2_author: 'Service des Affaires Juridiques',
+    blog_art2_excerpt: 'Tout savoir sur les obligations contractuelles, les modalités d\'avenant pour extension de surface et la constitution du dépôt de garantie (Article 7).',
+    blog_art2_content: `Afin d'assurer une transparence totale avec les sociétés résidentes, le service juridique publie un guide détaillé expliquant chaque clause clé :
+
+1. Prestations offertes & Charges (Article 2) :
+L'accès aux espaces communs, le gardiennage 24/7, la fibre optique et les salles de réunion sont inclus dans le forfait de base.
+
+2. Modalités de paiement (Article 6.3) :
+La redevance mensuelle doit être réglée avant le 5 de chaque mois par virement ou ordre permanent.
+
+3. Demandes d'Avenants (Article 11) :
+Toute augmentation ou réduction de superficie nécessite la signature d'un avenant formalisé par les deux parties.`,
+    blog_art3_title: 'Digitalisation des Factures & Suivi des Relances Automatisées',
+    blog_art3_date: '20 Février 2026',
+    blog_art3_read_time: '3 min de lecture',
+    blog_art3_author: 'Direction Financière',
+    blog_art3_excerpt: 'Mise en place de la plateforme de gestion unifiée permettant aux résidents de consulter en temps réel leurs factures, états de paiement et quittances.',
+    blog_art3_content: `Dans le cadre de la modernisation de ses services, S2T déploie son portail financier intelligent. 
+
+Les entreprises résidentes peuvent désormais :
+- Télécharger leurs avis de paiement et factures certifiées en format PDF.
+- Suivre le statut de leurs relances (J+15 et J+30) pour éviter tout intérêt de retard.
+- Soumettre des demandes de justificatifs fiscaux en un clic.`,
+    blog_art4_title: 'Forum National de l\'IA et de la Cybersécurité à El Ghazala',
+    blog_art4_date: '10 Février 2026',
+    blog_art4_read_time: '5 min de lecture',
+    blog_art4_author: 'Pôle Communication',
+    blog_art4_excerpt: 'Plus de 500 experts, chercheurs et dirigeants d\'entreprises réunis à l\'amphithéâtre S2T pour débattre des défis de l\'intelligence artificielle générative.',
+    blog_art4_content: `Le Pôle El Ghazala a accueilli la 4ème édition du Forum National de l'IA. Cet événement a permis aux startups hébergées de présenter leurs solutions innovantes aux investisseurs et fonds de capital-risque tunisiens et internationaux.`,
+
     // Footer
     footer_s2t_desc: 'Société de Gestion du Pôle Technologique El Ghazala. Aménagement, hébergement d\'entreprises et gestion des contrats d\'hébergement.',
     footer_nav: 'Navigation',
@@ -276,6 +336,66 @@ const translations = {
     about_park_6_focus: 'Saharan Resources Valorization',
     about_park_6_size: '30 Hectares',
 
+    // Blog Page Translations
+    blog_badge: 'News & Publications',
+    blog_title: 'Blog of',
+    blog_title_sub: 'S2T Technopark',
+    blog_desc: 'Explore the latest announcements, legal guides, calls for proposals, and updates from the Smart Tunisian Technoparks ecosystem.',
+    blog_cat_all: 'All News',
+    blog_cat_incubation: 'Incubation & Hub',
+    blog_cat_juridique: 'Legal & Regulation',
+    blog_cat_evenements: 'Events & Expos',
+    blog_cat_finance: 'Finance & Billing',
+    blog_search_placeholder: 'Search an article...',
+    blog_read_more: 'Read article',
+    blog_by_author: 'By',
+    blog_close_modal: 'Close',
+    blog_art1_title: 'Launch of the 2026 Incubation Intake at El Ghazala Technopark',
+    blog_art1_date: 'March 15, 2026',
+    blog_art1_read_time: '4 min read',
+    blog_art1_author: 'S2T Incubator Management',
+    blog_art1_excerpt: 'S2T opens applications for tech startups and innovative SMEs looking for fitted offices at preferential rates (Art. 6: 30 TND/m² for the 1st year).',
+    blog_art1_content: `El Ghazala Technopark officially announces the opening of the 2026 incubation application cycle.
+
+Selected early-stage ventures will benefit from:
+- Private fitted office space with utilities included (Art. 2 of Hosting Agreement).
+- Preferential annual fee of 30.000 TND Excl. VAT/m² for the first year.
+- Tailored advisory in IP protection, fundraising, and industry networking.
+
+Applications must be submitted through the online portal before April 30, 2026.`,
+    blog_art2_title: 'Practical Guide: Understanding your S2T Hosting Contract (Articles 1 to 16)',
+    blog_art2_date: 'March 02, 2026',
+    blog_art2_read_time: '6 min read',
+    blog_art2_author: 'Legal Affairs Department',
+    blog_art2_excerpt: 'Everything you need to know about contractual terms, surface extension amendments, and security deposit management (Article 7).',
+    blog_art2_content: `To ensure full transparency with resident companies, the legal department publishes a detailed overview of key clauses:
+
+1. Services & Utilities (Article 2):
+Access to common areas, 24/7 security, high-speed fiber internet, and conference rooms are fully covered in the core agreement.
+
+2. Payment Terms (Article 6.3):
+Monthly fees must be settled prior to the 5th of each month via wire transfer or permanent order.
+
+3. Contract Amendment Requests (Article 11):
+Any increase or reduction in occupied space requires a formal contract amendment signed by both parties.`,
+    blog_art3_title: 'Digital Invoices & Automated Payment Reminders',
+    blog_art3_date: 'February 20, 2026',
+    blog_art3_read_time: '3 min read',
+    blog_art3_author: 'Finance Department',
+    blog_art3_excerpt: 'Rollout of the unified portal enabling residents to check invoices, payment status, and tax receipts in real time.',
+    blog_art3_content: `As part of its digital transformation, S2T introduces an intelligent financial portal.
+
+Resident enterprises can now:
+- Download official payment notices and certified invoices in PDF format.
+- Monitor payment reminder timelines (D+15 and D+30) to prevent penalty fees.
+- Submit tax clearance documentation requests with one click.`,
+    blog_art4_title: 'National AI & Cybersecurity Forum at El Ghazala',
+    blog_art4_date: 'February 10, 2026',
+    blog_art4_read_time: '5 min read',
+    blog_art4_author: 'Communications Division',
+    blog_art4_excerpt: 'Over 500 tech leaders, researchers, and venture capitalists gathered at S2T auditorium to discuss generative AI advancements.',
+    blog_art4_content: `El Ghazala Technopark hosted the 4th edition of the National AI Forum. This premier event gave hosted tech startups the opportunity to showcase innovations to regional and global venture capital funds.`,
+
     // Footer
     footer_s2t_desc: 'Management Company of El Ghazala Technopark. Urban development, enterprise hosting, and contractual lease administration.',
     footer_nav: 'Navigation',
@@ -417,6 +537,66 @@ const translations = {
     about_park_6_city: 'مدنين',
     about_park_6_focus: 'تثمين الموارد الصحراوية',
     about_park_6_size: '30 هكتار',
+
+    // Blog Page Translations
+    blog_badge: 'الأخبار والمنشورات',
+    blog_title: 'مدونة',
+    blog_title_sub: 'القطب التكنولوجي S2T',
+    blog_desc: 'اطلعوا على أحدث الإعلانات والأدلة القانونية وطلبات الترشح وأخبار منظومة تونس للأقطاب التكنولوجية الذكية.',
+    blog_cat_all: 'جميع الأخبار',
+    blog_cat_incubation: 'الاحتضان والمحضنة',
+    blog_cat_juridique: 'الشؤون القانونية والتشريعية',
+    blog_cat_evenements: 'الفعاليات والمعارض',
+    blog_cat_finance: 'المالية والفوترة',
+    blog_search_placeholder: 'البحث عن مقال...',
+    blog_read_more: 'قراءة المقال',
+    blog_by_author: 'بقلم',
+    blog_close_modal: 'إغلاق',
+    blog_art1_title: 'إطلاق دورة الإيواء والاحتضان الجديدة بالقطب التكنولوجي الغزالة 2026',
+    blog_art1_date: '15 مارس 2026',
+    blog_art1_read_time: '4 دقائق قراءة',
+    blog_art1_author: 'إدارة محضنة المؤسسات S2T',
+    blog_art1_excerpt: 'تعلن S2T عن فتح باب الترشح للشركات الناشئة والمؤسسات المبتكرة الراغبة في التمتع بمكتب مجهز بتسعيرة تفاضلية (الفصل 6: 30 دينار/م² للسنة الأولى).',
+    blog_art1_content: `يعلن القطب التكنولوجي الغزالة عن الافتتاح الرسمي لتقديم ملفات الترشح للاندماج بمحضنة المؤسسات لسنة 2026.
+
+يقدم هذا البرنامج للشركات الشابة المنتقاة:
+- فضاء مكتبياً خاصاً مع احتساب كافة الأعباء المشتركة (الفصل 2 من عقد الإيواء).
+- تسعيرة إيجارية سنوية تفاضلية قدرها 30.000 د.ت دون أداء/م² للسنة الأولى.
+- مرافقة وتأطيراً مخصصاً في مجالات الملكية الفكرية والتمويل وبناء شبكات الشراكة.
+
+يجب تقديم ملفات الترشح عبر المنصة الرقمية قبل تاريخ 30 أفريل 2026.`,
+    blog_art2_title: 'دليل تطبيقي: فهم عقد الإيواء بالقطب التكنولوجي S2T (الفصول من 1 إلى 16)',
+    blog_art2_date: '02 مارس 2026',
+    blog_art2_read_time: '6 دقائق قراءة',
+    blog_art2_author: 'مصلحة الشؤون القانونية',
+    blog_art2_excerpt: 'كل ما يجب معرفته حول الالتزامات التعاقدية وإجراءات ملاحق توسيع المساحة وتكوين ضمان التأمين (الفصل 7).',
+    blog_art2_content: `لضمان الشفافية الكاملة مع الشركات المقيمة، تنشر المصلحة القانونية دليلاً تفصيلياً يوضح البنود الأساسية:
+
+1. الخدمات المقدمة والأعباء المشتركة (الفصل 2):
+النفاذ إلى الفضاءات المشتركة، الحراسة على مدار الساعة 24/7، الإنترنت عبر الألياف البصرية وقاعات الاجتماعات مشمولة في العرض الأساسي.
+
+2. إجراءات وشروط الدفع (الفصل 6.3):
+يجب سداد المستحقات الإيجارية الشهرية قبل اليوم الخامس من كل شهر بواسطة تحويل بنكي أو إذن اقتطاع دائم.
+
+3. طلبات الملاحق التعاقدية (الفصل 11):
+أي زيادة أو تخفيض في المساحة المشغولة تتطلب إبرام ملحق تعاقدي رسمي موقع من الطرفين.`,
+    blog_art3_title: 'رقمنة الفواتير والمتابعة الآلية للتذكيرات والإشعارات',
+    blog_art3_date: '20 فيفري 2026',
+    blog_art3_read_time: '3 دقائق قراءة',
+    blog_art3_author: 'الإدارة المالية',
+    blog_art3_excerpt: 'إطلاق المنصة الموحدة التي تتيح للمقيمين الاطلاع المباشر على فواتيرهم وحالات الدفع وكشوفات الخلاص في الوقت الحقيقي.',
+    blog_art3_content: `في إطار تحديث وتطوير خدماتها، تضع S2T على ذمة المقيمين بوابتها المالية الذكية.
+
+يمكن للشركات المقيمة الآن:
+- تحميل إشعارات الدفع والفواتير المعتمدة بصيغة PDF.
+- متابعة مراحل التذكيرات المالية (ي+15 وي+30) لتجنب خطايا وغرامات التأخير.
+- تقديم طلبات الشهادات والوثائق الجبائية بنقرة واحدة.`,
+    blog_art4_title: 'المنتدى الوطني للذكاء الاصطناعي والأمن السيبراني بقطب الغزالة',
+    blog_art4_date: '10 فيفري 2026',
+    blog_art4_read_time: '5 دقائق قراءة',
+    blog_art4_author: 'قطب الاتصال والإعلام',
+    blog_art4_excerpt: 'أكثر من 500 خبير وباحث ورائد أعمال اجتمعوا بالمدرج الرئيسي لـ S2T لمناقشة تحديات الذكاء الاصطناعي التوليدي.',
+    blog_art4_content: `احتضن القطب التكنولوجي الغزالة فعاليات الدورة الرابعة للمنتدى الوطني للذكاء الاصطناعي. وقد أتاح هذا الحدث للشركات الناشئة المحتضنة فرصة عرض حلولها المبتكرة أمام المستثمرين وصناديق رأس المال الاستثماري التونسية والدولية.`,
 
     // Footer
     footer_s2t_desc: 'شركة التصرف في القطب التكنولوجي الغزالة. تهيئة، إيواء المؤسسات وإدارة عقود الإيواء.',

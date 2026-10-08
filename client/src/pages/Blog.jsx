@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   Calendar, 
   Clock, 
@@ -13,87 +14,67 @@ import {
 } from 'lucide-react';
 
 const Blog = () => {
+  const { t, language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [search, setSearch] = useState('');
   const [activeArticle, setActiveArticle] = useState(null);
 
   const categories = [
-    { id: 'all', label: 'Toutes les actualités' },
-    { id: 'incubation', label: 'Incubation & Pépinière' },
-    { id: 'juridique', label: 'Juridique & Réglementation' },
-    { id: 'evenements', label: 'Événements & Salons' },
-    { id: 'finance', label: 'Finance & Facturation' },
+    { id: 'all', label: t('blog_cat_all') },
+    { id: 'incubation', label: t('blog_cat_incubation') },
+    { id: 'juridique', label: t('blog_cat_juridique') },
+    { id: 'evenements', label: t('blog_cat_evenements') },
+    { id: 'finance', label: t('blog_cat_finance') },
   ];
 
   const articles = [
     {
       id: 1,
-      title: 'Lancement de la nouvelle session d\'hébergement au Pôle El Ghazala 2026',
+      title: t('blog_art1_title'),
       category: 'incubation',
-      categoryLabel: 'Incubation & Pépinière',
-      date: '15 Mars 2026',
-      readTime: '4 min de lecture',
-      author: 'Direction de la Pépinière S2T',
+      categoryLabel: t('blog_cat_incubation'),
+      date: t('blog_art1_date'),
+      readTime: t('blog_art1_read_time'),
+      author: t('blog_art1_author'),
       imageGradient: 'linear-gradient(135deg, #E11D48 0%, #2563EB 100%)',
-      excerpt: 'S2T ouvre les candidatures pour les startups et PME innovantes souhaitant bénéficier d\'un bureau équipé à tarif bonifié (Article 6 : 30 DT/m² la première année).',
-      content: `Le Pôle Technologique El Ghazala annonce l'ouverture officielle de l'appel à candidature pour l'intégration de la pépinière d'entreprises 2026.
-
-Ce programme offre aux jeunes entreprises sélectionnées :
-- Un local bureautique privatif avec charges comprises (Art. 2 du contrat d'hébergement).
-- Une redevance annuelle bonifiée de 30,000 DT HTVA/m² pour la première année.
-- Un accompagnement sur mesure pour la propriété intellectuelle, le financement et la mise en réseau.
-
-Les dossiers de candidature doivent être soumis via le portail en ligne avant le 30 Avril 2026.`,
+      excerpt: t('blog_art1_excerpt'),
+      content: t('blog_art1_content'),
     },
     {
       id: 2,
-      title: 'Guide Pratique : Comprendre votre Contrat d\'Hébergement S2T (Articles 1 à 16)',
+      title: t('blog_art2_title'),
       category: 'juridique',
-      categoryLabel: 'Juridique & Réglementation',
-      date: '02 Mars 2026',
-      readTime: '6 min de lecture',
-      author: 'Service des Affaires Juridiques',
+      categoryLabel: t('blog_cat_juridique'),
+      date: t('blog_art2_date'),
+      readTime: t('blog_art2_read_time'),
+      author: t('blog_art2_author'),
       imageGradient: 'linear-gradient(135deg, #2563EB 0%, #0D9488 100%)',
-      excerpt: 'Tout savoir sur les obligations contractuelles, les modalités d\'avenant pour extension de surface et la constitution du dépôt de garantie (Article 7).',
-      content: `Afin d'assurer une transparence totale avec les sociétés résidentes, le service juridique publie un guide détaillé expliquant chaque clause clé :
-
-1. Prestations offertes & Charges (Article 2) :
-L'accès aux espaces communs, le gardiennage 24/7, la fibre optique et les salles de réunion sont inclus dans le forfait de base.
-
-2. Modalités de paiement (Article 6.3) :
-La redevance mensuelle doit être réglée avant le 5 de chaque mois par virement ou ordre permanent.
-
-3. Demandes d'Avenants (Article 11) :
-Toute augmentation ou réduction de superficie nécessite la signature d'un avenant formalisé par les deux parties.`,
+      excerpt: t('blog_art2_excerpt'),
+      content: t('blog_art2_content'),
     },
     {
       id: 3,
-      title: 'Digitalisation des Factures & Suivi des Relances Automatisées',
+      title: t('blog_art3_title'),
       category: 'finance',
-      categoryLabel: 'Finance & Facturation',
-      date: '20 Février 2026',
-      readTime: '3 min de lecture',
-      author: 'Direction Financière',
+      categoryLabel: t('blog_cat_finance'),
+      date: t('blog_art3_date'),
+      readTime: t('blog_art3_read_time'),
+      author: t('blog_art3_author'),
       imageGradient: 'linear-gradient(135deg, #0D9488 0%, #E11D48 100%)',
-      excerpt: 'Mise en place de la plateforme de gestion unifiée permettant aux résidents de consulter en temps réel leurs factures, états de paiement et quittances.',
-      content: `Dans le cadre de la modernisation de ses services, S2T déploie son portail financier intelligent. 
-
-Les entreprises résidentes peuvent désormais :
-- Télécharger leurs avis de paiement et factures certifiées en format PDF.
-- Suivre le statut de leurs relances (J+15 et J+30) pour éviter tout intérêt de retard.
-- Soumettre des demandes de justificatifs fiscaux en un clic.`,
+      excerpt: t('blog_art3_excerpt'),
+      content: t('blog_art3_content'),
     },
     {
       id: 4,
-      title: 'Forum National de l\'IA et de la Cybersécurité à El Ghazala',
+      title: t('blog_art4_title'),
       category: 'evenements',
-      categoryLabel: 'Événements & Salons',
-      date: '10 Février 2026',
-      readTime: '5 min de lecture',
-      author: 'Pôle Communication',
+      categoryLabel: t('blog_cat_evenements'),
+      date: t('blog_art4_date'),
+      readTime: t('blog_art4_read_time'),
+      author: t('blog_art4_author'),
       imageGradient: 'linear-gradient(135deg, #8B5CF6 0%, #2563EB 100%)',
-      excerpt: 'Plus de 500 experts, chercheurs et dirigeants d\'entreprises réunis à l\'amphithéâtre S2T pour débattre des défis de l\'intelligence artificielle générative.',
-      content: `Le Pôle El Ghazala a accueilli la 4ème édition du Forum National de l'IA. Cet événement a permis aux startups hébergées de présenter leurs solutions innovantes aux investisseurs et fonds de capital-risque tunisiens et internationaux.`,
+      excerpt: t('blog_art4_excerpt'),
+      content: t('blog_art4_content'),
     },
   ];
 
@@ -116,13 +97,13 @@ Les entreprises résidentes peuvent désormais :
       }}>
         <div className="container" style={{ maxWidth: '850px' }}>
           <span className="badge" style={{ background: 'var(--primary-light)', color: 'var(--s2t-red)', marginBottom: '1.25rem' }}>
-            Actualités & Publications
+            {t('blog_badge')}
           </span>
           <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', marginBottom: '1.25rem' }}>
-            Blog du <span className="gradient-text">Pôle Technologique S2T</span>
+            {t('blog_title')} <span className="gradient-text">{t('blog_title_sub')}</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.6 }}>
-            Retrouvez les dernières annonces, guides juridiques, appels à projets et actualités de l'écosystème Smart Tunisian Technoparks.
+            {t('blog_desc')}
           </p>
         </div>
       </section>
@@ -156,7 +137,7 @@ Les entreprises résidentes peuvent désormais :
           <div style={{ position: 'relative', flex: '1 1 260px', maxWidth: '340px' }}>
             <Search size={16} style={{
               position: 'absolute',
-              left: '1rem',
+              [language === 'ar' ? 'right' : 'left']: '1rem',
               top: '50%',
               transform: 'translateY(-50%)',
               color: 'var(--text-muted)'
@@ -164,8 +145,12 @@ Les entreprises résidentes peuvent désormais :
             <input
               type="text"
               className="form-input"
-              style={{ paddingLeft: '2.5rem', height: '38px', fontSize: '0.875rem' }}
-              placeholder="Rechercher un article..."
+              style={{
+                [language === 'ar' ? 'paddingRight' : 'paddingLeft']: '2.5rem',
+                height: '38px',
+                fontSize: '0.875rem'
+              }}
+              placeholder={t('blog_search_placeholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -241,8 +226,8 @@ Les entreprises résidentes peuvent désormais :
                   color: 'var(--s2t-red)',
                   fontWeight: 600,
                 }}>
-                  <span>Lire l'article</span>
-                  <ArrowRight size={16} />
+                  <span>{t('blog_read_more')}</span>
+                  <ArrowRight size={16} style={{ transform: language === 'ar' ? 'rotate(180deg)' : 'none' }} />
                 </div>
               </div>
             </article>
@@ -266,7 +251,7 @@ Les entreprises résidentes peuvent désormais :
                 style={{
                   position: 'absolute',
                   top: '1rem',
-                  right: '1rem',
+                  [language === 'ar' ? 'left' : 'right']: '1rem',
                   background: 'rgba(0,0,0,0.5)',
                   border: 'none',
                   color: '#fff',
@@ -289,7 +274,7 @@ Les entreprises résidentes peuvent désormais :
                 {activeArticle.title}
               </h2>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.85rem', opacity: 0.9 }}>
-                <span>Par {activeArticle.author}</span>
+                <span>{t('blog_by_author')} {activeArticle.author}</span>
                 <span>•</span>
                 <span>{activeArticle.date}</span>
               </div>
@@ -306,7 +291,7 @@ Les entreprises résidentes peuvent désormais :
                   className="btn btn-secondary"
                   onClick={() => setActiveArticle(null)}
                 >
-                  Fermer
+                  {t('blog_close_modal')}
                 </button>
               </div>
             </div>
@@ -318,3 +303,4 @@ Les entreprises résidentes peuvent désormais :
 };
 
 export default Blog;
+
