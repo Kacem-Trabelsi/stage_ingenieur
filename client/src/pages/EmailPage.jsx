@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { emailAPI } from '../services/api';
 import { 
   Mail, 
@@ -27,61 +28,10 @@ import {
   Tag
 } from 'lucide-react';
 
-const QUICK_TEMPLATES = {
-  resident: [
-    {
-      title: 'Demande d\'avenant de superficie',
-      category: 'juridique',
-      to: 'direction@s2t.tn',
-      subject: 'Demande d\'avenant au contrat d\'hébergement — Extension de superficie',
-      body: `Madame, Monsieur la Direction S2T,\n\nPar la présente, nous sollicitons une extension de la surface hébergée au sein du Pôle Technologique El Ghazala afin d'accompagner le recrutement de nouveaux collaborateurs.\n\nMerci de nous transmettre les disponibilités et les conditions tarifaires applicables selon le Règlement Intérieur.\n\nCordialement,\nLa Direction`,
-    },
-    {
-      title: 'Justificatif de virement bancaire',
-      category: 'facturation',
-      to: 'direction@s2t.tn',
-      subject: 'Transmission ordre de virement — Redevance locative S2T',
-      body: `Bonjour,\n\nVeuillez trouver ci-joint l'avis d'exécution du virement bancaire pour le règlement de notre dernière facture d'hébergement.\n\nMerci de nous faire parvenir la quittance libératoire dès validation comptable.\n\nBien cordialement,\nService Administratif & Comptable`,
-    },
-    {
-      title: 'Réservation de salle de réunion',
-      category: 'reservation',
-      to: 'direction@s2t.tn',
-      subject: 'Demande de réservation — Salle Polyvalente & Visioconférence',
-      body: `Bonjour,\n\nNous souhaitons réserver la salle de conférence du technopark pour une réunion d'équipe.\n\n- Date souhaitée : Prochainement\n- Horaires : 09h00 à 13h00\n- Équipement nécessaire : Visioconférence, vidéoprojecteur, accès fibre\n\nMerci de nous confirmer la disponibilité du créneau.\n\nCordialement,`,
-    },
-    {
-      title: 'Assistance technique & Réseau',
-      category: 'technique',
-      to: 'direction@s2t.tn',
-      subject: 'Signalement technique — Accès réseau / Badges magnétiques',
-      body: `Bonjour l'équipe support S2T,\n\nNous rencontrons un besoin d'intervention technique concernant :\n- Configuration / extension des accès badges sécurisés\n- Vérification du débit de raccordement optique\n\nMerci pour votre assistance rapide.\n\nCordialement,`,
-    },
-  ],
-  admin: [
-    {
-      title: 'Circulaire d\'information officielle',
-      category: 'general',
-      subject: 'Circulaire officielle S2T — Note d\'information aux entreprises hébergées',
-      body: `Chers Résidents du Pôle Technologique El Ghazala,\n\nNous vous prions de bien vouloir prendre connaissance de la note d'information ci-jointe relative aux dispositions administratives et sécuritaires en vigueur sur le technopark.\n\nLa Direction Générale S2T reste à votre entière disposition pour tout renseignement complémentaire.\n\nDirection Générale & Secrétariat S2T`,
-    },
-    {
-      title: 'Avis d\'échéance & Appel de fonds',
-      category: 'facturation',
-      subject: 'Avis d\'échéance de redevance locative — Pôle El Ghazala',
-      body: `Madame, Monsieur,\n\nNous vous transmettons votre avis d'échéance pour le mois à venir conformément aux dispositions de votre convention d'hébergement S2T (Art. 6).\n\nNous vous invitons à régulariser le règlement avant le 5 du mois par virement ou ordre permanent.\n\nService Facturation & Recouvrement S2T`,
-    },
-    {
-      title: 'Notification d\'approbation d\'avenant',
-      category: 'juridique',
-      subject: 'Validation officielle de votre demande d\'avenant d\'hébergement',
-      body: `Cher Résident,\n\nLa commission juridique et financière de Smart Tunisian Technoparks a le plaisir de vous notifier l'approbation de votre demande d'avenant.\n\nL'exemplaire certifié a été enregistré dans votre dossier numérique d'hébergement.\n\nDirection Juridique S2T`,
-    },
-  ],
-};
-
 const EmailPage = () => {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const isRtl = language === 'ar';
   const isAdmin = user?.role === 'admin';
 
   const [emails, setEmails] = useState([]);
@@ -115,6 +65,72 @@ const EmailPage = () => {
   const showToast = (message, type = 'success') => {
     setToast({ type, message });
     setTimeout(() => setToast(null), 4000);
+  };
+
+  const getQuickTemplates = () => ({
+    resident: [
+      {
+        title: t('email_tpl_res_amendment_title'),
+        category: 'juridique',
+        to: 'direction@s2t.tn',
+        subject: t('email_tpl_res_amendment_subj'),
+        body: t('email_tpl_res_amendment_body'),
+      },
+      {
+        title: t('email_tpl_res_transfer_title'),
+        category: 'facturation',
+        to: 'direction@s2t.tn',
+        subject: t('email_tpl_res_transfer_subj'),
+        body: t('email_tpl_res_transfer_body'),
+      },
+      {
+        title: t('email_tpl_res_room_title'),
+        category: 'reservation',
+        to: 'direction@s2t.tn',
+        subject: t('email_tpl_res_room_subj'),
+        body: t('email_tpl_res_room_body'),
+      },
+      {
+        title: t('email_tpl_res_tech_title'),
+        category: 'technique',
+        to: 'direction@s2t.tn',
+        subject: t('email_tpl_res_tech_subj'),
+        body: t('email_tpl_res_tech_body'),
+      },
+    ],
+    admin: [
+      {
+        title: t('email_tpl_adm_circular_title'),
+        category: 'general',
+        subject: t('email_tpl_adm_circular_subj'),
+        body: t('email_tpl_adm_circular_body'),
+      },
+      {
+        title: t('email_tpl_adm_due_title'),
+        category: 'facturation',
+        subject: t('email_tpl_adm_due_subj'),
+        body: t('email_tpl_adm_due_body'),
+      },
+      {
+        title: t('email_tpl_adm_amend_appr_title'),
+        category: 'juridique',
+        subject: t('email_tpl_adm_amend_appr_subj'),
+        body: t('email_tpl_adm_amend_appr_body'),
+      },
+    ],
+  });
+
+  const getCategoryLabel = (cat) => {
+    switch (cat) {
+      case 'juridique': return t('email_cat_juridique');
+      case 'facturation': return t('email_cat_facturation');
+      case 'technique': return t('email_cat_technique');
+      case 'reservation': return t('email_cat_reservation');
+      case 'urgent': return t('email_cat_urgent');
+      case 'general':
+      default:
+        return t('email_cat_general');
+    }
   };
 
   // Fetch recipients list for compose dropdown
@@ -164,12 +180,12 @@ const EmailPage = () => {
       await loadCounts();
     } catch (err) {
       console.error('Erreur chargement emails:', err);
-      showToast('Impossible de charger les courriers.', 'error');
+      showToast(t('email_toast_load_err'), 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [activeFolder, searchQuery, loadCounts]);
+  }, [activeFolder, searchQuery, loadCounts, t]);
 
   // Initial load
   useEffect(() => {
@@ -222,10 +238,10 @@ const EmailPage = () => {
         starred: newStarred ? prev.starred + 1 : Math.max(0, prev.starred - 1),
       }));
 
-      showToast(newStarred ? 'Message ajouté aux favoris.' : 'Message retiré des favoris.');
+      showToast(newStarred ? t('email_toast_starred') : t('email_toast_unstarred'));
     } catch (err) {
       console.error('Erreur toggle star:', err);
-      showToast('Erreur lors de la mise à jour des favoris.', 'error');
+      showToast(t('email_toast_star_err'), 'error');
     }
   };
 
@@ -249,7 +265,7 @@ const EmailPage = () => {
         unreadInbox: nextRead ? Math.max(0, prev.unreadInbox - 1) : prev.unreadInbox + 1,
       }));
 
-      showToast(nextRead ? 'Marqué comme lu' : 'Marqué comme non lu');
+      showToast(nextRead ? t('email_toast_marked_read') : t('email_toast_marked_unread'));
     } catch (err) {
       console.error('Erreur status lecture:', err);
     }
@@ -260,7 +276,7 @@ const EmailPage = () => {
     if (e) e.stopPropagation();
     const isPermanent = activeFolder === 'trash';
     
-    if (isPermanent && !window.confirm('Voulez-vous supprimer définitivement ce message ? Cette action est irréversible.')) {
+    if (isPermanent && !window.confirm(t('email_confirm_perm_delete'))) {
       return;
     }
 
@@ -276,10 +292,10 @@ const EmailPage = () => {
       }
 
       await loadCounts();
-      showToast(isPermanent ? 'Message définitivement supprimé.' : 'Message déplacé dans la corbeille.');
+      showToast(isPermanent ? t('email_toast_deleted_perm') : t('email_toast_deleted'));
     } catch (err) {
       console.error('Erreur suppression:', err);
-      showToast('Erreur lors de la suppression.', 'error');
+      showToast(t('email_toast_delete_err'), 'error');
     } finally {
       setActionLoading(false);
     }
@@ -299,10 +315,10 @@ const EmailPage = () => {
       }
 
       await loadCounts();
-      showToast('Message restauré dans votre boîte de réception.');
+      showToast(t('email_toast_restored'));
     } catch (err) {
       console.error('Erreur restauration:', err);
-      showToast('Erreur lors de la restauration.', 'error');
+      showToast(t('email_toast_restore_err'), 'error');
     } finally {
       setActionLoading(false);
     }
@@ -312,7 +328,7 @@ const EmailPage = () => {
   const handleSendEmail = async (e) => {
     e.preventDefault();
     if (!composeData.to || !composeData.subject.trim() || !composeData.body.trim()) {
-      showToast('Veuillez remplir tous les champs obligatoires.', 'error');
+      showToast(t('email_toast_fill_required'), 'error');
       return;
     }
 
@@ -329,7 +345,7 @@ const EmailPage = () => {
         replyTo: null,
       });
 
-      showToast('Message transmis avec succès avec accusé de réception certifié S2T !');
+      showToast(t('email_toast_sent_success'));
 
       // Refresh list & counts
       await loadCounts();
@@ -339,7 +355,7 @@ const EmailPage = () => {
       }
     } catch (err) {
       console.error('Erreur envoi email:', err);
-      showToast(err.response?.data?.message || 'Erreur lors de la transmission du message.', 'error');
+      showToast(err.response?.data?.message || t('email_toast_load_err'), 'error');
     } finally {
       setActionLoading(false);
     }
@@ -355,7 +371,7 @@ const EmailPage = () => {
       ? selectedEmail.subject
       : `Re: ${selectedEmail.subject}`;
     
-    const quoteBody = `\n\n--- En réponse à ${selectedEmail.senderName} (${selectedEmail.date}) ---\n${selectedEmail.body}`;
+    const quoteBody = `\n\n${t('email_reply_quote_header').replace('{sender}', selectedEmail.senderName).replace('{date}', selectedEmail.date)}\n${selectedEmail.body}`;
 
     setComposeData({
       to: replyToEmail,
@@ -371,10 +387,16 @@ const EmailPage = () => {
   const handleOpenForward = () => {
     if (!selectedEmail) return;
 
+    const forwardHeader = t('email_forward_quote_header')
+      .replace('{sender}', selectedEmail.senderName)
+      .replace('{email}', selectedEmail.senderEmail)
+      .replace('{date}', selectedEmail.date)
+      .replace('{subject}', selectedEmail.subject);
+
     setComposeData({
       to: '',
       subject: `Fwd: ${selectedEmail.subject}`,
-      body: `\n\n--- Message transféré ---\nDe : ${selectedEmail.senderName} <${selectedEmail.senderEmail}>\nDate : ${selectedEmail.date}\nObjet : ${selectedEmail.subject}\n\n${selectedEmail.body}`,
+      body: `\n\n${forwardHeader}${selectedEmail.body}`,
       category: selectedEmail.category || 'general',
       replyTo: null,
     });
@@ -398,7 +420,8 @@ const EmailPage = () => {
     return em.category === categoryFilter;
   });
 
-  const availableTemplates = isAdmin ? QUICK_TEMPLATES.admin : QUICK_TEMPLATES.resident;
+  const quickTemplates = getQuickTemplates();
+  const availableTemplates = isAdmin ? quickTemplates.admin : quickTemplates.resident;
 
   return (
     <div className="email-page-container">
@@ -408,16 +431,16 @@ const EmailPage = () => {
           <div className="page-breadcrumb">
             <Mail size={16} color="var(--s2t-red)" />
             <span>
-              {isAdmin ? 'Administration S2T / Messagerie Officielle' : 'Espace Résident S2T / Courriers Officiels'}
+              {isAdmin ? t('email_breadcrumb_admin') : t('email_breadcrumb_resident')}
             </span>
           </div>
           <h1 className="page-main-title">
-            {isAdmin ? 'Centre de Correspondances Administratives' : 'Boîte de Réception & Communications S2T'}
+            {isAdmin ? t('email_title_admin') : t('email_title_resident')}
           </h1>
           <p className="page-subtitle">
             {isAdmin 
-              ? 'Échangez avec les entreprises résidentes, notifiez les décisions juridiques et répondez aux requêtes administratives.'
-              : 'Consultez les correspondances officielles du Technopark, les avis d\'échéance et vos quittances certifiées.'
+              ? t('email_subtitle_admin')
+              : t('email_subtitle_resident')
             }
           </p>
         </div>
@@ -427,11 +450,11 @@ const EmailPage = () => {
             type="button"
             onClick={() => loadEmails(true)}
             className="btn btn-secondary"
-            title="Rafraîchir les messages"
+            title={t('email_btn_refresh_tooltip')}
             style={{ gap: '0.4rem', padding: '0.65rem 1rem' }}
           >
             <RefreshCw size={16} className={refreshing ? 'spin-animation' : ''} />
-            <span className="hide-on-mobile">Actualiser</span>
+            <span className="hide-on-mobile">{t('email_btn_refresh')}</span>
           </button>
 
           <button 
@@ -450,7 +473,7 @@ const EmailPage = () => {
             style={{ gap: '0.6rem', padding: '0.65rem 1.4rem' }}
           >
             <Plus size={18} />
-            <span>{isAdmin ? 'Nouveau Courrier Résident' : 'Écrire à la Direction S2T'}</span>
+            <span>{isAdmin ? t('email_btn_compose_admin') : t('email_btn_compose_resident')}</span>
           </button>
         </div>
       </div>
@@ -496,7 +519,7 @@ const EmailPage = () => {
           className={`mailbox-nav-tab ${activeFolder === 'inbox' ? 'active' : ''}`}
         >
           <Inbox size={15} />
-          <span>Boîte de réception</span>
+          <span>{t('email_folder_inbox')}</span>
           {counts.unreadInbox > 0 && <span className="tab-badge">{counts.unreadInbox}</span>}
         </button>
 
@@ -509,7 +532,7 @@ const EmailPage = () => {
           className={`mailbox-nav-tab ${activeFolder === 'starred' ? 'active' : ''}`}
         >
           <Star size={15} />
-          <span>Favoris</span>
+          <span>{t('email_folder_starred')}</span>
           {counts.starred > 0 && <span className="tab-badge" style={{ background: '#F59E0B' }}>{counts.starred}</span>}
         </button>
 
@@ -522,7 +545,7 @@ const EmailPage = () => {
           className={`mailbox-nav-tab ${activeFolder === 'sent' ? 'active' : ''}`}
         >
           <Send size={15} />
-          <span>Envoyés</span>
+          <span>{t('email_folder_sent')}</span>
           {counts.sent > 0 && <span className="tab-badge" style={{ background: 'var(--s2t-blue)' }}>{counts.sent}</span>}
         </button>
 
@@ -535,7 +558,7 @@ const EmailPage = () => {
           className={`mailbox-nav-tab ${activeFolder === 'trash' ? 'active' : ''}`}
         >
           <Trash2 size={15} />
-          <span>Corbeille</span>
+          <span>{t('email_folder_trash')}</span>
           {counts.trash > 0 && <span className="tab-badge" style={{ background: 'var(--text-muted)' }}>{counts.trash}</span>}
         </button>
       </div>
@@ -555,7 +578,7 @@ const EmailPage = () => {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Inbox size={18} />
-                <span>Boîte de réception</span>
+                <span>{t('email_folder_inbox')}</span>
               </div>
               {counts.unreadInbox > 0 && (
                 <span className="folder-badge-pill">{counts.unreadInbox}</span>
@@ -572,7 +595,7 @@ const EmailPage = () => {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Star size={18} />
-                <span>Messages favoris</span>
+                <span>{t('email_folder_starred')}</span>
               </div>
               {counts.starred > 0 && (
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{counts.starred}</span>
@@ -589,7 +612,7 @@ const EmailPage = () => {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Send size={18} />
-                <span>Messages envoyés</span>
+                <span>{t('email_folder_sent')}</span>
               </div>
               {counts.sent > 0 && (
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{counts.sent}</span>
@@ -606,7 +629,7 @@ const EmailPage = () => {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Trash2 size={18} />
-                <span>Corbeille</span>
+                <span>{t('email_folder_trash')}</span>
               </div>
               {counts.trash > 0 && (
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{counts.trash}</span>
@@ -618,7 +641,7 @@ const EmailPage = () => {
           <div className="mailbox-legal-box">
             <ShieldCheck size={20} color="var(--s2t-teal)" style={{ flexShrink: 0, marginTop: '2px' }} />
             <span>
-              Les correspondances numériques échangées via le portail S2T font foi et sont horodatées conformément au Règlement Intérieur du technopark.
+              {t('email_legal_notice')}
             </span>
           </div>
         </div>
@@ -630,7 +653,7 @@ const EmailPage = () => {
             <Search size={16} color="var(--text-muted)" />
             <input
               type="text"
-              placeholder="Rechercher par objet, expéditeur, mot-clé..."
+              placeholder={t('email_search_placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="mailbox-search-input"
@@ -649,11 +672,11 @@ const EmailPage = () => {
           {/* Category Filter Pills */}
           <div className="mailbox-category-bar">
             {[
-              { key: 'all', label: 'Tous' },
-              { key: 'juridique', label: 'Juridique' },
-              { key: 'facturation', label: 'Facturation' },
-              { key: 'technique', label: 'Technique' },
-              { key: 'reservation', label: 'Réservation' },
+              { key: 'all', label: t('email_cat_all') },
+              { key: 'juridique', label: t('email_cat_juridique') },
+              { key: 'facturation', label: t('email_cat_facturation') },
+              { key: 'technique', label: t('email_cat_technique') },
+              { key: 'reservation', label: t('email_cat_reservation') },
             ].map((cat) => (
               <button
                 key={cat.key}
@@ -671,13 +694,13 @@ const EmailPage = () => {
             {loading ? (
               <div className="mailbox-loading-overlay">
                 <RefreshCw size={24} className="spin-animation" color="var(--s2t-blue)" />
-                <span style={{ fontSize: '0.85rem' }}>Chargement des messages S2T...</span>
+                <span style={{ fontSize: '0.85rem' }}>{t('email_loading')}</span>
               </div>
             ) : displayedEmails.length === 0 ? (
               <div className="mailbox-empty-state">
                 <Mail size={36} style={{ opacity: 0.35, marginBottom: '0.5rem' }} />
-                <p style={{ fontWeight: 600, fontSize: '0.9rem', margin: 0 }}>Aucun message trouvé</p>
-                <span style={{ fontSize: '0.78rem' }}>Ce dossier ne contient aucun courrier officiel pour l'instant.</span>
+                <p style={{ fontWeight: 600, fontSize: '0.9rem', margin: 0 }}>{t('email_empty_title')}</p>
+                <span style={{ fontSize: '0.78rem' }}>{t('email_empty_desc')}</span>
               </div>
             ) : (
               displayedEmails.map((em) => {
@@ -690,7 +713,7 @@ const EmailPage = () => {
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
                       <span className="email-row-sender">
-                        {activeFolder === 'sent' ? `À : ${em.recipientName}` : em.senderName}
+                        {activeFolder === 'sent' ? `${t('email_to_prefix')}${em.recipientName}` : em.senderName}
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <span className="email-row-date">{em.date}</span>
@@ -698,7 +721,7 @@ const EmailPage = () => {
                           type="button"
                           onClick={(e) => handleToggleStar(em._id, e)}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: em.isStarred ? '#F59E0B' : 'var(--text-muted)', padding: '2px', display: 'flex' }}
-                          title={em.isStarred ? 'Retirer des favoris' : 'Marquer comme favori'}
+                          title={em.isStarred ? t('email_tooltip_star_remove') : t('email_tooltip_star_add')}
                         >
                           <Star size={15} fill={em.isStarred ? '#F59E0B' : 'none'} />
                         </button>
@@ -717,11 +740,11 @@ const EmailPage = () => {
                           borderColor: `${em.tagColor || '#2563EB'}40` 
                         }}
                       >
-                        {em.tag || 'Général'}
+                        {getCategoryLabel(em.category)}
                       </span>
                       {em.attachments?.length > 0 && (
                         <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          <Paperclip size={12} /> {em.attachments.length} PJ
+                          <Paperclip size={12} /> {t('email_attachment_count').replace('{n}', em.attachments.length)}
                         </span>
                       )}
                       {!em.isRead && (
@@ -730,7 +753,8 @@ const EmailPage = () => {
                           height: '7px',
                           borderRadius: '50%',
                           background: 'var(--s2t-red)',
-                          marginLeft: 'auto',
+                          marginLeft: isRtl ? '0' : 'auto',
+                          marginRight: isRtl ? 'auto' : '0',
                         }} />
                       )}
                     </div>
@@ -755,9 +779,9 @@ const EmailPage = () => {
                 >
                   <ArrowLeft size={16} />
                   <span>
-                    {activeFolder === 'inbox' ? 'Boîte de réception' : 
-                     activeFolder === 'starred' ? 'Messages favoris' :
-                     activeFolder === 'sent' ? 'Messages envoyés' : 'Corbeille'}
+                    {activeFolder === 'inbox' ? t('email_folder_inbox') : 
+                     activeFolder === 'starred' ? t('email_folder_starred') :
+                     activeFolder === 'sent' ? t('email_folder_sent') : t('email_folder_trash')}
                   </span>
                 </button>
 
@@ -766,7 +790,7 @@ const EmailPage = () => {
                     type="button"
                     onClick={(e) => handleToggleStar(selectedEmail._id, e)}
                     className="btn btn-ghost btn-sm"
-                    title={selectedEmail.isStarred ? 'Retirer des favoris' : 'Marquer comme favori'}
+                    title={selectedEmail.isStarred ? t('email_tooltip_star_remove') : t('email_tooltip_star_add')}
                     style={{ color: selectedEmail.isStarred ? '#F59E0B' : 'var(--text-secondary)' }}
                   >
                     <Star size={16} fill={selectedEmail.isStarred ? '#F59E0B' : 'none'} />
@@ -776,7 +800,7 @@ const EmailPage = () => {
                     type="button"
                     onClick={(e) => handleToggleReadStatus(selectedEmail._id, selectedEmail.isRead, e)}
                     className="btn btn-ghost btn-sm"
-                    title={selectedEmail.isRead ? 'Marquer comme non lu' : 'Marquer comme lu'}
+                    title={selectedEmail.isRead ? t('email_tooltip_unread') : t('email_tooltip_read')}
                   >
                     <Mail size={16} />
                   </button>
@@ -786,7 +810,7 @@ const EmailPage = () => {
                       type="button"
                       onClick={(e) => handleRestoreEmail(selectedEmail._id, e)}
                       className="btn btn-ghost btn-sm"
-                      title="Restaurer le message"
+                      title={t('email_tooltip_restore')}
                       disabled={actionLoading}
                     >
                       <RotateCcw size={16} color="var(--s2t-teal)" />
@@ -796,7 +820,7 @@ const EmailPage = () => {
                       type="button"
                       onClick={(e) => handleDeleteEmail(selectedEmail._id, e)}
                       className="btn btn-ghost btn-sm"
-                      title="Déplacer dans la corbeille"
+                      title={t('email_tooltip_delete')}
                       disabled={actionLoading}
                       style={{ color: 'var(--s2t-red)' }}
                     >
@@ -818,14 +842,14 @@ const EmailPage = () => {
                         borderColor: `${selectedEmail.tagColor || '#2563EB'}40` 
                       }}
                     >
-                      {selectedEmail.tag || 'Général'}
+                      {getCategoryLabel(selectedEmail.category)}
                     </span>
                     <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                       {selectedEmail.date}
                     </span>
                     {selectedEmail.threadId && (
                       <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', background: 'var(--bg-tertiary)', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>
-                        Fil #{selectedEmail.threadId.replace('th-', '')}
+                        {t('email_thread_prefix')}{selectedEmail.threadId.replace('th-', '')}
                       </span>
                     )}
                   </div>
@@ -838,7 +862,7 @@ const EmailPage = () => {
                     type="button"
                     onClick={(e) => handleToggleStar(selectedEmail._id, e)}
                     className="btn btn-ghost btn-sm"
-                    title={selectedEmail.isStarred ? 'Retirer des favoris' : 'Marquer comme favori'}
+                    title={selectedEmail.isStarred ? t('email_tooltip_star_remove') : t('email_tooltip_star_add')}
                     style={{ color: selectedEmail.isStarred ? '#F59E0B' : 'var(--text-secondary)' }}
                   >
                     <Star size={16} fill={selectedEmail.isStarred ? '#F59E0B' : 'none'} />
@@ -848,7 +872,7 @@ const EmailPage = () => {
                     type="button"
                     onClick={(e) => handleToggleReadStatus(selectedEmail._id, selectedEmail.isRead, e)}
                     className="btn btn-ghost btn-sm"
-                    title={selectedEmail.isRead ? 'Marquer comme non lu' : 'Marquer comme lu'}
+                    title={selectedEmail.isRead ? t('email_tooltip_unread') : t('email_tooltip_read')}
                   >
                     <Mail size={16} />
                   </button>
@@ -858,7 +882,7 @@ const EmailPage = () => {
                       type="button"
                       onClick={(e) => handleRestoreEmail(selectedEmail._id, e)}
                       className="btn btn-ghost btn-sm"
-                      title="Restaurer le message"
+                      title={t('email_tooltip_restore')}
                       disabled={actionLoading}
                     >
                       <RotateCcw size={16} color="var(--s2t-teal)" />
@@ -868,7 +892,7 @@ const EmailPage = () => {
                       type="button"
                       onClick={(e) => handleDeleteEmail(selectedEmail._id, e)}
                       className="btn btn-ghost btn-sm"
-                      title="Déplacer dans la corbeille"
+                      title={t('email_tooltip_delete')}
                       disabled={actionLoading}
                       style={{ color: 'var(--s2t-red)' }}
                     >
@@ -889,15 +913,15 @@ const EmailPage = () => {
                       <span>{selectedEmail.senderName}</span>
                       {selectedEmail.senderRole === 'admin' && (
                         <span style={{ fontSize: '0.7rem', background: 'rgba(239, 68, 68, 0.12)', color: 'var(--s2t-red)', padding: '0.1rem 0.4rem', borderRadius: '4px', fontWeight: 700 }}>
-                          Direction S2T
+                          {t('email_sender_badge_admin')}
                         </span>
                       )}
                     </div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', wordBreak: 'break-all' }}>
-                      De : <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{selectedEmail.senderEmail}</span>
+                      {t('email_from_label')}<span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{selectedEmail.senderEmail}</span>
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>
-                      À : <span style={{ color: 'var(--text-secondary)' }}>{selectedEmail.recipientName} ({selectedEmail.recipientEmail})</span>
+                      {t('email_to_label')}<span style={{ color: 'var(--text-secondary)' }}>{selectedEmail.recipientName} ({selectedEmail.recipientEmail})</span>
                     </div>
                   </div>
                 </div>
@@ -910,7 +934,7 @@ const EmailPage = () => {
                     style={{ gap: '0.4rem', fontSize: '0.8rem' }}
                   >
                     <Reply size={14} />
-                    <span>Répondre</span>
+                    <span>{t('email_btn_reply')}</span>
                   </button>
                   <button
                     type="button"
@@ -919,7 +943,7 @@ const EmailPage = () => {
                     style={{ gap: '0.4rem', fontSize: '0.8rem' }}
                   >
                     <Forward size={14} />
-                    <span>Transférer</span>
+                    <span>{t('email_btn_forward')}</span>
                   </button>
                 </div>
               </div>
@@ -934,7 +958,7 @@ const EmailPage = () => {
                 <div className="reader-attachments-box">
                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                     <Paperclip size={14} />
-                    <span>Pièces jointes certifiées ({selectedEmail.attachments.length}) :</span>
+                    <span>{t('email_attachments_title').replace('{n}', selectedEmail.attachments.length)}</span>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -944,7 +968,7 @@ const EmailPage = () => {
                           <FileText size={18} color="var(--s2t-red)" style={{ flexShrink: 0 }} />
                           <div style={{ minWidth: 0 }}>
                             <div className="attachment-chip-name">{att.name}</div>
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{att.size || 'Fichier certifié'} • Signature numérique S2T</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{att.size || t('email_attachment_certified')} • {t('email_attachment_signature')}</div>
                           </div>
                         </div>
 
@@ -953,11 +977,11 @@ const EmailPage = () => {
                           className="btn btn-secondary btn-sm"
                           style={{ gap: '0.35rem', fontSize: '0.75rem', flexShrink: 0 }}
                           onClick={() => {
-                            showToast(`Téléchargement de "${att.name}" lancé.`);
+                            showToast(t('email_toast_download_started').replace('{name}', att.name));
                           }}
                         >
                           <Download size={14} />
-                          <span>Télécharger</span>
+                          <span>{t('email_btn_download')}</span>
                         </button>
                       </div>
                     ))}
@@ -969,10 +993,10 @@ const EmailPage = () => {
             <div className="mailbox-empty-state" style={{ height: '100%', justifyContent: 'center' }}>
               <Mail size={44} style={{ margin: '0 auto 1rem', opacity: 0.25 }} />
               <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
-                Aucun message sélectionné
+                {t('email_no_selection_title')}
               </h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', maxWidth: '320px' }}>
-                Sélectionnez un courrier dans la liste pour en consulter le contenu complet ou rédigez un nouveau message.
+                {t('email_no_selection_desc')}
               </p>
             </div>
           )}
@@ -1007,10 +1031,10 @@ const EmailPage = () => {
                 </div>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                    {composeData.replyTo ? 'Répondre au message officiel' : (isAdmin ? 'Nouveau Courrier Officiel S2T' : 'Nouveau Message à la Direction S2T')}
+                    {composeData.replyTo ? t('email_compose_title_reply') : (isAdmin ? t('email_compose_title_admin') : t('email_compose_title_resident'))}
                   </h3>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                    Accusé de réception automatique et archivage numérique certifié
+                    {t('email_compose_sub')}
                   </span>
                 </div>
               </div>
@@ -1027,7 +1051,7 @@ const EmailPage = () => {
             {/* Quick Template Picker Bar */}
             <div className="compose-templates-bar">
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}>
-                <Sparkles size={14} color="#F59E0B" /> Modèles rapides :
+                <Sparkles size={14} color="#F59E0B" /> {t('email_templates_label')}
               </span>
               {availableTemplates.map((tpl, i) => (
                 <button
@@ -1047,8 +1071,8 @@ const EmailPage = () => {
               {isAdmin ? (
                 <div className="form-group" style={{ margin: 0 }}>
                   <label className="form-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span>Entreprise destinataire *</span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Sélectionnez l'entreprise hébergée</span>
+                    <span>{t('email_field_recipient_admin')}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('email_field_recipient_admin_sub')}</span>
                   </label>
                   <select
                     className="form-select"
@@ -1057,7 +1081,7 @@ const EmailPage = () => {
                     onChange={(e) => setComposeData({ ...composeData, to: e.target.value })}
                     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
                   >
-                    <option value="">-- Sélectionner l'entreprise hébergée --</option>
+                    <option value="">{t('email_select_recipient_ph')}</option>
                     {recipientsData.residents?.map((res) => (
                       <option key={res.email} value={res.email}>
                         {res.label || (res.companyName ? `${res.companyName} — ${res.name} (${res.email})` : `${res.name} (${res.email})`)}
@@ -1067,7 +1091,7 @@ const EmailPage = () => {
                 </div>
               ) : (
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Destinataire officiel *</label>
+                  <label className="form-label">{t('email_field_recipient_official')}</label>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -1094,11 +1118,12 @@ const EmailPage = () => {
                       <Building size={16} />
                     </div>
                     <div>
-                      <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Direction Générale S2T</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 400 }}>Pôle Technologique El Ghazala</div>
+                      <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{t('email_s2t_management')}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 400 }}>{t('email_s2t_pole')}</div>
                     </div>
                     <span style={{ 
-                      marginLeft: 'auto', 
+                      marginLeft: isRtl ? '0' : 'auto', 
+                      marginRight: isRtl ? 'auto' : '0', 
                       fontSize: '0.78rem', 
                       background: 'rgba(37, 99, 235, 0.1)', 
                       color: 'var(--s2t-blue)', 
@@ -1116,29 +1141,29 @@ const EmailPage = () => {
               {/* Category selector & Subject */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Catégorie du courrier *</label>
+                  <label className="form-label">{t('email_field_category')}</label>
                   <select
                     className="form-select"
                     value={composeData.category}
                     onChange={(e) => setComposeData({ ...composeData, category: e.target.value })}
                     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
                   >
-                    <option value="general">Général / Administratif</option>
-                    <option value="juridique">Juridique & Contrats (Avenants, Règlement)</option>
-                    <option value="facturation">Facturation & Recouvrement (Redevances, Paiements)</option>
-                    <option value="technique">Support Technique & Hébergement</option>
-                    <option value="reservation">Réservation Salles & Événements</option>
-                    <option value="urgent">Urgent / Priorité Haute</option>
+                    <option value="general">{t('email_opt_cat_general')}</option>
+                    <option value="juridique">{t('email_opt_cat_juridique')}</option>
+                    <option value="facturation">{t('email_opt_cat_facturation')}</option>
+                    <option value="technique">{t('email_opt_cat_technique')}</option>
+                    <option value="reservation">{t('email_opt_cat_reservation')}</option>
+                    <option value="urgent">{t('email_opt_cat_urgent')}</option>
                   </select>
                 </div>
 
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Objet officiel *</label>
+                  <label className="form-label">{t('email_field_subject')}</label>
                   <input
                     type="text"
                     className="form-input"
                     required
-                    placeholder="Ex: Demande d'extension de surface / Quittance"
+                    placeholder={t('email_field_subject_ph')}
                     value={composeData.subject}
                     onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
                     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
@@ -1148,12 +1173,12 @@ const EmailPage = () => {
 
               {/* Message Body */}
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Corps du courrier officiel *</label>
+                <label className="form-label">{t('email_field_body')}</label>
                 <textarea
                   className="form-input"
                   required
                   rows={8}
-                  placeholder="Rédigez votre demande ou notification officielle..."
+                  placeholder={t('email_field_body_ph')}
                   value={composeData.body}
                   onChange={(e) => setComposeData({ ...composeData, body: e.target.value })}
                   style={{ 
@@ -1170,7 +1195,7 @@ const EmailPage = () => {
             {/* Modal Footer */}
             <div className="modal-footer">
               <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Expéditeur : <strong style={{ color: 'var(--text-primary)' }}>{user?.name}</strong> ({user?.email})
+                {t('email_sender_label')}<strong style={{ color: 'var(--text-primary)' }}>{user?.name}</strong> ({user?.email})
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -1180,7 +1205,7 @@ const EmailPage = () => {
                   onClick={() => setComposeOpen(false)}
                   disabled={actionLoading}
                 >
-                  Annuler
+                  {t('email_btn_cancel')}
                 </button>
                 <button 
                   type="submit" 
@@ -1191,12 +1216,12 @@ const EmailPage = () => {
                   {actionLoading ? (
                     <>
                       <RefreshCw size={16} className="spin-animation" />
-                      <span>Transmission en cours...</span>
+                      <span>{t('email_btn_sending')}</span>
                     </>
                   ) : (
                     <>
                       <Send size={16} />
-                      <span>Transmettre le courrier</span>
+                      <span>{t('email_btn_send')}</span>
                     </>
                   )}
                 </button>
