@@ -126,13 +126,13 @@ function MainLayout() {
                 style={{ height: '42px', marginBottom: '1rem' }}
               />
               <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-                Société de Gestion du Pôle Technologique El Ghazala. Aménagement, hébergement d'entreprises et gestion des contrats d'hébergement.
+                {t('footer_s2t_desc')}
               </p>
             </div>
 
             {/* Col 2: Navigation */}
             <div>
-              <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '1rem' }}>Navigation</h4>
+              <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '1rem' }}>{t('footer_nav')}</h4>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.875rem' }}>
                 <li><Link to="/" style={{ color: 'inherit' }}>{t('nav_home')}</Link></li>
                 <li><Link to="/a-propos" style={{ color: 'inherit' }}>{t('nav_about')}</Link></li>
@@ -143,19 +143,19 @@ function MainLayout() {
 
             {/* Col 3: Portails & Sessions */}
             <div>
-              <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '1rem' }}>Espaces Dédiés</h4>
+              <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '1rem' }}>{t('footer_spaces')}</h4>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.875rem' }}>
-                <li><Link to="/login" style={{ color: 'var(--s2t-blue)', fontWeight: 600 }}>Espace Entreprise Hébergée</Link></li>
-                <li><Link to="/login" style={{ color: 'var(--s2t-red)', fontWeight: 600 }}>Espace Juridique & Finance</Link></li>
-                <li><Link to="/register" style={{ color: 'inherit' }}>Candidature Hébergement</Link></li>
+                <li><Link to="/login" style={{ color: 'var(--s2t-blue)', fontWeight: 600 }}>{t('home_btn_resident')}</Link></li>
+                <li><Link to="/login" style={{ color: 'var(--s2t-red)', fontWeight: 600 }}>{t('home_btn_legal')}</Link></li>
+                <li><Link to="/register" style={{ color: 'inherit' }}>{t('home_btn_apply')}</Link></li>
               </ul>
             </div>
 
             {/* Col 4: Contact rapide */}
             <div>
-              <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '1rem' }}>Contact</h4>
+              <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '1rem' }}>{t('footer_contact_title')}</h4>
               <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-                Pôle Technologique El Ghazala, Ariana<br />
+                {t('footer_contact_address')}<br />
                 Tél : +216 71 857 000<br />
                 Email : contact@s2t.tn
               </p>
@@ -172,11 +172,11 @@ function MainLayout() {
           gap: '1rem'
         }}>
           <div>
-            © {new Date().getFullYear()} Smart Tunisian Technoparks (S2T). Tous droits réservés.
+            © {new Date().getFullYear()} {t('footer_copyright')}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <img src="/tunisia-flag.svg" alt="Drapeau Tunisie" style={{ width: '18px', height: '12px', borderRadius: '2px', objectFit: 'cover' }} />
-            <span>Sous tutelle du Ministère des Technologies de la Communication — République Tunisienne</span>
+            <span>{t('footer_ministry')}</span>
           </div>
         </div>
       </footer>

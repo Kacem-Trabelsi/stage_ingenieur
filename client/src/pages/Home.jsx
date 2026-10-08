@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   Building2, 
   ShieldCheck, 
@@ -21,36 +22,37 @@ import {
 
 const Home = () => {
   const { isAuthenticated, user } = useAuth();
+  const { t, language } = useLanguage();
 
   const stats = [
-    { value: '250+', label: 'Entreprises & Startups Hébergées', color: 'var(--s2t-red)' },
-    { value: '15 000+', label: 'Cadres & Ingénieurs TIC', color: 'var(--s2t-blue)' },
-    { value: '7', label: 'Technoparcs Connectés en Tunisie', color: 'var(--s2t-teal)' },
-    { value: '98%', label: 'Taux d\'Occupation des Espaces', color: '#8B5CF6' },
+    { value: '250+', label: t('home_stat_companies'), color: 'var(--s2t-red)' },
+    { value: '15 000+', label: t('home_stat_engineers'), color: 'var(--s2t-blue)' },
+    { value: '7', label: t('home_stat_parks'), color: 'var(--s2t-teal)' },
+    { value: '98%', label: t('home_stat_occupancy'), color: '#8B5CF6' },
   ];
 
   const prestations = [
     {
-      title: 'Hébergement & Espaces Aménagés',
-      desc: 'Bureaux équipés, pépinières d\'entreprises et plateaux modulables selon la superficie demandée (Art. 2 du contrat).',
+      title: t('home_service_1_title'),
+      desc: t('home_service_1_desc'),
       icon: Building2,
       color: 'var(--s2t-blue)',
     },
     {
-      title: 'Gestion Juridique & Avenants',
-      desc: 'Établissement des contrats d\'hébergement, renouvellements, résiliations et suivi des modifications de superficie (Art. 11).',
+      title: t('home_service_2_title'),
+      desc: t('home_service_2_desc'),
       icon: Scale,
       color: 'var(--s2t-red)',
     },
     {
-      title: 'Facturation & Suivi Financier',
-      desc: 'Facturation automatisée des redevances, alertes d\'échéance au 5 du mois et suivi rigoureux des relances (J+15, J+30).',
+      title: t('home_service_3_title'),
+      desc: t('home_service_3_desc'),
       icon: Receipt,
       color: 'var(--s2t-teal)',
     },
     {
-      title: 'Prestations Complémentaires',
-      desc: 'Connexion Internet très haut débit, salles de réunion et de formation, secrétariat mutualisé et gardiennage 24/7.',
+      title: t('home_service_4_title'),
+      desc: t('home_service_4_desc'),
       icon: Wifi,
       color: '#F59E0B',
     },
@@ -58,26 +60,26 @@ const Home = () => {
 
   const contractTiers = [
     {
-      period: '1ère Année d\'Hébergement',
+      period: t('home_tier_1_period'),
       rate: '30,000 DT',
-      unit: 'HTVA / m² / an',
-      desc: 'Tarif préférentiel d\'incubation pour les jeunes pousses et startups innovantes en phase d\'amorçage.',
-      badge: 'Tarif Pépinière Phase 1',
+      unit: t('home_pricing_unit'),
+      desc: t('home_tier_1_desc'),
+      badge: t('home_tier_1_badge'),
     },
     {
-      period: '2ème Année d\'Hébergement',
+      period: t('home_tier_2_period'),
       rate: '55,000 DT',
-      unit: 'HTVA / m² / an',
-      desc: 'Accompagnement dans la croissance avec accès élargi aux prestations mutualisées du pôle.',
-      badge: 'Tarif Pépinière Phase 2',
+      unit: t('home_pricing_unit'),
+      desc: t('home_tier_2_desc'),
+      badge: t('home_tier_2_badge'),
       featured: true,
     },
     {
-      period: '3ème Année & Plus',
+      period: t('home_tier_3_period'),
       rate: '75,000 DT',
-      unit: 'HTVA / m² / an',
-      desc: 'Tarif consolidé pour entreprises en phase d\'expansion technologique et partenariats industriels.',
-      badge: 'Tarif Consolidation',
+      unit: t('home_pricing_unit'),
+      desc: t('home_tier_3_desc'),
+      badge: t('home_tier_3_badge'),
     },
   ];
 
@@ -105,39 +107,41 @@ const Home = () => {
               }}>
                 <img
                   src="/tunisia-flag.svg"
-                  alt="Tunisie"
+                  alt={t('tunisia_label') || 'Tunisie'}
                   style={{ width: '18px', height: '12px', borderRadius: '2px', objectFit: 'cover' }}
                 />
-                <span>Pôle Technologique El Ghazala — S2T</span>
+                <span>{t('home_badge')}</span>
               </div>
 
               {/* Main Heading */}
               <h1 className="hero-title">
-                Gestion des Contrats <br />
-                <span className="gradient-text">& Facturation S2T</span>
+                {t('home_hero_title')} <br />
+                <span className="gradient-text">{t('home_hero_title_sub')}</span>
               </h1>
 
               {/* Description */}
               <p className="hero-description">
-                La plateforme officielle dédiée aux affaires juridiques, au suivi des conventions d'hébergement (Articles 1 à 16), aux modifications de superficie et au recouvrement financier des redevances locatives.
+                {t('home_hero_desc')}
               </p>
 
               {/* Dual Action Buttons */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                 {isAuthenticated ? (
                   <Link to="/dashboard" className="btn btn-primary btn-lg" style={{ gap: '0.6rem' }}>
-                    <span>Accéder à votre Espace ({user?.role === 'admin' ? 'Administration' : 'Entreprise'})</span>
-                    <ArrowRight size={18} />
+                    <span>
+                      {t('home_btn_my_space')} ({user?.role === 'admin' ? t('home_role_admin') : t('home_role_client')})
+                    </span>
+                    <ArrowRight size={18} style={{ transform: language === 'ar' ? 'rotate(180deg)' : 'none' }} />
                   </Link>
                 ) : (
                   <>
                     <Link to="/login" className="btn btn-primary btn-lg" style={{ gap: '0.6rem' }}>
                       <Building2 size={18} />
-                      <span>Espace Entreprise Hébergée</span>
+                      <span>{t('home_btn_resident')}</span>
                     </Link>
                     <Link to="/login" className="btn btn-blue btn-lg" style={{ gap: '0.6rem' }}>
                       <ShieldCheck size={18} />
-                      <span>Portail Juridique & Finance</span>
+                      <span>{t('home_btn_legal')}</span>
                     </Link>
                   </>
                 )}
@@ -147,15 +151,15 @@ const Home = () => {
               <div className="hero-trust-list">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span style={{ color: 'var(--s2t-teal)' }}>✓</span>
-                  <span>Conforme Loi n°2001-50 & 2006-37</span>
+                  <span>{t('home_trust_law')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span style={{ color: 'var(--s2t-teal)' }}>✓</span>
-                  <span>Tarifs réglementés (Art. 6)</span>
+                  <span>{t('home_trust_rates')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span style={{ color: 'var(--s2t-teal)' }}>✓</span>
-                  <span>Dépôt de garantie sécurisé (Art. 7)</span>
+                  <span>{t('home_trust_deposit')}</span>
                 </div>
               </div>
             </div>
@@ -168,14 +172,14 @@ const Home = () => {
                   <div className="floating-chip-badge-icon" style={{ background: 'var(--primary-light)', color: 'var(--s2t-red)' }}>
                     <MapPin size={16} />
                   </div>
-                  <span>Route de Raoued Km 3.5, Ariana</span>
+                  <span>{t('home_floating_address')}</span>
                 </div>
 
                 {/* Main Building Photo */}
                 <div className="hero-image-inner">
                   <img
                     src="/s2t-building.jpg"
-                    alt="Siège officiel du Pôle Technologique El Ghazala S2T"
+                    alt={t('home_badge')}
                   />
                   <div className="hero-image-gradient-overlay" />
                 </div>
@@ -186,8 +190,8 @@ const Home = () => {
                     <Building2 size={16} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 800 }}>250+ Sociétés Hébergées</div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Pépinière & Pôle d'Excellence TIC</div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800 }}>{t('home_floating_companies_title')}</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{t('home_floating_companies_sub')}</div>
                   </div>
                 </div>
               </div>
@@ -206,7 +210,11 @@ const Home = () => {
           boxShadow: 'var(--shadow-lg)',
         }}>
           {stats.map((s, idx) => (
-            <div key={idx} style={{ textAlign: 'center', borderRight: idx < stats.length - 1 ? '1px solid var(--border-color)' : 'none' }}>
+            <div key={idx} style={{ 
+              textAlign: 'center', 
+              borderRight: language === 'ar' ? 'none' : (idx < stats.length - 1 ? '1px solid var(--border-color)' : 'none'),
+              borderLeft: language === 'ar' ? (idx < stats.length - 1 ? '1px solid var(--border-color)' : 'none') : 'none'
+            }}>
               <div style={{ fontSize: '2.2rem', fontWeight: 800, color: s.color, lineHeight: 1.1, marginBottom: '0.35rem' }}>
                 {s.value}
               </div>
@@ -222,10 +230,10 @@ const Home = () => {
       <section className="container" style={{ marginBottom: '5.5rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
           <h2 style={{ fontSize: '2.2rem', marginBottom: '0.75rem' }}>
-            Services & Dispositif Contractuel
+            {t('home_services_title')}
           </h2>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '650px', margin: '0 auto', fontSize: '1rem' }}>
-            Une offre complète encadrée par le contrat d'hébergement au Pôle Technologique S2T (Articles 1 à 16).
+            {t('home_services_desc')}
           </p>
         </div>
 
@@ -276,13 +284,13 @@ const Home = () => {
             textTransform: 'uppercase',
             marginBottom: '0.75rem',
           }}>
-            Article 6 du Contrat d'Hébergement
+            {t('home_pricing_tag')}
           </div>
           <h2 style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>
-            Grille Tarifaire des Redevances Locatives
+            {t('home_pricing_title')}
           </h2>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto' }}>
-            Tarification officielle par m² calculée selon l'ancienneté en pépinière d'entreprises.
+            {t('home_pricing_desc')}
           </p>
         </div>
 
@@ -307,7 +315,7 @@ const Home = () => {
                 <div style={{
                   position: 'absolute',
                   top: '-12px',
-                  right: '24px',
+                  [language === 'ar' ? 'left' : 'right']: '24px',
                   background: 'var(--s2t-red)',
                   color: '#fff',
                   fontSize: '0.75rem',
@@ -315,7 +323,7 @@ const Home = () => {
                   padding: '0.25rem 0.75rem',
                   borderRadius: 'var(--radius-full)',
                 }}>
-                  RECOMMANDÉ
+                  {t('home_badge_recommended')}
                 </div>
               )}
 
@@ -333,7 +341,7 @@ const Home = () => {
                 <span style={{ fontSize: '2.3rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                   {tier.rate}
                 </span>
-                <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>
+                <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', [language === 'ar' ? 'marginRight' : 'marginLeft']: '0.5rem' }}>
                   {tier.unit}
                 </span>
               </div>
@@ -348,7 +356,7 @@ const Home = () => {
                 fontSize: '0.85rem',
                 color: 'var(--text-muted)'
               }}>
-                ✓ Payable avant le 5 de chaque mois (Art. 6.3)
+                {t('home_pricing_note')}
               </div>
             </div>
           ))}
@@ -365,18 +373,18 @@ const Home = () => {
           <div className="flex-between" style={{ flexWrap: 'wrap', gap: '2rem' }}>
             <div style={{ maxWidth: '600px' }}>
               <h3 style={{ fontSize: '1.8rem', marginBottom: '0.75rem' }}>
-                Rejoignez le 1er Écosystème TIC en Tunisie
+                {t('home_cta_title')}
               </h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                Que vous soyez une startup en quête d'hébergement ou une entreprise résidente souhaitant consulter ses factures et conventions, accédez dès maintenant à votre espace.
+                {t('home_cta_desc')}
               </p>
             </div>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <Link to="/register" className="btn btn-primary btn-lg">
-                Candidater à l'Hébergement
+                {t('home_btn_apply')}
               </Link>
               <Link to="/contact" className="btn btn-secondary btn-lg">
-                Contacter la Direction
+                {t('home_btn_contact')}
               </Link>
             </div>
           </div>
@@ -387,3 +395,4 @@ const Home = () => {
 };
 
 export default Home;
+
