@@ -7,15 +7,13 @@ import {
   Clock, 
   Send, 
   CheckCircle2, 
-  HelpCircle, 
-  ChevronDown, 
-  Building2,
-  Scale,
-  Receipt
+  ChevronDown 
 } from 'lucide-react';
 
 const Contact = () => {
   const { t, language } = useLanguage();
+  const isRtl = language === 'ar';
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -56,87 +54,78 @@ const Contact = () => {
   ];
 
   return (
-    <div style={{ paddingBottom: '6rem' }}>
+    <div style={{ paddingBottom: '4rem' }}>
       {/* Header Banner */}
-      <section style={{
-        padding: '5rem 0 3.5rem',
-        textAlign: 'center',
-        background: 'var(--grad-hero)',
-        borderBottom: '1px solid var(--border-color)',
-      }}>
-        <div className="container" style={{ maxWidth: '850px' }}>
+      <section className="contact-header-section">
+        <div className="container contact-header-container">
           <span className="badge" style={{ background: 'var(--accent-light)', color: 'var(--s2t-teal)', marginBottom: '1.25rem' }}>
             {t('contact_badge')}
           </span>
-          <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', marginBottom: '1.25rem' }}>
+          <h1 className="contact-header-title">
             {t('contact_title')} <span className="gradient-text">{t('contact_title_sub')}</span>
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.6 }}>
+          <p className="contact-header-desc">
             {t('contact_desc')}
           </p>
         </div>
       </section>
 
       {/* Main Grid: Info + Contact Form */}
-      <section className="container" style={{ padding: '4.5rem 1.5rem 3rem' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '2.5rem',
-        }}>
+      <section className="container contact-main-section">
+        <div className="contact-main-grid">
           {/* Left Column: Direct Contact Info */}
-          <div>
-            <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>{t('contact_info_title')}</h2>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: 1.6 }}>
+          <div className="contact-info-col">
+            <h2 className="contact-info-title">{t('contact_info_title')}</h2>
+            <p className="contact-info-desc">
               {t('contact_info_desc')}
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div className="glass-card" style={{ padding: '1.25rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'var(--primary-light)', color: 'var(--s2t-red)', flexShrink: 0 }}>
+            <div className="contact-cards-list">
+              <div className="glass-card contact-card">
+                <div className="contact-card-icon" style={{ background: 'var(--primary-light)', color: 'var(--s2t-red)' }}>
                   <MapPin size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>{t('contact_addr_title')}</h4>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                  <h4 className="contact-card-title">{t('contact_addr_title')}</h4>
+                  <p className="contact-card-text">
                     {t('contact_addr_val')}
                   </p>
                 </div>
               </div>
 
-              <div className="glass-card" style={{ padding: '1.25rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'var(--secondary-light)', color: 'var(--s2t-blue)', flexShrink: 0 }}>
+              <div className="glass-card contact-card">
+                <div className="contact-card-icon" style={{ background: 'var(--secondary-light)', color: 'var(--s2t-blue)' }}>
                   <Phone size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>{t('contact_phone_title')}</h4>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                  <h4 className="contact-card-title">{t('contact_phone_title')}</h4>
+                  <p className="contact-card-text">
                     {t('contact_phone_standard')} +216 71 857 000 <br />
                     {t('contact_phone_fax')} +216 71 856 000
                   </p>
                 </div>
               </div>
 
-              <div className="glass-card" style={{ padding: '1.25rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'var(--accent-light)', color: 'var(--s2t-teal)', flexShrink: 0 }}>
+              <div className="glass-card contact-card">
+                <div className="contact-card-icon" style={{ background: 'var(--accent-light)', color: 'var(--s2t-teal)' }}>
                   <Mail size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>{t('contact_email_title')}</h4>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                  <h4 className="contact-card-title">{t('contact_email_title')}</h4>
+                  <p className="contact-card-text">
                     {t('contact_email_billing')} facturation@s2t.tn <br />
                     {t('contact_email_legal')} juridique@s2t.tn
                   </p>
                 </div>
               </div>
 
-              <div className="glass-card" style={{ padding: '1.25rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <div style={{ padding: '0.6rem', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B', flexShrink: 0 }}>
+              <div className="glass-card contact-card">
+                <div className="contact-card-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B' }}>
                   <Clock size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1rem', marginBottom: '0.2rem' }}>{t('contact_hours_title')}</h4>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                  <h4 className="contact-card-title">{t('contact_hours_title')}</h4>
+                  <p className="contact-card-text">
                     {t('contact_hours_val')}
                   </p>
                 </div>
@@ -145,9 +134,9 @@ const Contact = () => {
           </div>
 
           {/* Right Column: Contact Form */}
-          <div className="glass-card" style={{ padding: '2.5rem' }}>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{t('contact_form_title')}</h3>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.75rem' }}>
+          <div className="glass-card contact-form-card">
+            <h3 className="contact-form-title">{t('contact_form_title')}</h3>
+            <p className="contact-form-desc">
               {t('contact_form_desc')}
             </p>
 
@@ -168,7 +157,7 @@ const Contact = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="contact-form-grid-2">
                   <div className="form-group">
                     <label className="form-label">{t('contact_field_name')}</label>
                     <input
@@ -192,7 +181,7 @@ const Contact = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="contact-form-grid-2">
                   <div className="form-group">
                     <label className="form-label">{t('contact_field_email')}</label>
                     <input
@@ -238,6 +227,7 @@ const Contact = () => {
                     placeholder={t('contact_ph_message')}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    rows={4}
                     required
                   />
                 </div>
@@ -247,7 +237,7 @@ const Contact = () => {
                   className="btn btn-primary"
                   style={{ width: '100%', gap: '0.5rem', padding: '0.85rem' }}
                 >
-                  <Send size={16} style={{ transform: language === 'ar' ? 'rotate(180deg)' : 'none' }} />
+                  <Send size={16} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
                   <span>{t('contact_btn_send')}</span>
                 </button>
               </form>
@@ -257,34 +247,21 @@ const Contact = () => {
       </section>
 
       {/* FAQ Accordion Section */}
-      <section className="container" style={{ padding: '3rem 1.5rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <section className="container contact-faq-section">
+        <div className="contact-faq-header">
           <span className="badge" style={{ background: 'var(--secondary-light)', color: 'var(--s2t-blue)', marginBottom: '0.75rem' }}>
             {t('contact_faq_badge')}
           </span>
-          <h2 style={{ fontSize: '2rem' }}>{t('contact_faq_title')}</h2>
+          <h2 className="contact-faq-title">{t('contact_faq_title')}</h2>
         </div>
 
-        <div style={{ maxWidth: '850px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="contact-faq-list">
           {faqs.map((faq, idx) => (
-            <div key={idx} className="glass-card" style={{ overflow: 'hidden' }}>
+            <div key={idx} className="glass-card contact-faq-item">
               <button
                 type="button"
+                className="contact-faq-btn"
                 onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                style={{
-                  width: '100%',
-                  padding: '1.25rem 1.5rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-primary)',
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  textAlign: language === 'ar' ? 'right' : 'left',
-                }}
               >
                 <span>{faq.q}</span>
                 <ChevronDown
@@ -299,15 +276,7 @@ const Contact = () => {
               </button>
 
               {openFaq === idx && (
-                <div style={{
-                  padding: '0 1.5rem 1.25rem',
-                  color: 'var(--text-secondary)',
-                  fontSize: '0.925rem',
-                  lineHeight: 1.6,
-                  borderTop: '1px solid var(--border-color)',
-                  paddingTop: '1rem',
-                  textAlign: language === 'ar' ? 'right' : 'left',
-                }}>
+                <div className="contact-faq-answer">
                   {faq.a}
                 </div>
               )}
@@ -320,4 +289,3 @@ const Contact = () => {
 };
 
 export default Contact;
-
