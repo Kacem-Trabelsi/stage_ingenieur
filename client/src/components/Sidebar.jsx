@@ -48,16 +48,16 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, mobileOpen, setMobileOpen }) => 
 
   const navigationItems = [
     {
-      name: language === 'ar' ? 'لوحة القيادة' : 'Dashboard',
-      subtitle: language === 'ar' ? 'الاستقبال الرئيسي' : 'Accueil & Synthèse',
+      name: t('sidebar_nav_dashboard'),
+      subtitle: t('sidebar_sub_dashboard'),
       path: '/dashboard',
       icon: LayoutDashboard,
       badge: null,
       color: 'var(--s2t-blue)',
     },
     {
-      name: language === 'ar' ? 'البريد الإلكتروني' : 'Email',
-      subtitle: language === 'ar' ? 'المراسلات الرسمية' : 'Messagerie officielle',
+      name: t('sidebar_nav_email'),
+      subtitle: t('sidebar_sub_email'),
       path: '/email',
       icon: Mail,
       badge: unreadEmails > 0 ? String(unreadEmails) : null,
@@ -65,8 +65,8 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, mobileOpen, setMobileOpen }) => 
       color: 'var(--s2t-red)',
     },
     {
-      name: language === 'ar' ? 'الإشعارات' : 'Notification',
-      subtitle: language === 'ar' ? 'التنبيهات القانونية' : 'Alertes & Relances',
+      name: t('sidebar_nav_notifications'),
+      subtitle: t('sidebar_sub_notifications'),
       path: '/notifications',
       icon: Bell,
       badge: unreadNotifs > 0 ? String(unreadNotifs) : null,
@@ -74,17 +74,17 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, mobileOpen, setMobileOpen }) => 
       color: '#F59E0B',
     },
     {
-      name: language === 'ar' ? 'المحادثة المباشرة' : 'Chat',
-      subtitle: language === 'ar' ? 'الدعم القانوني والمالي' : 'Support direct S2T',
+      name: t('sidebar_nav_chat'),
+      subtitle: t('sidebar_sub_chat'),
       path: '/chat',
       icon: MessageSquare,
-      badge: 'En ligne',
+      badge: t('sidebar_badge_online'),
       badgeColor: '#10B981',
       color: '#10B981',
     },
     {
-      name: language === 'ar' ? 'الاجتماعات' : 'Réunion',
-      subtitle: language === 'ar' ? 'حجز القاعات واللقاءات' : 'Salles & Entretiens',
+      name: t('sidebar_nav_reunions'),
+      subtitle: t('sidebar_sub_reunions'),
       path: '/reunions',
       icon: CalendarDays,
       badge: null,
@@ -115,14 +115,14 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, mobileOpen, setMobileOpen }) => 
                 <Building2 size={20} color="#ffffff" />
               </div>
               <div className="sidebar-brand-text">
-                <span className="sidebar-brand-title">Espace Résident</span>
-                <span className="sidebar-brand-subtitle">Pôle El Ghazala — S2T</span>
+                <span className="sidebar-brand-title">{t('sidebar_brand_title')}</span>
+                <span className="sidebar-brand-subtitle">{t('sidebar_brand_subtitle')}</span>
               </div>
             </div>
           )}
 
           {isCollapsed && (
-            <div className="sidebar-brand-collapsed" title="Pôle El Ghazala S2T">
+            <div className="sidebar-brand-collapsed" title={t('sidebar_brand_subtitle')}>
               <Building2 size={22} color="var(--s2t-blue)" />
             </div>
           )}
@@ -132,7 +132,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, mobileOpen, setMobileOpen }) => 
             type="button"
             className="sidebar-toggle-btn"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            title={isCollapsed ? "Agrandir le menu" : "Réduire le menu"}
+            title={isCollapsed ? t('sidebar_expand_menu') : t('sidebar_collapse_menu')}
           >
             {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
@@ -143,13 +143,13 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, mobileOpen, setMobileOpen }) => 
           <div className="sidebar-company-card">
             <div className="company-card-header">
               <div className="status-indicator-dot" />
-              <span className="company-status-label">Session Active Résident</span>
+              <span className="company-status-label">{t('sidebar_session_active')}</span>
             </div>
             <div className="company-name-text">
               {user?.companyName || 'InnovTech Solutions SARL'}
             </div>
             <div className="company-meta-text">
-              {user?.fiscalId ? `MF: ${user.fiscalId}` : 'Matricule Fiscal Enregistré'}
+              {user?.fiscalId ? `MF: ${user.fiscalId}` : t('sidebar_fiscal_id_default')}
             </div>
           </div>
         )}
@@ -157,7 +157,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, mobileOpen, setMobileOpen }) => 
         {/* Navigation Section */}
         <div className="sidebar-nav-container">
           <div className="sidebar-section-title">
-            {!isCollapsed ? 'NAVIGATION PRINCIPALE' : 'MENU'}
+            {!isCollapsed ? t('sidebar_main_nav') : t('sidebar_menu_collapsed')}
           </div>
 
           <nav className="sidebar-nav-list">
@@ -186,14 +186,14 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, mobileOpen, setMobileOpen }) => 
 
                   {!isCollapsed && item.badge && (
                     <span 
-                      className={`nav-item-badge ${item.badge === 'En ligne' ? 'badge-online' : ''}`}
+                      className={`nav-item-badge ${item.badge === t('sidebar_badge_online') ? 'badge-online' : ''}`}
                       style={{ 
-                        backgroundColor: item.badge === 'En ligne' ? 'rgba(16, 185, 129, 0.15)' : item.badgeColor,
-                        color: item.badge === 'En ligne' ? '#10B981' : '#ffffff',
-                        borderColor: item.badge === 'En ligne' ? 'rgba(16, 185, 129, 0.3)' : 'transparent'
+                        backgroundColor: item.badge === t('sidebar_badge_online') ? 'rgba(16, 185, 129, 0.15)' : item.badgeColor,
+                        color: item.badge === t('sidebar_badge_online') ? '#10B981' : '#ffffff',
+                        borderColor: item.badge === t('sidebar_badge_online') ? 'rgba(16, 185, 129, 0.3)' : 'transparent'
                       }}
                     >
-                      {item.badge === 'En ligne' && <Circle size={6} fill="#10B981" />}
+                      {item.badge === t('sidebar_badge_online') && <Circle size={6} fill="#10B981" />}
                       {item.badge}
                     </span>
                   )}
@@ -210,16 +210,16 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, mobileOpen, setMobileOpen }) => 
               <Sparkles size={18} />
             </div>
             <div className="support-widget-body">
-              <div className="support-widget-title">Assistance Juridique S2T</div>
+              <div className="support-widget-title">{t('sidebar_support_title')}</div>
               <div className="support-widget-text">
-                Besoin d'un avenant ou d'une quittance certifiée ?
+                {t('sidebar_support_text')}
               </div>
               <button 
                 type="button"
                 onClick={() => setProfileModalOpen(true)}
                 className="support-widget-btn"
               >
-                <span>Paramètres & Profil</span>
+                <span>{t('sidebar_support_btn')}</span>
                 <Settings size={13} />
               </button>
             </div>
@@ -231,7 +231,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, mobileOpen, setMobileOpen }) => 
           <div 
             className="sidebar-user-pill"
             onClick={() => setProfileModalOpen(true)}
-            title="Ouvrir mon profil & paramètres de sécurité"
+            title={t('sidebar_profile_tooltip')}
           >
             <div className="sidebar-user-avatar">
               {user?.avatar ? (
@@ -243,9 +243,9 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, mobileOpen, setMobileOpen }) => 
 
             {!isCollapsed && (
               <div className="sidebar-user-info">
-                <span className="sidebar-user-name">{user?.name || 'Résident S2T'}</span>
+                <span className="sidebar-user-name">{user?.name || t('sidebar_user_default')}</span>
                 <span className="sidebar-user-role">
-                  {user?.role === 'admin' ? 'Admin S2T' : 'Entreprise Hébergée'}
+                  {user?.role === 'admin' ? t('sidebar_role_admin') : t('sidebar_role_client')}
                 </span>
               </div>
             )}

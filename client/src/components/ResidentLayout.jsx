@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import { useLanguage } from '../context/LanguageContext';
 import { Menu } from 'lucide-react';
 
 const ResidentLayout = () => {
+  const { t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -25,10 +27,10 @@ const ResidentLayout = () => {
             type="button"
             className="mobile-menu-open-btn"
             onClick={() => setMobileOpen(true)}
-            aria-label="Ouvrir le menu latéral"
+            aria-label={t('layout_mobile_menu_aria')}
           >
             <Menu size={20} />
-            <span>Menu Session Résident</span>
+            <span>{t('layout_mobile_menu')}</span>
           </button>
         </div>
 

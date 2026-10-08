@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { contractAPI, invoiceAPI, authAPI } from '../services/api';
 import LegalArticlesModal from '../components/LegalArticlesModal';
 import { 
@@ -45,6 +46,9 @@ import {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const isRtl = language === 'ar';
+  const dateLocale = language === 'ar' ? 'ar-TN' : language === 'en' ? 'en-US' : 'fr-FR';
   const isAdmin = user?.role === 'admin' || user?.role === 'juridique' || user?.role === 'finance';
 
   const [activeTab, setActiveTab] = useState('factures'); // 'factures' | 'contrats' | 'approbations'
@@ -451,7 +455,7 @@ const Dashboard = () => {
         return (
           <span className="status-badge-modern payee">
             <span className="status-pulse-dot" style={{ color: '#10B981' }}></span>
-            <span>Payée</span>
+            <span>{t('status_payee')}</span>
           </span>
         );
       case 'en_attente_validation':
@@ -459,7 +463,7 @@ const Dashboard = () => {
           return (
             <span className="status-badge-modern" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#059669', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
               <Banknote size={12} />
-              <span>Espèces à confirmer</span>
+              <span>{t('status_cash_confirm')}</span>
             </span>
           );
         }
@@ -467,35 +471,35 @@ const Dashboard = () => {
           return (
             <span className="status-badge-modern" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#2563EB', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
               <Scale size={12} />
-              <span>Prélèvement en attente</span>
+              <span>{t('status_debit_pending')}</span>
             </span>
           );
         }
         return (
           <span className="status-badge-modern en_attente_validation">
             <span className="status-pulse-dot" style={{ color: '#D97706' }}></span>
-            <span>En attente validation</span>
+            <span>{t('status_pending_validation')}</span>
           </span>
         );
       case 'payee_partiellement':
         return (
           <span className="status-badge-modern" style={{ background: 'rgba(245, 158, 11, 0.14)', color: '#D97706', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
             <span className="status-pulse-dot" style={{ color: '#D97706' }}></span>
-            <span>Partielle</span>
+            <span>{t('status_partial')}</span>
           </span>
         );
       case 'impayee':
         return (
           <span className="status-badge-modern impayee">
             <span className="status-pulse-dot" style={{ color: '#F43F5E' }}></span>
-            <span>Impayée</span>
+            <span>{t('status_unpaid')}</span>
           </span>
         );
       case 'envoyee':
         return (
           <span className="status-badge-modern envoyee">
             <span className="status-pulse-dot" style={{ color: '#0284C7' }}></span>
-            <span>Envoyée</span>
+            <span>{t('status_sent')}</span>
           </span>
         );
       default:
@@ -510,16 +514,16 @@ const Dashboard = () => {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
             <span className="badge" style={{ background: isAdmin ? 'var(--primary-light)' : 'var(--secondary-light)', color: isAdmin ? 'var(--s2t-red)' : 'var(--s2t-blue)' }}>
-              {isAdmin ? 'Direction Financière & Juridique S2T' : 'Espace Entreprise Résidente'}
+              {isAdmin ? t('dash_badge_admin') : t('dash_badge_client')}
             </span>
           </div>
           <h1 className="dashboard-header-title">
-            {isAdmin ? 'Tableau de Bord Financier & Juridique' : `Espace Résident — ${user?.companyName || user?.name}`}
+            {isAdmin ? t('dash_title_admin') : `${t('dash_title_client_prefix')}${user?.companyName || user?.name || ''}`}
           </h1>
           <p className="dashboard-header-subtitle">
             {isAdmin
-              ? 'Supervision des contrats d\'hébergement, prévisionnels mensuels et validation des candidatures'
-              : 'Consultez votre contrat, vos quittances de loyer et vos demandes d\'avenants'}
+              ? t('dash_sub_admin')
+              : t('dash_sub_client')}
           </p>
         </div>
 
@@ -528,11 +532,11 @@ const Dashboard = () => {
             <>
               <button onClick={handleOpenContractModal} className="btn btn-secondary btn-sm" style={{ gap: '0.4rem' }}>
                 <Scale size={16} color="var(--s2t-red)" />
-                <span>Nouveau Contrat</span>
+                <span>{t('dash_btn_new_contract')}</span>
               </button>
               <button onClick={handleOpenInvoiceModal} className="btn btn-primary btn-sm" style={{ gap: '0.4rem' }}>
                 <Plus size={16} />
-                <span>Émettre Facture</span>
+                <span>{t('dash_btn_issue_invoice')}</span>
               </button>
             </>
           )}
@@ -546,17 +550,17 @@ const Dashboard = () => {
           <div className="glass-card dashboard-kpi-card">
             <div className="flex-between" style={{ marginBottom: '0.75rem' }}>
               <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>
-                Prévisionnel Mensuel (M+1)
+                {t('dash_kpi_forecast')}
               </span>
               <div style={{ padding: '0.4rem', borderRadius: '8px', background: 'var(--secondary-light)', color: 'var(--s2t-blue)' }}>
                 <TrendingUp size={18} />
               </div>
             </div>
             <div className="dashboard-kpi-val" style={{ color: 'var(--text-primary)' }}>
-              {stats.monthlyForecast.toFixed(3)} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>DT TTC</span>
+              {stats.monthlyForecast.toFixed(3)} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t('dash_kpi_currency_ttc')}</span>
             </div>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-              Contrats actifs : {stats.activeContractsCount} société(s)
+              {t('dash_kpi_active_contracts').replace('{n}', stats.activeContractsCount)}
             </p>
           </div>
 
@@ -564,17 +568,17 @@ const Dashboard = () => {
           <div className="glass-card dashboard-kpi-card" style={{ border: stats.expiringContractsCount > 0 ? '1px solid var(--s2t-red)' : '1px solid var(--border-color)' }}>
             <div className="flex-between" style={{ marginBottom: '0.75rem' }}>
               <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>
-                Renouvellements à 30j
+                {t('dash_kpi_renewals_30d')}
               </span>
               <div style={{ padding: '0.4rem', borderRadius: '8px', background: 'var(--primary-light)', color: 'var(--s2t-red)' }}>
                 <Clock size={18} />
               </div>
             </div>
             <div className="dashboard-kpi-val" style={{ color: stats.expiringContractsCount > 0 ? 'var(--s2t-red)' : 'var(--text-primary)' }}>
-              {stats.expiringContractsCount} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>contrat(s)</span>
+              {stats.expiringContractsCount} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t('dash_kpi_contracts_unit')}</span>
             </div>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-              Arrivant à échéance sous 30 jours
+              {t('dash_kpi_expiring_soon')}
             </p>
           </div>
 
@@ -582,17 +586,17 @@ const Dashboard = () => {
           <div className="glass-card dashboard-kpi-card">
             <div className="flex-between" style={{ marginBottom: '0.75rem' }}>
               <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>
-                Reste à Payer / Impayés
+                {t('dash_kpi_unpaid')}
               </span>
               <div style={{ padding: '0.4rem', borderRadius: '8px', background: 'rgba(244, 63, 94, 0.15)', color: 'var(--s2t-red)' }}>
                 <AlertTriangle size={18} />
               </div>
             </div>
             <div className="dashboard-kpi-val" style={{ color: 'var(--s2t-red)' }}>
-              {stats.totalUnpaid.toFixed(3)} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>DT</span>
+              {stats.totalUnpaid.toFixed(3)} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t('dash_kpi_currency')}</span>
             </div>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-              Relances en attente : {stats.pendingRemindersCount}
+              {t('dash_kpi_pending_reminders').replace('{n}', stats.pendingRemindersCount)}
             </p>
           </div>
 
@@ -600,17 +604,17 @@ const Dashboard = () => {
           <div className="glass-card dashboard-kpi-card">
             <div className="flex-between" style={{ marginBottom: '0.75rem' }}>
               <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>
-                Total Encaissé
+                {t('dash_kpi_collected')}
               </span>
               <div style={{ padding: '0.4rem', borderRadius: '8px', background: 'var(--accent-light)', color: 'var(--s2t-teal)' }}>
                 <CheckCircle2 size={18} />
               </div>
             </div>
             <div className="dashboard-kpi-val" style={{ color: 'var(--s2t-teal)' }}>
-              {stats.totalCollected.toFixed(3)} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>DT</span>
+              {stats.totalCollected.toFixed(3)} <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t('dash_kpi_currency')}</span>
             </div>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-              Facturé global : {stats.totalInvoiced.toFixed(3)} DT
+              {t('dash_kpi_total_invoiced').replace('{n}', stats.totalInvoiced.toFixed(3))}
             </p>
           </div>
         </div>
@@ -625,10 +629,10 @@ const Dashboard = () => {
           style={{ gap: '0.5rem' }}
         >
           <Receipt size={17} />
-          <span>Facturation & Relances ({invoices.length})</span>
+          <span>{t('dash_tab_invoices').replace('{n}', invoices.length)}</span>
           {isAdmin && invoices.filter(i => i.status === 'en_attente_validation').length > 0 && (
             <span className="badge" style={{ background: '#D97706', color: '#fff', fontSize: '0.72rem', padding: '0.15rem 0.5rem', fontWeight: 800 }}>
-              {invoices.filter(i => i.status === 'en_attente_validation').length} reçu(s) à valider
+              {t('dash_tab_receipts_to_validate').replace('{n}', invoices.filter(i => i.status === 'en_attente_validation').length)}
             </span>
           )}
         </button>
@@ -640,7 +644,7 @@ const Dashboard = () => {
           style={{ gap: '0.5rem' }}
         >
           <Scale size={17} />
-          <span>Contrats d'Hébergement ({contracts.length})</span>
+          <span>{t('dash_tab_contracts').replace('{n}', contracts.length)}</span>
         </button>
 
         {isAdmin && (
@@ -651,10 +655,10 @@ const Dashboard = () => {
             style={{ gap: '0.5rem' }}
           >
             <UserCheck size={17} />
-            <span>Approbations Candidatures</span>
+            <span>{t('dash_tab_approvals')}</span>
             {pendingUsers.length > 0 && (
               <span className="badge badge-impayee" style={{ padding: '0.15rem 0.5rem', fontSize: '0.72rem' }}>
-                {pendingUsers.length} en attente
+                {t('dash_tab_pending_count').replace('{n}', pendingUsers.length)}
               </span>
             )}
           </button>
@@ -665,7 +669,7 @@ const Dashboard = () => {
       {loading ? (
         <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--text-secondary)' }}>
           <RefreshCw className="spin" size={32} color="var(--s2t-red)" style={{ margin: '0 auto 1rem' }} />
-          <p>Chargement des données S2T...</p>
+          <p>{t('dash_loading_data')}</p>
           <style>{`.spin { animation: spin 1s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
         </div>
       ) : activeTab === 'factures' ? (
@@ -678,17 +682,17 @@ const Dashboard = () => {
                 <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(37, 99, 235, 0.15)', color: 'var(--s2t-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Receipt size={16} />
                 </div>
-                <h3 style={{ fontSize: '1.25rem', margin: 0 }}>Suivi des Factures, Justificatifs & Règlements S2T</h3>
+                <h3 style={{ fontSize: '1.25rem', margin: 0 }}>{t('dash_inv_section_title')}</h3>
               </div>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0 }}>
                 {isAdmin
-                  ? 'Contrôle des versements bancaires, rapprochement STB et émission des quittances de loyer'
-                  : 'Règlement en ligne de vos loyers et consultation de vos justificatifs de versement'}
+                  ? t('dash_inv_section_sub_admin')
+                  : t('dash_inv_section_sub_client')}
               </p>
             </div>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'rgba(255, 255, 255, 0.04)', padding: '0.3rem 0.65rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
               <Clock size={13} />
-              <span>Échéance légale : avant le 5 de chaque mois (Art. 6.3)</span>
+              <span>{t('dash_inv_due_legal_note')}</span>
             </span>
           </div>
 
@@ -723,11 +727,11 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <div style={{ fontWeight: 800, fontSize: '0.98rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span>{invoices.filter(i => i.status === 'en_attente_validation').length} reçu(s) de versement bancaire à valider</span>
-                    <span className="badge" style={{ background: '#D97706', color: '#fff', fontSize: '0.7rem', padding: '0.15rem 0.45rem', fontWeight: 800 }}>Action requise</span>
+                    <span>{t('dash_inv_alert_receipts_title').replace('{n}', invoices.filter(i => i.status === 'en_attente_validation').length)}</span>
+                    <span className="badge" style={{ background: '#D97706', color: '#fff', fontSize: '0.7rem', padding: '0.15rem 0.45rem', fontWeight: 800 }}>{t('dash_inv_alert_action_req')}</span>
                   </div>
                   <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
-                    Des entreprises résidentes ont soumis leur bordereau/reçu de virement STB. Vérifiez la concordance bancaire pour valider le règlement.
+                    {t('dash_inv_alert_desc')}
                   </div>
                 </div>
               </div>
@@ -753,7 +757,7 @@ const Dashboard = () => {
                 }}
               >
                 <Eye size={15} />
-                <span>Examiner les Justificatifs ({invoices.filter(i => i.status === 'en_attente_validation').length})</span>
+                <span>{t('dash_inv_btn_examine_receipts').replace('{n}', invoices.filter(i => i.status === 'en_attente_validation').length)}</span>
               </button>
             </div>
           )}
@@ -768,7 +772,7 @@ const Dashboard = () => {
                 className={`btn btn-sm ${invoiceFilter === 'all' ? 'btn-primary' : 'btn-ghost'}`}
                 style={{ fontSize: '0.78rem', padding: '0.35rem 0.75rem', borderRadius: '8px' }}
               >
-                Toutes ({invoices.length})
+                {t('dash_filter_all').replace('{n}', invoices.length)}
               </button>
               <button
                 type="button"
@@ -784,7 +788,7 @@ const Dashboard = () => {
                   fontWeight: invoices.filter(i => i.status === 'en_attente_validation').length > 0 ? 700 : 500
                 }}
               >
-                <span>⏳ Reçus à vérifier</span>
+                <span>{t('dash_filter_pending_receipts')}</span>
                 {invoices.filter(i => i.status === 'en_attente_validation').length > 0 && (
                   <span style={{
                     marginLeft: '0.4rem',
@@ -805,7 +809,7 @@ const Dashboard = () => {
                 className={`btn btn-sm ${invoiceFilter === 'impayee' ? 'btn-primary' : 'btn-ghost'}`}
                 style={{ fontSize: '0.78rem', padding: '0.35rem 0.75rem', borderRadius: '8px' }}
               >
-                Impayées ({invoices.filter(i => ['impayee', 'envoyee'].includes(i.status)).length})
+                {t('dash_filter_unpaid').replace('{n}', invoices.filter(i => ['impayee', 'envoyee'].includes(i.status)).length)}
               </button>
               <button
                 type="button"
@@ -813,26 +817,32 @@ const Dashboard = () => {
                 className={`btn btn-sm ${invoiceFilter === 'payee' ? 'btn-primary' : 'btn-ghost'}`}
                 style={{ fontSize: '0.78rem', padding: '0.35rem 0.75rem', borderRadius: '8px' }}
               >
-                Payées ({invoices.filter(i => i.status === 'payee').length})
+                {t('dash_filter_paid').replace('{n}', invoices.filter(i => i.status === 'payee').length)}
               </button>
             </div>
 
             {/* Search Input */}
             <div className="dashboard-search-wrapper">
-              <Search size={14} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <Search size={14} style={{ position: 'absolute', left: isRtl ? 'auto' : '0.85rem', right: isRtl ? '0.85rem' : 'auto', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 type="text"
-                placeholder="Rechercher N°, société, réf, mois..."
+                placeholder={t('dash_search_placeholder')}
                 className="form-input"
                 value={invoiceSearch}
                 onChange={(e) => setInvoiceSearch(e.target.value)}
-                style={{ paddingLeft: '2.3rem', paddingRight: invoiceSearch ? '2rem' : '0.85rem', height: '38px', fontSize: '0.84rem', borderRadius: '10px' }}
+                style={{
+                  paddingLeft: isRtl ? '0.85rem' : '2.3rem',
+                  paddingRight: isRtl ? (invoiceSearch ? '2rem' : '2.3rem') : (invoiceSearch ? '2rem' : '0.85rem'),
+                  height: '38px',
+                  fontSize: '0.84rem',
+                  borderRadius: '10px'
+                }}
               />
               {invoiceSearch && (
                 <button
                   onClick={() => setInvoiceSearch('')}
-                  style={{ position: 'absolute', right: '0.6rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                  title="Effacer la recherche"
+                  style={{ position: 'absolute', right: isRtl ? 'auto' : '0.6rem', left: isRtl ? '0.6rem' : 'auto', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  title={t('dash_search_clear')}
                 >
                   <X size={14} />
                 </button>
@@ -867,10 +877,10 @@ const Dashboard = () => {
                     <Receipt size={28} />
                   </div>
                   <h4 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
-                    Aucune facture trouvée
+                    {t('dash_no_inv_found')}
                   </h4>
                   <p style={{ fontSize: '0.85rem', maxWidth: '420px', margin: '0 auto 1.25rem' }}>
-                    {invoiceSearch ? `Aucun résultat pour "${invoiceSearch}". Réinitialisez la recherche ou ajustez vos critères.` : "Aucune facture enregistrée dans cette catégorie."}
+                    {invoiceSearch ? t('dash_no_inv_search_res').replace('{q}', invoiceSearch) : t('dash_no_inv_category')}
                   </p>
                   {(invoiceSearch || invoiceFilter !== 'all') && (
                     <button
@@ -881,7 +891,7 @@ const Dashboard = () => {
                       className="btn btn-secondary btn-sm"
                       style={{ borderRadius: '8px' }}
                     >
-                      Réinitialiser les filtres
+                      {t('dash_btn_reset_filters')}
                     </button>
                   )}
                 </div>
@@ -908,17 +918,17 @@ const Dashboard = () => {
                             {initials}
                           </div>
                           <div className="company-meta">
-                            <span className="company-name">{inv.companyName || 'Entreprise Hébergée'}</span>
+                            <span className="company-name">{inv.companyName || t('sidebar_role_client')}</span>
                             <div
                               className="invoice-tag"
                               onClick={(e) => handleCopyInvoiceNumber(inv.invoiceNumber, e)}
-                              title="Cliquer pour copier le N° de facture"
+                              title={t('dash_inv_copy_tooltip')}
                               style={{ cursor: 'pointer', padding: '0.15rem 0.5rem', fontSize: '0.74rem' }}
                             >
                               <Receipt size={12} />
                               <span>{inv.invoiceNumber}</span>
                               {copiedId === inv.invoiceNumber ? (
-                                <span style={{ fontSize: '0.65rem', color: '#10B981', fontWeight: 800 }}>Copié!</span>
+                                <span style={{ fontSize: '0.65rem', color: '#10B981', fontWeight: 800 }}>{t('dash_inv_copied')}</span>
                               ) : (
                                 <Copy size={10} style={{ opacity: 0.6 }} />
                               )}
@@ -932,7 +942,7 @@ const Dashboard = () => {
                       <div className="invoice-mobile-card-body">
                         <div>
                           <div style={{ fontSize: '0.86rem', color: 'var(--text-primary)', fontWeight: 600, lineHeight: 1.35 }}>
-                            {inv.description || "Loyer & charges locatives d'hébergement S2T"}
+                            {inv.description || t('dash_inv_default_desc')}
                           </div>
                           
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.35rem' }}>
@@ -950,7 +960,7 @@ const Dashboard = () => {
 
                           {inv.rejectionReason && (
                             <div style={{ fontSize: '0.74rem', color: 'var(--s2t-red)', background: 'rgba(244, 63, 94, 0.1)', padding: '0.35rem 0.6rem', borderRadius: '6px', marginTop: '0.45rem', fontWeight: 600, border: '1px solid rgba(244, 63, 94, 0.2)' }}>
-                              ⚠️ Justificatif refusé : {inv.rejectionReason}
+                              {t('dash_inv_refused_prefix')}{inv.rejectionReason}
                             </div>
                           )}
                         </div>
@@ -958,22 +968,22 @@ const Dashboard = () => {
                         {/* Financial Metrics Box */}
                         <div className="invoice-metrics-box">
                           <div className="invoice-metric-item">
-                            <span className="invoice-metric-label">Montant TTC</span>
+                            <span className="invoice-metric-label">{t('dash_inv_amount_ttc_label')}</span>
                             <span className="amount-ttc" style={{ fontSize: '1.05rem' }}>
-                              {inv.amountTTC?.toFixed(3)} <span className="amount-currency">DT</span>
+                              {inv.amountTTC?.toFixed(3)} <span className="amount-currency">{t('dash_kpi_currency')}</span>
                             </span>
                           </div>
 
                           <div className="invoice-metric-item">
-                            <span className="invoice-metric-label">Reste Dû</span>
+                            <span className="invoice-metric-label">{t('dash_inv_remaining_label')}</span>
                             {inv.remainingAmount > 0 ? (
                               <span className="due-badge-unpaid" style={{ width: 'fit-content', marginTop: '0.1rem' }}>
-                                {inv.remainingAmount?.toFixed(3)} DT
+                                {inv.remainingAmount?.toFixed(3)} {t('dash_kpi_currency')}
                               </span>
                             ) : (
                               <span className="due-badge-zero" style={{ width: 'fit-content', marginTop: '0.1rem' }}>
                                 <CheckCircle2 size={12} />
-                                <span>0.000 DT (Soldé)</span>
+                                <span>{t('dash_inv_settled_zero')}</span>
                               </span>
                             )}
                           </div>
@@ -983,13 +993,13 @@ const Dashboard = () => {
                         <div className="invoice-mobile-stat-row">
                           <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                             <Clock size={13} />
-                            <span>Échéance légale :</span>
+                            <span>{t('dash_inv_legal_due_label')}</span>
                           </span>
                           <span style={{ fontSize: '0.82rem', color: isOverdue ? 'var(--s2t-red)' : 'var(--text-primary)', fontWeight: isOverdue ? 700 : 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <span>{new Date(inv.dueDate).toLocaleDateString('fr-FR')}</span>
+                            <span>{new Date(inv.dueDate).toLocaleDateString(dateLocale)}</span>
                             {isOverdue && (
                               <span style={{ fontSize: '0.68rem', fontWeight: 800, background: 'rgba(244, 63, 94, 0.15)', color: '#F43F5E', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>
-                                Dépassée
+                                {t('dash_inv_overdue')}
                               </span>
                             )}
                           </span>
@@ -1001,11 +1011,11 @@ const Dashboard = () => {
                         <button
                           onClick={() => setPreviewInvoice(inv)}
                           className="btn btn-secondary btn-sm"
-                          title="Aperçu Facture PDF"
+                          title={t('dash_inv_btn_pdf')}
                           style={{ padding: '0.38rem 0.75rem', fontSize: '0.78rem', gap: '0.35rem', borderRadius: '8px' }}
                         >
                           <Eye size={14} />
-                          <span>Aperçu PDF</span>
+                          <span>{t('dash_inv_btn_pdf')}</span>
                         </button>
 
                         {/* Resident Client Actions */}
@@ -1028,12 +1038,12 @@ const Dashboard = () => {
                               }}
                             >
                               {inv.paymentMethod === 'especes' ? <Banknote size={13} /> : inv.paymentMethod === 'ordre_permanent' ? <Scale size={13} /> : <Clock size={13} />}
-                              <span>{inv.paymentMethod === 'especes' ? 'Espèces en attente S2T' : inv.paymentMethod === 'ordre_permanent' ? 'Prélèvement en cours' : 'Reçu en examen'}</span>
+                              <span>{inv.paymentMethod === 'especes' ? t('dash_inv_badge_cash_pending') : inv.paymentMethod === 'ordre_permanent' ? t('dash_inv_badge_debit_pending') : t('dash_inv_badge_receipt_review')}</span>
                             </button>
                           ) : inv.status === 'payee' ? (
                             <span className="due-badge-zero" style={{ fontSize: '0.74rem', padding: '0.35rem 0.65rem' }}>
                               <CheckCircle2 size={13} />
-                              <span>Quittance Réglée</span>
+                              <span>{t('dash_inv_badge_receipt_settled')}</span>
                             </span>
                           ) : (
                             <button
@@ -1050,7 +1060,7 @@ const Dashboard = () => {
                               }}
                             >
                               <CreditCard size={14} />
-                              <span>Payer en ligne</span>
+                              <span>{t('dash_inv_btn_pay_online')}</span>
                             </button>
                           )
                         )}
@@ -1075,19 +1085,19 @@ const Dashboard = () => {
                                   gap: '0.35rem',
                                   fontWeight: 700
                                 }}
-                                title="Consulter et vérifier le justificatif"
+                                title={t('dash_inv_btn_verify_receipt')}
                               >
                                 {inv.paymentMethod === 'especes' ? <Banknote size={14} /> : inv.paymentMethod === 'ordre_permanent' ? <Scale size={14} /> : <FileCheck size={14} />}
-                                <span>{inv.paymentMethod === 'especes' ? 'Vérifier Espèces' : inv.paymentMethod === 'ordre_permanent' ? 'Vérifier Mandat' : 'Vérifier Reçu'}</span>
+                                <span>{inv.paymentMethod === 'especes' ? t('dash_inv_btn_verify_cash') : inv.paymentMethod === 'ordre_permanent' ? t('dash_inv_btn_verify_debit') : t('dash_inv_btn_verify_receipt')}</span>
                               </button>
                               <button
                                 onClick={() => handleApprovePayment(inv._id)}
                                 className="btn btn-primary btn-sm"
                                 style={{ fontSize: '0.75rem', padding: '0.35rem 0.65rem', borderRadius: '8px', background: '#10B981', borderColor: '#10B981', gap: '0.3rem' }}
-                                title="Approuver directement"
+                                title={t('dash_inv_btn_approve')}
                               >
                                 <Check size={14} />
-                                <span>Approuver</span>
+                                <span>{t('dash_inv_btn_approve')}</span>
                               </button>
                             </div>
                           ) : inv.remainingAmount > 0 ? (
@@ -1097,14 +1107,14 @@ const Dashboard = () => {
                                 className="btn btn-secondary btn-sm"
                                 style={{ fontSize: '0.75rem', padding: '0.35rem 0.65rem', borderRadius: '8px', color: 'var(--s2t-red)', borderColor: 'rgba(244, 63, 94, 0.3)' }}
                               >
-                                Relance J+15
+                                {t('dash_inv_btn_reminder_15')}
                               </button>
                               <button
                                 onClick={() => handlePaymentRecord(inv._id, inv.amountTTC)}
                                 className="btn btn-primary btn-sm"
                                 style={{ fontSize: '0.75rem', padding: '0.35rem 0.75rem', borderRadius: '8px' }}
                               >
-                                Régler
+                                {t('dash_inv_btn_settle')}
                               </button>
                             </div>
                           ) : null
@@ -1126,10 +1136,10 @@ const Dashboard = () => {
                 <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(225, 29, 72, 0.15)', color: 'var(--s2t-red)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Scale size={16} />
                 </div>
-                <h3 style={{ fontSize: '1.25rem', margin: 0 }}>Contrats d'Hébergement (Pôle Technologique El Ghazala)</h3>
+                <h3 style={{ fontSize: '1.25rem', margin: 0 }}>{t('dash_contracts_title')}</h3>
               </div>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
-                Régis selon les Articles 1 à 16 (Redevances, Caution 2 mois STB, Avenants de superficie)
+                {t('dash_contracts_sub')}
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -1148,16 +1158,16 @@ const Dashboard = () => {
                   background: 'rgba(37, 99, 235, 0.06)',
                   fontWeight: 600
                 }}
-                title="Consulter les 16 articles officiels de la Convention d'Hébergement S2T"
+                title={t('dash_contracts_btn_articles')}
               >
                 <BookOpen size={15} />
-                <span>Convention & 16 Articles S2T</span>
+                <span>{t('dash_contracts_btn_articles')}</span>
               </button>
 
               {isAdmin && (
                 <button onClick={handleOpenContractModal} className="btn btn-primary btn-sm" style={{ gap: '0.4rem', borderRadius: '8px' }}>
                   <Plus size={16} />
-                  <span>Établir un Nouveau Contrat</span>
+                  <span>{t('dash_contracts_btn_new')}</span>
                 </button>
               )}
             </div>
@@ -1167,12 +1177,12 @@ const Dashboard = () => {
             <div style={{ textAlign: 'center', padding: '3.5rem 1.5rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
               <Scale size={42} color="var(--s2t-blue)" style={{ margin: '0 auto 0.85rem', opacity: 0.8 }} />
               <h4 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
-                {isAdmin ? 'Aucun contrat d\'hébergement actif' : 'Votre contrat d\'hébergement est en cours d\'établissement'}
+                {isAdmin ? t('dash_contracts_empty_admin_title') : t('dash_contracts_empty_client_title')}
               </h4>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '540px', margin: '0 auto 1.25rem' }}>
                 {isAdmin 
-                  ? 'Créez un contrat d\'hébergement pour les entreprises résidentes validées.'
-                  : 'Dès que la Direction S2T aura validé l\'affectation de votre local bureautique, votre contrat apparaîtra ici avec le calcul des redevances et quittances.'}
+                  ? t('dash_contracts_empty_admin_desc')
+                  : t('dash_contracts_empty_client_desc')}
               </p>
               <button
                 type="button"
@@ -1184,7 +1194,7 @@ const Dashboard = () => {
                 style={{ gap: '0.4rem', borderRadius: '8px', margin: '0 auto' }}
               >
                 <BookOpen size={14} />
-                <span>Consulter les 16 Articles Réglementaires</span>
+                <span>{t('dash_contracts_btn_consult_articles')}</span>
               </button>
             </div>
           ) : (
@@ -1195,32 +1205,32 @@ const Dashboard = () => {
                     <th>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
                         <Scale size={14} />
-                        <span>N° Contrat</span>
+                        <span>{t('dash_th_contract_num')}</span>
                       </div>
                     </th>
                     <th>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
                         <Building2 size={14} />
-                        <span>Société Résidente</span>
+                        <span>{t('dash_th_resident_comp')}</span>
                       </div>
                     </th>
                     <th>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
                         <Building size={14} />
-                        <span>Local / Bureau</span>
+                        <span>{t('dash_th_space')}</span>
                       </div>
                     </th>
                     <th>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
                         <Tag size={14} />
-                        <span>Superficie</span>
+                        <span>{t('dash_th_surface')}</span>
                       </div>
                     </th>
-                    <th>Tarif Art. 6</th>
-                    <th>Loyer Mensuel TTC</th>
-                    <th>Caution (Art. 7)</th>
-                    <th>Échéance</th>
-                    <th style={{ textAlign: 'right' }}>Actions & Facturation</th>
+                    <th>{t('dash_th_rate_art6')}</th>
+                    <th>{t('dash_th_rent_ttc')}</th>
+                    <th>{t('dash_th_deposit_art7')}</th>
+                    <th>{t('dash_th_expiry')}</th>
+                    <th style={{ textAlign: isRtl ? 'left' : 'right' }}>{t('dash_th_actions_billing')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1258,22 +1268,22 @@ const Dashboard = () => {
                           </span>
                         </td>
                         <td>
-                          <span style={{ fontWeight: 600 }}>{c.ratePerM2} DT/m²</span>
+                          <span style={{ fontWeight: 600 }}>{c.ratePerM2} {t('dash_rate_unit')}</span>
                         </td>
                         <td>
-                          <strong className="amount-ttc">{c.monthlyRentTTC?.toFixed(3)} <span className="amount-currency">DT</span></strong>
+                          <strong className="amount-ttc">{c.monthlyRentTTC?.toFixed(3)} <span className="amount-currency">{t('dash_kpi_currency')}</span></strong>
                         </td>
                         <td>
-                          <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{c.depositAmount?.toFixed(3)} DT</span>
+                          <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{c.depositAmount?.toFixed(3)} {t('dash_kpi_currency')}</span>
                         </td>
                         <td>
                           <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                             <Calendar size={12} />
-                            <span>{new Date(c.endDate).toLocaleDateString('fr-FR')}</span>
+                            <span>{new Date(c.endDate).toLocaleDateString(dateLocale)}</span>
                           </span>
                         </td>
                         <td>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.45rem', flexWrap: 'wrap' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: isRtl ? 'flex-start' : 'flex-end', gap: '0.45rem', flexWrap: 'wrap' }}>
                             <button
                               onClick={() => {
                                 setArticleContractContext({
@@ -1297,10 +1307,10 @@ const Dashboard = () => {
                                 background: 'rgba(37, 99, 235, 0.05)',
                                 gap: '0.3rem'
                               }}
-                              title="Lire les 16 articles appliqués à ce contrat"
+                              title={t('dash_contract_btn_articles')}
                             >
                               <BookOpen size={13} />
-                              <span>Articles S2T</span>
+                              <span>{t('dash_contract_btn_articles')}</span>
                             </button>
 
                             {isAdmin && (
@@ -1318,10 +1328,10 @@ const Dashboard = () => {
                                     whiteSpace: 'nowrap',
                                     boxShadow: '0 0 10px rgba(37, 99, 235, 0.25)'
                                   }}
-                                  title="Émettre la facture de loyer et l'envoyer directement sur la session du résident pour paiement"
+                                  title={t('dash_contract_btn_issue_inv')}
                                 >
                                   <Send size={13} />
-                                  <span>Émettre Facture</span>
+                                  <span>{t('dash_contract_btn_issue_inv')}</span>
                                 </button>
                               ) : (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -1329,17 +1339,17 @@ const Dashboard = () => {
                                     className="due-badge-zero"
                                     style={{ fontSize: '0.72rem', padding: '0.25rem 0.5rem', cursor: 'pointer' }}
                                     onClick={() => setActiveTab('factures')}
-                                    title="Facture active — Voir dans l'onglet Facturation"
+                                    title={t('dash_contract_invoiced_count').replace('{n}', contractInvoices.length)}
                                   >
-                                    ✓ Facturé ({contractInvoices.length})
+                                    {t('dash_contract_invoiced_count').replace('{n}', contractInvoices.length)}
                                   </span>
                                   <button
                                     onClick={() => handleGenerateInvoiceForContract(c)}
                                     className="btn btn-ghost btn-sm"
                                     style={{ fontSize: '0.72rem', padding: '0.2rem 0.45rem' }}
-                                    title="Émettre une nouvelle facture mensuelle"
+                                    title={t('dash_contract_btn_add_inv')}
                                   >
-                                    + Facture
+                                    {t('dash_contract_btn_add_inv')}
                                   </button>
                                 </div>
                               )
@@ -1353,7 +1363,7 @@ const Dashboard = () => {
                               className="btn btn-secondary btn-sm"
                               style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem', borderRadius: '8px' }}
                             >
-                              Avenant
+                              {t('dash_contract_btn_amendment')}
                             </button>
                           </div>
                         </td>
@@ -1369,10 +1379,10 @@ const Dashboard = () => {
           {isAdmin && (
             <div style={{ marginTop: '2.5rem' }}>
               <h4 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: 'var(--s2t-red)' }}>
-                Demandes d'Avenants en Attente de Validation (Modifications de Superficie)
+                {t('dash_amendments_pending_title')}
               </h4>
               {contracts.flatMap(c => c.amendments.filter(a => a.status === 'en_attente').map(a => ({ ...a, contractId: c._id, contractNumber: c.contractNumber }))).length === 0 ? (
-                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Aucun avenant en attente.</p>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{t('dash_amendments_empty')}</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {contracts.flatMap(c => c.amendments.filter(a => a.status === 'en_attente').map(a => ({ ...a, contractId: c._id, contractNumber: c.contractNumber }))).map(amend => (
@@ -1380,7 +1390,7 @@ const Dashboard = () => {
                       <div>
                         <strong>{amend.amendmentNumber}</strong> — {amend.description}
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                          Superficie : {amend.oldSurface} m² ➔ <strong style={{ color: 'var(--s2t-teal)' }}>{amend.newSurface} m²</strong>
+                          {t('dash_amendment_surface_label')}{amend.oldSurface} m² ➔ <strong style={{ color: 'var(--s2t-teal)' }}>{amend.newSurface} m²</strong>
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -1389,14 +1399,14 @@ const Dashboard = () => {
                           className="btn btn-primary btn-sm"
                           style={{ borderRadius: '8px' }}
                         >
-                          Approuver & Recalculer
+                          {t('dash_amendment_btn_approve')}
                         </button>
                         <button
                           onClick={() => handleApproveAmendment(amend.contractId, amend._id, 'rejete')}
                           className="btn btn-secondary btn-sm"
                           style={{ borderRadius: '8px' }}
                         >
-                          Rejeter
+                          {t('dash_amendment_btn_reject')}
                         </button>
                       </div>
                     </div>
@@ -1415,16 +1425,16 @@ const Dashboard = () => {
                 <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(225, 29, 72, 0.15)', color: 'var(--s2t-red)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <UserCheck size={16} />
                 </div>
-                <h3 style={{ fontSize: '1.25rem', margin: 0 }}>Candidatures d'Entreprises en Attente de Validation S2T</h3>
+                <h3 style={{ fontSize: '1.25rem', margin: 0 }}>{t('dash_approvals_title')}</h3>
               </div>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
-                Contrôle d'éligibilité sectorielle TIC (Loi n°2001-50 relative aux parcs technologiques)
+                {t('dash_approvals_sub')}
               </p>
             </div>
 
             {pendingUsers.length > 0 && (
               <span className="due-badge-unpaid" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
-                {pendingUsers.length} candidature(s) en attente
+                {t('dash_approvals_pending_badge').replace('{n}', pendingUsers.length)}
               </span>
             )}
           </div>
@@ -1433,10 +1443,10 @@ const Dashboard = () => {
             <div style={{ textAlign: 'center', padding: '3.5rem 1rem', color: 'var(--text-muted)' }}>
               <CheckCircle2 size={42} color="#10B981" style={{ margin: '0 auto 0.75rem', opacity: 0.8 }} />
               <h4 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
-                Toutes les candidatures ont été traitées
+                {t('dash_approvals_empty_title')}
               </h4>
               <p style={{ fontSize: '0.85rem' }}>
-                Aucune entreprise en attente d'approbation pour le moment.
+                {t('dash_approvals_empty_desc')}
               </p>
             </div>
           ) : (
@@ -1444,14 +1454,14 @@ const Dashboard = () => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Entreprise / Société</th>
-                    <th>Représentant Légal</th>
-                    <th>Coordonnées</th>
-                    <th>Secteur TIC Déclaré</th>
-                    <th>Superficie Sollicitée</th>
-                    <th>Date Dépôt</th>
-                    <th>Statut</th>
-                    <th style={{ textAlign: 'right' }}>Décision Administrateur</th>
+                    <th>{t('dash_th_appr_company')}</th>
+                    <th>{t('dash_th_appr_rep')}</th>
+                    <th>{t('dash_th_appr_contact')}</th>
+                    <th>{t('dash_th_appr_sector')}</th>
+                    <th>{t('dash_th_appr_surface')}</th>
+                    <th>{t('dash_th_appr_date')}</th>
+                    <th>{t('dash_th_appr_status')}</th>
+                    <th style={{ textAlign: isRtl ? 'left' : 'right' }}>{t('dash_th_appr_decision')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1467,9 +1477,9 @@ const Dashboard = () => {
                               {initials}
                             </div>
                             <div className="company-meta">
-                              <span className="company-name">{candidate.companyName || 'Non renseigné'}</span>
+                              <span className="company-name">{candidate.companyName || t('dash_appr_not_specified')}</span>
                               <span className="company-ref-chip">
-                                {candidate.fiscalId ? `MF: ${candidate.fiscalId}` : 'Sans MF'}
+                                {candidate.fiscalId ? `MF: ${candidate.fiscalId}` : t('dash_appr_no_mf')}
                               </span>
                             </div>
                           </div>
@@ -1479,11 +1489,11 @@ const Dashboard = () => {
                         </td>
                         <td>
                           <div style={{ fontSize: '0.86rem' }}>{candidate.email}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{candidate.phone || 'Non renseigné'}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{candidate.phone || t('dash_appr_not_specified')}</div>
                         </td>
                         <td>
                           <span className="badge badge-brouillon" style={{ fontSize: '0.75rem' }}>
-                            {candidate.activityType || 'Édition Logiciels & IA'}
+                            {candidate.activityType || t('dash_appr_default_sector')}
                           </span>
                         </td>
                         <td>
@@ -1491,26 +1501,26 @@ const Dashboard = () => {
                         </td>
                         <td>
                           <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                            {new Date(candidate.createdAt || Date.now()).toLocaleDateString('fr-FR')}
+                            {new Date(candidate.createdAt || Date.now()).toLocaleDateString(dateLocale)}
                           </span>
                         </td>
                         <td>
                           <span className="status-badge-modern en_attente_validation">
                             <span className="status-pulse-dot" style={{ color: '#D97706' }}></span>
-                            <span>En attente</span>
+                            <span>{t('dash_appr_status_pending')}</span>
                           </span>
                         </td>
                         <td>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: isRtl ? 'flex-start' : 'flex-end', gap: '0.5rem' }}>
                             <button
                               type="button"
                               onClick={() => handleApproveResident(candidate._id, candidate.companyName || candidate.name)}
                               className="btn btn-primary btn-sm"
                               style={{ gap: '0.35rem', fontSize: '0.78rem', background: '#10B981', borderColor: '#10B981', borderRadius: '8px' }}
-                              title="Valider et activer le compte"
+                              title={t('dash_appr_btn_approve')}
                             >
                               <Check size={14} />
-                              <span>Approuver</span>
+                              <span>{t('dash_appr_btn_approve')}</span>
                             </button>
 
                             <button
@@ -1518,10 +1528,10 @@ const Dashboard = () => {
                               onClick={() => handleRejectResident(candidate._id, candidate.companyName || candidate.name)}
                               className="btn btn-secondary btn-sm"
                               style={{ gap: '0.35rem', fontSize: '0.78rem', color: 'var(--s2t-red)', borderRadius: '8px' }}
-                              title="Refuser la candidature"
+                              title={t('dash_appr_btn_reject')}
                             >
                               <XCircle size={14} />
-                              <span>Refuser</span>
+                              <span>{t('dash_appr_btn_reject')}</span>
                             </button>
                           </div>
                         </td>
@@ -1545,8 +1555,8 @@ const Dashboard = () => {
                   <Scale size={20} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.18rem', margin: 0 }}>Établissement d'un Nouveau Contrat S2T</h3>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Convention d'hébergement & domiciliation au Technopark</span>
+                  <h3 style={{ fontSize: '1.18rem', margin: 0 }}>{t('modal_contract_title')}</h3>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{t('modal_contract_sub')}</span>
                 </div>
               </div>
               <button onClick={() => setShowContractModal(false)} className="btn btn-ghost"><X size={18} /></button>
@@ -1555,11 +1565,11 @@ const Dashboard = () => {
               <div className="form-group">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
                   <label className="form-label" style={{ marginBottom: 0 }}>
-                    Nom de la Société Résidente *
+                    {t('modal_contract_comp_label')}
                   </label>
                   {uncontractedResidents.length > 0 && !isCustomCompany && (
                     <span style={{ fontSize: '0.75rem', color: '#10B981', fontWeight: 600, background: 'rgba(16, 185, 129, 0.1)', padding: '0.15rem 0.55rem', borderRadius: 'var(--radius-full)' }}>
-                      {uncontractedResidents.length} entreprise{uncontractedResidents.length > 1 ? 's' : ''} sans contrat
+                      {t('modal_contract_without_contract').replace('{n}', uncontractedResidents.length)}
                     </span>
                   )}
                 </div>
@@ -1599,13 +1609,13 @@ const Dashboard = () => {
                       }}
                       required
                     >
-                      <option value="">-- Choisir une société résidente sans contrat --</option>
+                      <option value="">{t('modal_contract_select_resident_ph')}</option>
                       {uncontractedResidents.map((res) => (
                         <option key={res._id} value={res._id}>
                           🏢 {res.companyName || res.name} {res.activityType ? `(${res.activityType})` : ''} — Resp: {res.name} ({res.email})
                         </option>
                       ))}
-                      <option value="__custom__">➕ Saisie libre / Autre société...</option>
+                      <option value="__custom__">{t('modal_contract_custom_entry')}</option>
                     </select>
 
                     {newContractData.clientId && (
@@ -1623,10 +1633,10 @@ const Dashboard = () => {
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'var(--s2t-blue)' }}>
                           <CheckCircle2 size={16} />
-                          <span>Société : <strong>{newContractData.companyName}</strong></span>
+                          <span>{t('modal_receipt_field_company')} : <strong>{newContractData.companyName}</strong></span>
                         </div>
                         <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                          Données pré-remplies automatiquement
+                          {t('modal_contract_auto_filled')}
                         </span>
                       </div>
                     )}
@@ -1637,7 +1647,7 @@ const Dashboard = () => {
                       <input
                         type="text"
                         className="form-input"
-                        placeholder="ex: DataCloud Systems"
+                        placeholder={t('modal_contract_custom_ph')}
                         value={newContractData.companyName}
                         onChange={(e) => setNewContractData({ ...newContractData, companyName: e.target.value, clientId: '' })}
                         required
@@ -1652,14 +1662,14 @@ const Dashboard = () => {
                           className="btn btn-secondary btn-sm"
                           style={{ whiteSpace: 'nowrap', fontSize: '0.78rem' }}
                         >
-                          Liste des résidents
+                          {t('modal_contract_btn_list')}
                         </button>
                       )}
                     </div>
                     {uncontractedResidents.length === 0 && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.4rem', color: '#D97706', fontSize: '0.78rem' }}>
                         <AlertTriangle size={14} />
-                        <span>Toutes les entreprises résidentes enregistrées disposent déjà d'un contrat actif. Saisie manuelle activée.</span>
+                        <span>{t('modal_contract_all_active_note')}</span>
                       </div>
                     )}
                   </div>
@@ -1668,7 +1678,7 @@ const Dashboard = () => {
 
               <div className="modal-form-grid-2">
                 <div className="form-group">
-                  <label className="form-label">Numéro de Local / Bureau</label>
+                  <label className="form-label">{t('modal_contract_space_num')}</label>
                   <input
                     type="text"
                     className="form-input"
@@ -1678,7 +1688,7 @@ const Dashboard = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Superficie (m²)</label>
+                  <label className="form-label">{t('modal_contract_surface_label')}</label>
                   <input
                     type="number"
                     min="1"
@@ -1691,21 +1701,21 @@ const Dashboard = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Redevance Annuelle (Article 6 du Contrat)</label>
+                <label className="form-label">{t('modal_contract_fee_art6')}</label>
                 <select
                   className="form-select"
                   value={newContractData.ratePerM2}
                   onChange={(e) => setNewContractData({ ...newContractData, ratePerM2: Number(e.target.value) })}
                 >
-                  <option value={30}>30,000 DT HTVA / m² / an (Pépinière 1ère Année)</option>
-                  <option value={55}>55,000 DT HTVA / m² / an (Pépinière 2ème Année)</option>
-                  <option value={75}>75,000 DT HTVA / m² / an (Pépinière 3ème Année / Standard)</option>
+                  <option value={30}>{t('modal_contract_rate_opt_1')}</option>
+                  <option value={55}>{t('modal_contract_rate_opt_2')}</option>
+                  <option value={75}>{t('modal_contract_rate_opt_3')}</option>
                 </select>
               </div>
 
               <div className="modal-form-grid-2">
                 <div className="form-group">
-                  <label className="form-label">Date de Début</label>
+                  <label className="form-label">{t('modal_contract_start_date')}</label>
                   <input
                     type="date"
                     className="form-input"
@@ -1715,7 +1725,7 @@ const Dashboard = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Date de Fin / Échéance</label>
+                  <label className="form-label">{t('modal_contract_end_date')}</label>
                   <input
                     type="date"
                     className="form-input"
@@ -1739,36 +1749,36 @@ const Dashboard = () => {
                 fontSize: '0.8rem'
               }}>
                 <div>
-                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Loyer Mensuel HT</span>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>{t('modal_contract_est_rent_ht')}</span>
                   <strong style={{ fontSize: '0.92rem' }}>
                     {((Number(newContractData.surface || 0) * Number(newContractData.ratePerM2 || 0)) / 12).toFixed(3)} DT
                   </strong>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>TVA (19%)</span>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>{t('modal_contract_est_tva')}</span>
                   <strong style={{ fontSize: '0.92rem' }}>
                     {(((Number(newContractData.surface || 0) * Number(newContractData.ratePerM2 || 0)) / 12) * 0.19).toFixed(3)} DT
                   </strong>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--s2t-blue)', display: 'block', fontSize: '0.72rem', fontWeight: 600 }}>Loyer TTC / mois</span>
+                  <span style={{ color: 'var(--s2t-blue)', display: 'block', fontSize: '0.72rem', fontWeight: 600 }}>{t('modal_contract_est_rent_ttc')}</span>
                   <strong style={{ fontSize: '0.92rem', color: 'var(--s2t-blue)' }}>
                     {(((Number(newContractData.surface || 0) * Number(newContractData.ratePerM2 || 0)) / 12) * 1.19).toFixed(3)} DT
                   </strong>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--s2t-red)', display: 'block', fontSize: '0.72rem', fontWeight: 600 }}>Caution (Art. 7 - 2 mois)</span>
+                  <span style={{ color: 'var(--s2t-red)', display: 'block', fontSize: '0.72rem', fontWeight: 600 }}>{t('modal_contract_est_deposit')}</span>
                   <strong style={{ fontSize: '0.92rem', color: 'var(--s2t-red)' }}>
                     {((((Number(newContractData.surface || 0) * Number(newContractData.ratePerM2 || 0)) / 12) * 1.19) * 2).toFixed(3)} DT
                   </strong>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
-                <button type="button" onClick={() => setShowContractModal(false)} className="btn btn-secondary">Annuler</button>
+              <div style={{ display: 'flex', justifyContent: isRtl ? 'flex-start' : 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
+                <button type="button" onClick={() => setShowContractModal(false)} className="btn btn-secondary">{t('modal_contract_btn_cancel')}</button>
                 <button type="submit" className="btn btn-primary" style={{ gap: '0.4rem' }}>
                   <Check size={16} />
-                  <span>Valider le Contrat</span>
+                  <span>{t('modal_contract_btn_validate')}</span>
                 </button>
               </div>
             </form>
@@ -1781,26 +1791,26 @@ const Dashboard = () => {
         <div className="modal-overlay" onClick={() => setShowAmendmentModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between' }}>
-              <h3 style={{ fontSize: '1.25rem' }}>Demande d'Avenant Contractuel (Article 11)</h3>
+              <h3 style={{ fontSize: '1.25rem' }}>{t('modal_amend_title')}</h3>
               <button onClick={() => setShowAmendmentModal(false)} className="btn btn-ghost"><X size={18} /></button>
             </div>
             <form onSubmit={handleRequestAmendment} style={{ padding: '1.5rem' }}>
               <div className="form-group">
-                <label className="form-label">Type d'Avenant</label>
+                <label className="form-label">{t('modal_amend_type_label')}</label>
                 <select
                   className="form-select"
                   value={amendmentData.type}
                   onChange={(e) => setAmendmentData({ ...amendmentData, type: e.target.value })}
                 >
-                  <option value="augmentation_superficie">📈 Demande d'Augmentation de Superficie</option>
-                  <option value="reduction_superficie">📉 Demande de Réduction de Superficie</option>
-                  <option value="prolongation">⏳ Demande de Renouvellement / Prolongation</option>
-                  <option value="autre">📝 Autre modification contractuelle</option>
+                  <option value="augmentation_superficie">{t('modal_amend_opt_increase')}</option>
+                  <option value="reduction_superficie">{t('modal_amend_opt_decrease')}</option>
+                  <option value="prolongation">{t('modal_amend_opt_extend')}</option>
+                  <option value="autre">{t('modal_amend_opt_other')}</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Nouvelle Superficie Souhaitée (m²)</label>
+                <label className="form-label">{t('modal_amend_new_surface')}</label>
                 <input
                   type="number"
                   className="form-input"
@@ -1811,19 +1821,19 @@ const Dashboard = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Motif & Justification</label>
+                <label className="form-label">{t('modal_amend_reason_label')}</label>
                 <textarea
                   className="form-textarea"
                   value={amendmentData.description}
                   onChange={(e) => setAmendmentData({ ...amendmentData, description: e.target.value })}
-                  placeholder="Détaillez les raisons de la modification de superficie..."
+                  placeholder={t('modal_amend_reason_ph')}
                   required
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
-                <button type="button" onClick={() => setShowAmendmentModal(false)} className="btn btn-secondary">Annuler</button>
-                <button type="submit" className="btn btn-primary">Soumettre l'Avenant</button>
+              <div style={{ display: 'flex', justifyContent: isRtl ? 'flex-start' : 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
+                <button type="button" onClick={() => setShowAmendmentModal(false)} className="btn btn-secondary">{t('modal_contract_btn_cancel')}</button>
+                <button type="submit" className="btn btn-primary">{t('modal_amend_btn_submit')}</button>
               </div>
             </form>
           </div>
@@ -1843,44 +1853,44 @@ const Dashboard = () => {
                   MF : 0830000/M/A/000
                 </p>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <h3 style={{ fontSize: '1.3rem', color: '#E11D48', marginBottom: '0.2rem' }}>FACTURE</h3>
+              <div style={{ textAlign: isRtl ? 'left' : 'right' }}>
+                <h3 style={{ fontSize: '1.3rem', color: '#E11D48', marginBottom: '0.2rem' }}>{t('modal_preview_inv_title')}</h3>
                 <strong style={{ fontSize: '0.95rem' }}>{previewInvoice.invoiceNumber}</strong>
                 <p style={{ fontSize: '0.8rem', color: '#64748B' }}>
-                  Date : {new Date(previewInvoice.issueDate).toLocaleDateString('fr-FR')}
+                  {t('modal_preview_date')}{new Date(previewInvoice.issueDate).toLocaleDateString(dateLocale)}
                 </p>
               </div>
             </div>
 
             <div style={{ padding: '1.5rem 2rem' }}>
               <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
-                <span style={{ fontSize: '0.75rem', color: '#64748B', textTransform: 'uppercase', fontWeight: 700 }}>Client Hébergé</span>
+                <span style={{ fontSize: '0.75rem', color: '#64748B', textTransform: 'uppercase', fontWeight: 700 }}>{t('modal_preview_client_header')}</span>
                 <h4 style={{ fontSize: '1.1rem', marginTop: '0.2rem' }}>{previewInvoice.companyName}</h4>
               </div>
 
               <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid #CBD5E1', textAlign: 'left' }}>
-                    <th style={{ padding: '0.5rem 0' }}>Désignation</th>
-                    <th style={{ padding: '0.5rem 0', textAlign: 'right' }}>Montant HT</th>
+                  <tr style={{ borderBottom: '2px solid #CBD5E1', textAlign: isRtl ? 'right' : 'left' }}>
+                    <th style={{ padding: '0.5rem 0' }}>{t('modal_preview_th_desig')}</th>
+                    <th style={{ padding: '0.5rem 0', textAlign: isRtl ? 'left' : 'right' }}>{t('modal_preview_th_amount_ht')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                     <td style={{ padding: '0.75rem 0' }}>{previewInvoice.description}</td>
-                    <td style={{ padding: '0.75rem 0', textAlign: 'right' }}>{previewInvoice.amountHT?.toFixed(3)} DT</td>
+                    <td style={{ padding: '0.75rem 0', textAlign: isRtl ? 'left' : 'right' }}>{previewInvoice.amountHT?.toFixed(3)} DT</td>
                   </tr>
                   <tr>
-                    <td style={{ padding: '0.4rem 0', color: '#64748B' }}>TVA (19%)</td>
-                    <td style={{ padding: '0.4rem 0', textAlign: 'right' }}>{previewInvoice.tvaAmount?.toFixed(3)} DT</td>
+                    <td style={{ padding: '0.4rem 0', color: '#64748B' }}>{t('modal_preview_tva')}</td>
+                    <td style={{ padding: '0.4rem 0', textAlign: isRtl ? 'left' : 'right' }}>{previewInvoice.tvaAmount?.toFixed(3)} DT</td>
                   </tr>
                   <tr>
-                    <td style={{ padding: '0.4rem 0', color: '#64748B' }}>Droit de Timbre Fiscal</td>
-                    <td style={{ padding: '0.4rem 0', textAlign: 'right' }}>1.000 DT</td>
+                    <td style={{ padding: '0.4rem 0', color: '#64748B' }}>{t('modal_preview_stamp')}</td>
+                    <td style={{ padding: '0.4rem 0', textAlign: isRtl ? 'left' : 'right' }}>1.000 DT</td>
                   </tr>
                   <tr style={{ borderTop: '2px solid #0F172A', fontWeight: 800, fontSize: '1.1rem' }}>
-                    <td style={{ padding: '0.75rem 0' }}>TOTAL TTC</td>
-                    <td style={{ padding: '0.75rem 0', textAlign: 'right', color: '#E11D48' }}>
+                    <td style={{ padding: '0.75rem 0' }}>{t('modal_preview_total_ttc')}</td>
+                    <td style={{ padding: '0.75rem 0', textAlign: isRtl ? 'left' : 'right', color: '#E11D48' }}>
                       {previewInvoice.amountTTC?.toFixed(3)} DT
                     </td>
                   </tr>
@@ -1892,37 +1902,38 @@ const Dashboard = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
                     <CheckCircle2 size={22} color="#10B981" style={{ flexShrink: 0 }} />
                     <div>
-                      <strong style={{ display: 'block', fontSize: '0.88rem' }}>QUITTANCE DE LOYER & RÈGLEMENT CERTIFIÉE S2T</strong>
-                      <span>Règlement intégral validé par la Direction Financière S2T le {previewInvoice.paymentDate ? new Date(previewInvoice.paymentDate).toLocaleDateString('fr-FR') : 'Payé'}.</span>
+                      <strong style={{ display: 'block', fontSize: '0.88rem' }}>{t('modal_preview_receipt_title')}</strong>
+                      <span>{t('modal_preview_receipt_desc').replace('{date}', previewInvoice.paymentDate ? new Date(previewInvoice.paymentDate).toLocaleDateString(dateLocale) : '')}</span>
                       {previewInvoice.transferReference && (
                         <span style={{ display: 'block', fontFamily: 'monospace', fontSize: '0.75rem', marginTop: '0.15rem', color: '#047857' }}>
-                          Réf. Opération Virement Bancaire STB : {previewInvoice.transferReference}
+                          {t('modal_preview_receipt_ref_prefix')}{previewInvoice.transferReference}
                         </span>
                       )}
                     </div>
                   </div>
                   <span className="badge" style={{ background: '#10B981', color: '#fff', fontSize: '0.72rem', padding: '0.25rem 0.6rem', fontWeight: 800 }}>
-                    ACQUITTÉE
+                    {t('modal_preview_badge_settled')}
                   </span>
                 </div>
               ) : (
                 <div style={{ background: '#FEF2F2', border: '1px solid #FECDD3', padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.8rem', color: '#9F1239' }}>
-                  Redevance payable avant le 5 de chaque mois (Article 6.3 du contrat d'hébergement).
+                  {t('modal_preview_unpaid_notice')}
                 </div>
               )}
             </div>
 
             <div style={{ padding: '1rem 2rem', background: '#F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <button type="button" onClick={() => window.print()} className="btn btn-sm" style={{ background: '#0F172A', color: '#fff' }}>
-                <Download size={14} /> Imprimer / PDF
+              <button type="button" onClick={() => window.print()} className="btn btn-sm" style={{ background: '#0F172A', color: '#fff', gap: '0.4rem' }}>
+                <Download size={14} /> {t('modal_preview_btn_print')}
               </button>
               <button type="button" onClick={() => setPreviewInvoice(null)} className="btn btn-sm" style={{ background: '#CBD5E1', color: '#0F172A' }}>
-                Fermer
+                {t('modal_preview_btn_close')}
               </button>
             </div>
           </div>
         </div>
       )}
+
       {/* Modal: Create / Emit Custom Invoice (Admin) */}
       {showInvoiceModal && (
         <div className="modal-overlay" onClick={() => setShowInvoiceModal(false)}>
@@ -1933,15 +1944,15 @@ const Dashboard = () => {
                   <Receipt size={20} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.18rem', margin: 0 }}>Émission d'une Facture S2T</h3>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Transmise directement sur la session de l'entreprise résidente</span>
+                  <h3 style={{ fontSize: '1.18rem', margin: 0 }}>{t('modal_inv_title')}</h3>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{t('modal_inv_sub')}</span>
                 </div>
               </div>
               <button onClick={() => setShowInvoiceModal(false)} className="btn btn-ghost"><X size={18} /></button>
             </div>
             <form onSubmit={handleCreateInvoice} style={{ padding: '1.5rem' }}>
               <div className="form-group">
-                <label className="form-label">Contrat / Entreprise Résidente Destinataire *</label>
+                <label className="form-label">{t('modal_inv_contract_label')}</label>
                 {contracts.length > 0 ? (
                   <select
                     className="form-select"
@@ -1962,7 +1973,7 @@ const Dashboard = () => {
                     }}
                     required
                   >
-                    <option value="">-- Choisir un contrat actif --</option>
+                    <option value="">{t('modal_inv_select_contract_ph')}</option>
                     {contracts.map((c) => (
                       <option key={c._id} value={c._id}>
                         📄 {c.contractNumber} — {c.companyName} ({c.spaceNumber}, {c.surface} m²)
@@ -1973,7 +1984,7 @@ const Dashboard = () => {
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Nom de l'entreprise résidente"
+                    placeholder={t('modal_receipt_field_company')}
                     value={newInvoiceData.companyName}
                     onChange={(e) => setNewInvoiceData({ ...newInvoiceData, companyName: e.target.value })}
                     required
@@ -1983,21 +1994,21 @@ const Dashboard = () => {
 
               <div className="modal-form-grid-2">
                 <div className="form-group">
-                  <label className="form-label">Type de Facture</label>
+                  <label className="form-label">{t('modal_inv_type_label')}</label>
                   <select
                     className="form-select"
                     value={newInvoiceData.invoiceType}
                     onChange={(e) => setNewInvoiceData({ ...newInvoiceData, invoiceType: e.target.value })}
                   >
-                    <option value="loyer_mensuel">Loyer Mensuel Hébergement</option>
-                    <option value="charges">Charges Locatives & Fluides</option>
-                    <option value="caution">Dépôt de Garantie / Caution (Art. 7)</option>
-                    <option value="prestation_ponctuelle">Prestation Ponctuelle / Salle</option>
-                    <option value="regularisation">Régularisation Annuelle</option>
+                    <option value="loyer_mensuel">{t('modal_inv_type_loyer')}</option>
+                    <option value="charges">{t('modal_inv_type_charges')}</option>
+                    <option value="caution">{t('modal_inv_type_caution')}</option>
+                    <option value="prestation_ponctuelle">{t('modal_inv_type_prestation')}</option>
+                    <option value="regularisation">{t('modal_inv_type_regularisation')}</option>
                   </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Montant HT (DT)</label>
+                  <label className="form-label">{t('modal_inv_amount_ht')}</label>
                   <input
                     type="number"
                     step="0.001"
@@ -2011,19 +2022,19 @@ const Dashboard = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Description / Libellé</label>
+                <label className="form-label">{t('modal_inv_desc_label')}</label>
                 <input
                   type="text"
                   className="form-input"
                   value={newInvoiceData.description}
                   onChange={(e) => setNewInvoiceData({ ...newInvoiceData, description: e.target.value })}
-                  placeholder="ex: Loyer mensuel d'hébergement S2T — Octobre 2026"
+                  placeholder={t('modal_inv_desc_ph')}
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Date d'Échéance de Paiement</label>
+                <label className="form-label">{t('modal_inv_due_label')}</label>
                 <input
                   type="date"
                   className="form-input"
@@ -2045,21 +2056,21 @@ const Dashboard = () => {
                 fontSize: '0.85rem'
               }}>
                 <div>
-                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.74rem' }}>Montant Total TTC (TVA 19% + Timbre 1 DT)</span>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.74rem' }}>{t('modal_inv_total_ttc_note')}</span>
                   <strong style={{ fontSize: '1.15rem', color: 'var(--s2t-red)' }}>
                     {(Number(newInvoiceData.amountHT || 0) * 1.19 + 1.0).toFixed(3)} DT
                   </strong>
                 </div>
                 <span className="badge badge-envoyee" style={{ fontSize: '0.75rem' }}>
-                  Statut : Envoyée au résident
+                  {t('modal_inv_status_sent')}
                 </span>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
-                <button type="button" onClick={() => setShowInvoiceModal(false)} className="btn btn-secondary">Annuler</button>
+              <div style={{ display: 'flex', justifyContent: isRtl ? 'flex-start' : 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
+                <button type="button" onClick={() => setShowInvoiceModal(false)} className="btn btn-secondary">{t('modal_contract_btn_cancel')}</button>
                 <button type="submit" className="btn btn-primary" style={{ gap: '0.4rem' }}>
                   <Send size={15} />
-                  <span>Émettre et Transmettre</span>
+                  <span>{t('modal_inv_btn_emit')}</span>
                 </button>
               </div>
             </form>
@@ -2077,8 +2088,8 @@ const Dashboard = () => {
                   <CreditCard size={20} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.15rem', margin: 0 }}>Règlement de Facture S2T</h3>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Passerelle sécurisée de paiement en ligne</span>
+                  <h3 style={{ fontSize: '1.15rem', margin: 0 }}>{t('modal_pay_title')}</h3>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{t('modal_pay_sub')}</span>
                 </div>
               </div>
               <button onClick={() => setShowPaymentModal(false)} className="btn btn-ghost"><X size={18} /></button>
@@ -2104,17 +2115,17 @@ const Dashboard = () => {
                     {selectedInvoiceToPay.description}
                   </div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
+                <div style={{ textAlign: isRtl ? 'left' : 'right' }}>
                   <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--s2t-red)' }}>
                     {selectedInvoiceToPay.amountTTC?.toFixed(3)} DT
                   </div>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Montant TTC</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{t('dash_inv_amount_ttc_label')}</span>
                 </div>
               </div>
 
               {/* Payment Method Selector */}
               <div className="form-group">
-                <label className="form-label">Mode de Règlement</label>
+                <label className="form-label">{t('modal_pay_method_label')}</label>
                 <div className="modal-payment-methods-grid">
                   <button
                     type="button"
@@ -2136,7 +2147,7 @@ const Dashboard = () => {
                     }}
                   >
                     <CreditCard size={18} color="var(--s2t-blue)" />
-                    <span>Carte Bancaire</span>
+                    <span>{t('modal_pay_method_card')}</span>
                   </button>
 
                   <button
@@ -2159,7 +2170,7 @@ const Dashboard = () => {
                     }}
                   >
                     <Building2 size={18} color="var(--s2t-teal)" />
-                    <span>Virement STB</span>
+                    <span>{t('modal_pay_method_transfer')}</span>
                   </button>
 
                   <button
@@ -2182,7 +2193,7 @@ const Dashboard = () => {
                     }}
                   >
                     <Banknote size={18} color="#10B981" />
-                    <span>Espèces / Régie</span>
+                    <span>{t('modal_pay_method_cash')}</span>
                   </button>
 
                   <button
@@ -2205,7 +2216,7 @@ const Dashboard = () => {
                     }}
                   >
                     <Scale size={18} color="var(--s2t-red)" />
-                    <span>Prélèvement S2T</span>
+                    <span>{t('modal_pay_method_debit')}</span>
                   </button>
                 </div>
               </div>
@@ -2214,7 +2225,7 @@ const Dashboard = () => {
               {paymentForm.method === 'carte' ? (
                 <>
                   <div className="form-group">
-                    <label className="form-label">Titulaire de la Carte</label>
+                    <label className="form-label">{t('modal_pay_card_holder')}</label>
                     <input
                       type="text"
                       className="form-input"
@@ -2226,7 +2237,7 @@ const Dashboard = () => {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Numéro de Carte Bancaire</label>
+                    <label className="form-label">{t('modal_pay_card_number')}</label>
                     <input
                       type="text"
                       className="form-input"
@@ -2239,7 +2250,7 @@ const Dashboard = () => {
 
                   <div className="modal-form-grid-2">
                     <div className="form-group">
-                      <label className="form-label">Date d'Expiration</label>
+                      <label className="form-label">{t('modal_pay_card_expiry')}</label>
                       <input
                         type="text"
                         className="form-input"
@@ -2250,7 +2261,7 @@ const Dashboard = () => {
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label">Cryptogramme (CVV)</label>
+                      <label className="form-label">{t('modal_pay_card_cvv')}</label>
                       <input
                         type="password"
                         maxLength="4"
@@ -2274,36 +2285,36 @@ const Dashboard = () => {
                   }}>
                     <div style={{ fontWeight: 700, marginBottom: '0.45rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       <Building2 size={16} color="var(--s2t-teal)" />
-                      <span>Coordonnées Bancaires Officielles S2T (Pôle El Ghazala) :</span>
+                      <span>{t('modal_pay_stb_bank_coords')}</span>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.25rem 0.75rem', fontSize: '0.8rem' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Banque :</span>
-                      <strong>Société Tunisienne de Banque (STB)</strong>
-                      <span style={{ color: 'var(--text-muted)' }}>RIB :</span>
+                      <span style={{ color: 'var(--text-muted)' }}>{t('modal_pay_bank_name')}</span>
+                      <strong>{t('modal_pay_bank_val')}</strong>
+                      <span style={{ color: 'var(--text-muted)' }}>{t('modal_pay_rib_label')}</span>
                       <strong style={{ fontFamily: 'monospace', letterSpacing: '0.04em', color: 'var(--s2t-blue)' }}>10 005 0830000 000000 45</strong>
-                      <span style={{ color: 'var(--text-muted)' }}>Bénéficiaire :</span>
-                      <strong>Société des Parcs Technologiques (S2T)</strong>
-                      <span style={{ color: 'var(--text-muted)' }}>Code Swift/BIC :</span>
+                      <span style={{ color: 'var(--text-muted)' }}>{t('modal_pay_beneficiary_label')}</span>
+                      <strong>{t('modal_pay_beneficiary_val')}</strong>
+                      <span style={{ color: 'var(--text-muted)' }}>{t('modal_pay_swift_label')}</span>
                       <span style={{ fontFamily: 'monospace' }}>STBK TNTT</span>
                     </div>
                   </div>
 
                   {/* Transaction / Transfer Reference */}
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Numéro / Référence de la Transaction de Virement *</label>
+                    <label className="form-label">{t('modal_pay_transfer_ref_label')}</label>
                     <input
                       type="text"
                       className="form-input"
                       value={paymentForm.transferRef}
                       onChange={(e) => setPaymentForm({ ...paymentForm, transferRef: e.target.value })}
-                      placeholder="ex: VIR-STB-2026-98741 ou N° Bordereau"
+                      placeholder={t('modal_pay_transfer_ref_ph')}
                       required
                     />
                   </div>
 
                   {/* Receipt / Proof Upload */}
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Joindre le Reçu / Bordereau de Versement (PDF, Image JPG/PNG)</label>
+                    <label className="form-label">{t('modal_pay_upload_receipt_label')}</label>
                     <div style={{
                       border: '2px dashed var(--border-color)',
                       borderRadius: 'var(--radius-md)',
@@ -2337,16 +2348,16 @@ const Dashboard = () => {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#10B981' }}>
                           <CheckCircle2 size={18} />
                           <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>
-                            Reçu joint : {paymentForm.receiptFileName || 'Justificatif bancaire'}
+                            {t('modal_pay_receipt_attached')}{paymentForm.receiptFileName || 'Justificatif bancaire'}
                           </span>
                         </div>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', color: 'var(--text-muted)' }}>
                           <FileText size={24} color="var(--s2t-blue)" />
                           <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                            Cliquez pour téléverser votre reçu ou bordereau bancaire
+                            {t('modal_pay_upload_click')}
                           </span>
-                          <span style={{ fontSize: '0.72rem' }}>Formats acceptés : PDF, PNG, JPG (Max 5 Mo)</span>
+                          <span style={{ fontSize: '0.72rem' }}>{t('modal_pay_upload_formats')}</span>
                         </div>
                       )}
                     </div>
@@ -2363,46 +2374,46 @@ const Dashboard = () => {
                   }}>
                     <div style={{ fontWeight: 700, marginBottom: '0.45rem', color: '#065F46', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       <Banknote size={16} color="#10B981" />
-                      <span>Régie des Recettes & Caisse Centrale S2T (Sur Place) :</span>
+                      <span>{t('modal_pay_cash_desk_coords')}</span>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.25rem 0.75rem', fontSize: '0.8rem' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Guichet Caisse :</span>
-                      <strong>Bâtiment Administratif S2T, Bureau A-102 (Pôle Technologique El Ghazala)</strong>
-                      <span style={{ color: 'var(--text-muted)' }}>Horaires :</span>
-                      <strong>Du Lundi au Vendredi — 08h30 à 15h30</strong>
-                      <span style={{ color: 'var(--text-muted)' }}>Montant à régler :</span>
+                      <span style={{ color: 'var(--text-muted)' }}>{t('modal_pay_cash_desk_loc')}</span>
+                      <strong>{t('modal_pay_cash_desk_loc_val')}</strong>
+                      <span style={{ color: 'var(--text-muted)' }}>{t('modal_pay_cash_hours')}</span>
+                      <strong>{t('modal_pay_cash_hours_val')}</strong>
+                      <span style={{ color: 'var(--text-muted)' }}>{t('modal_pay_cash_amount_label')}</span>
                       <strong style={{ color: 'var(--s2t-red)' }}>{selectedInvoiceToPay.amountTTC?.toFixed(3)} DT TTC</strong>
                     </div>
                   </div>
 
                   {/* Cash Depositor Name */}
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Nom & Prénom du Déposant / Mandataire Entreprise *</label>
+                    <label className="form-label">{t('modal_pay_cash_payer_label')}</label>
                     <input
                       type="text"
                       className="form-input"
                       value={paymentForm.cashPayerName}
                       onChange={(e) => setPaymentForm({ ...paymentForm, cashPayerName: e.target.value })}
-                      placeholder="ex: Samia Mansour (Directrice Financière)"
+                      placeholder="ex: Samia Mansour"
                       required
                     />
                   </div>
 
                   {/* Cash Receipt / Décharge Ref */}
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">N° Reçu de Caisse / Bon de Décharge Provisoire (si délivré au guichet)</label>
+                    <label className="form-label">{t('modal_pay_cash_receipt_ref_label')}</label>
                     <input
                       type="text"
                       className="form-input"
                       value={paymentForm.cashReceiptRef}
                       onChange={(e) => setPaymentForm({ ...paymentForm, cashReceiptRef: e.target.value })}
-                      placeholder="ex: REC-ESP-2026-0089 ou Décharge signée"
+                      placeholder="ex: REC-ESP-2026-0089"
                     />
                   </div>
 
                   {/* Optional File Upload for Cash Proof / Signed Voucher */}
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Joindre le Bon de Décharge ou Reçu Provisoire S2T (optionnel)</label>
+                    <label className="form-label">{t('modal_pay_cash_proof_label')}</label>
                     <div style={{
                       border: '2px dashed var(--border-color)',
                       borderRadius: 'var(--radius-md)',
@@ -2436,16 +2447,16 @@ const Dashboard = () => {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#10B981' }}>
                           <CheckCircle2 size={18} />
                           <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>
-                            Reçu / Décharge jointe : {paymentForm.receiptFileName || 'Justificatif de caisse'}
+                            {t('modal_pay_receipt_attached')}{paymentForm.receiptFileName || 'Justificatif de caisse'}
                           </span>
                         </div>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', color: 'var(--text-muted)' }}>
                           <FileText size={24} color="#10B981" />
                           <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                            Cliquez pour téléverser une photo ou scan du bon de décharge
+                            {t('modal_pay_cash_upload_click')}
                           </span>
-                          <span style={{ fontSize: '0.72rem' }}>Formats acceptés : PDF, PNG, JPG (Optionnel si remis en main propre)</span>
+                          <span style={{ fontSize: '0.72rem' }}>{t('modal_pay_cash_upload_formats')}</span>
                         </div>
                       )}
                     </div>
@@ -2462,15 +2473,15 @@ const Dashboard = () => {
                   }}>
                     <div style={{ fontWeight: 700, marginBottom: '0.4rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       <Scale size={16} color="var(--s2t-red)" />
-                      <span>Prélèvement Automatique / Ordre Permanent Conventionné :</span>
+                      <span>{t('modal_pay_debit_title')}</span>
                     </div>
                     <div>
-                      Conformément à l'Article 6.3 du Contrat d'Hébergement S2T, le montant de <strong style={{ color: 'var(--s2t-red)' }}>{selectedInvoiceToPay.amountTTC?.toFixed(3)} DT</strong> sera débité sur le compte bancaire de l'entreprise lié à la convention d'hébergement.
+                      {t('modal_pay_debit_desc_prefix')}<strong style={{ color: 'var(--s2t-red)' }}>{selectedInvoiceToPay.amountTTC?.toFixed(3)} DT</strong>{t('modal_pay_debit_desc_suffix')}
                     </div>
                   </div>
 
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">N° Autorisation / Mandat de Prélèvement S2T</label>
+                    <label className="form-label">{t('modal_pay_debit_mandate_label')}</label>
                     <input
                       type="text"
                       className="form-input"
@@ -2492,12 +2503,12 @@ const Dashboard = () => {
                 marginTop: '0.5rem'
               }}>
                 <ShieldCheck size={16} color="#10B981" />
-                <span>Paiement certifié conforme et chiffré par la plateforme Smart Tunisian Technoparks.</span>
+                <span>{t('modal_pay_security_note')}</span>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: isRtl ? 'flex-start' : 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
                 <button type="button" onClick={() => setShowPaymentModal(false)} className="btn btn-secondary">
-                  Annuler
+                  {t('modal_contract_btn_cancel')}
                 </button>
                 <button
                   type="submit"
@@ -2513,27 +2524,27 @@ const Dashboard = () => {
                   {paymentProcessing ? (
                     <>
                       <RefreshCw className="spin" size={14} />
-                      <span>Transmission en cours...</span>
+                      <span>{t('modal_pay_btn_processing')}</span>
                     </>
                   ) : paymentForm.method === 'virement' ? (
                     <>
                       <Send size={15} />
-                      <span>Envoyer le reçu à l'administration S2T financière pour approuver le paiement</span>
+                      <span>{t('modal_pay_btn_send_transfer')}</span>
                     </>
                   ) : paymentForm.method === 'especes' ? (
                     <>
                       <Send size={15} />
-                      <span>Envoyer la demande de confirmation de paiement en espèces à l'administration S2T</span>
+                      <span>{t('modal_pay_btn_send_cash')}</span>
                     </>
                   ) : paymentForm.method === 'ordre_permanent' ? (
                     <>
                       <Send size={15} />
-                      <span>Envoyer la demande de confirmation de prélèvement à l'administration S2T</span>
+                      <span>{t('modal_pay_btn_send_debit')}</span>
                     </>
                   ) : (
                     <>
                       <CheckCircle2 size={16} />
-                      <span>Confirmer le Paiement ({selectedInvoiceToPay.amountTTC?.toFixed(3)} DT)</span>
+                      <span>{t('modal_pay_btn_confirm_card').replace('{amount}', selectedInvoiceToPay.amountTTC?.toFixed(3) || '0.000')}</span>
                     </>
                   )}
                 </button>
@@ -2542,6 +2553,7 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+
       {/* Modal: Admin Receipt Inspection & Verification */}
       {showReceiptModal && selectedReceiptInvoice && (
         <div className="modal-overlay" onClick={() => { setShowReceiptModal(false); setIsRejecting(false); }}>
@@ -2578,17 +2590,17 @@ const Dashboard = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <h3 style={{ fontSize: '1.18rem', margin: 0 }}>
                       {selectedReceiptInvoice.paymentMethod === 'especes'
-                        ? "Validation de l'Encaissement en Espèces (Régie S2T)"
+                        ? t('modal_receipt_title_cash')
                         : selectedReceiptInvoice.paymentMethod === 'ordre_permanent'
-                        ? "Confirmation du Prélèvement Automatique S2T"
-                        : "Vérification du Justificatif de Versement Bancaire"}
+                        ? t('modal_receipt_title_debit')
+                        : t('modal_receipt_title_transfer')}
                     </h3>
                     {getStatusBadge(selectedReceiptInvoice.status, selectedReceiptInvoice.paymentMethod)}
                   </div>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
                     {selectedReceiptInvoice.paymentMethod === 'especes'
-                      ? "Pôle Technologique El Ghazala — Régie des Recettes & Bureau A-102"
-                      : "Pôle Technologique El Ghazala — Direction Financière & Recouvrement S2T"}
+                      ? t('modal_receipt_sub_cash')
+                      : t('modal_receipt_sub_transfer')}
                   </span>
                 </div>
               </div>
@@ -2623,23 +2635,17 @@ const Dashboard = () => {
                   {selectedReceiptInvoice.paymentMethod === 'especes' ? (
                     <>
                       <Banknote size={20} color="#059669" style={{ flexShrink: 0 }} />
-                      <div>
-                        <strong style={{ color: '#059669' }}>Règlement en espèces déclaré au guichet S2T :</strong> L'entreprise résidente signale un paiement en espèces au Bureau A-102 (Régie des recettes). Veuillez vérifier l'encaissement effectif en caisse avant de confirmer et délivrer la quittance officielle.
-                      </div>
+                      <div>{t('modal_receipt_banner_cash')}</div>
                     </>
                   ) : selectedReceiptInvoice.paymentMethod === 'ordre_permanent' ? (
                     <>
                       <Scale size={20} color="#2563EB" style={{ flexShrink: 0 }} />
-                      <div>
-                        <strong style={{ color: '#2563EB' }}>Demande de confirmation de prélèvement automatique :</strong> L'entreprise sollicite la validation du débit conventionné conformément à l'Article 6.3 du contrat d'hébergement.
-                      </div>
+                      <div>{t('modal_receipt_banner_debit')}</div>
                     </>
                   ) : (
                     <>
                       <Clock size={18} color="#D97706" style={{ flexShrink: 0 }} />
-                      <div>
-                        <strong style={{ color: '#D97706' }}>Justificatif de virement en attente de vérification comptable :</strong> L'entreprise résidente a soumis ce reçu pour le règlement de sa facture. Veuillez vérifier la conformité avec le relevé STB avant d'approuver.
-                      </div>
+                      <div>{t('modal_receipt_banner_transfer')}</div>
                     </>
                   )}
                 </div>
@@ -2656,9 +2662,7 @@ const Dashboard = () => {
                   color: 'var(--text-primary)'
                 }}>
                   <CheckCircle2 size={18} color="#10B981" style={{ flexShrink: 0 }} />
-                  <div>
-                    <strong>Paiement validé avec succès :</strong> Cette facture est entièrement acquittée. La quittance officielle de loyer est disponible.
-                  </div>
+                  <div>{t('modal_receipt_banner_paid')}</div>
                 </div>
               ) : null}
 
@@ -2669,27 +2673,27 @@ const Dashboard = () => {
                 gap: '0.75rem'
               }}>
                 <div style={{ padding: '0.85rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>Entreprise Résidente</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>{t('modal_receipt_field_company')}</span>
                   <strong style={{ fontSize: '0.92rem', color: 'var(--text-primary)' }}>{selectedReceiptInvoice.companyName}</strong>
                 </div>
 
                 <div style={{ padding: '0.85rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>N° Facture S2T</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>{t('modal_receipt_field_inv_num')}</span>
                   <strong style={{ fontSize: '0.92rem', color: 'var(--s2t-blue)' }}>{selectedReceiptInvoice.invoiceNumber}</strong>
                 </div>
 
                 <div style={{ padding: '0.85rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>Montant Total TTC</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>{t('modal_receipt_field_amount_ttc')}</span>
                   <strong style={{ fontSize: '1.05rem', color: 'var(--s2t-red)' }}>{selectedReceiptInvoice.amountTTC?.toFixed(3)} DT</strong>
                 </div>
 
                 <div style={{ padding: '0.85rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>
                     {selectedReceiptInvoice.paymentMethod === 'especes'
-                      ? 'Mode & Guichet'
+                      ? t('modal_receipt_field_mode_cash')
                       : selectedReceiptInvoice.paymentMethod === 'ordre_permanent'
-                      ? 'Mode & Mandat'
-                      : 'Réf. Virement STB'}
+                      ? t('modal_receipt_field_mode_debit')
+                      : t('modal_receipt_field_mode_transfer')}
                   </span>
                   <strong style={{ fontSize: '0.82rem', fontFamily: 'monospace', color: 'var(--text-primary)' }}>
                     {selectedReceiptInvoice.paymentMethod === 'especes'
@@ -2706,10 +2710,10 @@ const Dashboard = () => {
                     <FileText size={15} color="var(--s2t-blue)" />
                     <span>
                       {selectedReceiptInvoice.paymentMethod === 'especes'
-                        ? 'Décharge / Reçu de Caisse S2T'
+                        ? t('modal_receipt_proof_label_cash')
                         : selectedReceiptInvoice.paymentMethod === 'ordre_permanent'
-                        ? 'Mandat de Prélèvement S2T'
-                        : 'Pièce Justificative / Reçu de Virement'}
+                        ? t('modal_receipt_proof_label_debit')
+                        : t('modal_receipt_proof_label_transfer')}
                     </span>
                   </label>
 
@@ -2731,7 +2735,7 @@ const Dashboard = () => {
                       title="Ouvrir le justificatif dans un nouvel onglet"
                     >
                       <ExternalLink size={13} />
-                      <span>Ouvrir en grand</span>
+                      <span>{t('modal_receipt_open_fullscreen')}</span>
                     </button>
                   )}
                 </div>
@@ -2794,7 +2798,7 @@ const Dashboard = () => {
                       </div>
                       <div>
                         <span style={{ color: '#047857', display: 'block', fontSize: '0.72rem' }}>Date & Heure Déclaration :</span>
-                        <strong>{new Date(selectedReceiptInvoice.receiptSubmittedAt || selectedReceiptInvoice.updatedAt || Date.now()).toLocaleString('fr-FR')}</strong>
+                        <strong>{new Date(selectedReceiptInvoice.receiptSubmittedAt || selectedReceiptInvoice.updatedAt || Date.now()).toLocaleString(dateLocale)}</strong>
                       </div>
                       <div>
                         <span style={{ color: '#047857', display: 'block', fontSize: '0.72rem' }}>Entreprise Résidente :</span>
@@ -2919,7 +2923,7 @@ const Dashboard = () => {
                       </div>
                       <div>
                         <span style={{ color: '#64748B', display: 'block', fontSize: '0.72rem' }}>Date & Heure Déclaration :</span>
-                        <strong>{new Date(selectedReceiptInvoice.receiptSubmittedAt || selectedReceiptInvoice.updatedAt || Date.now()).toLocaleString('fr-FR')}</strong>
+                        <strong>{new Date(selectedReceiptInvoice.receiptSubmittedAt || selectedReceiptInvoice.updatedAt || Date.now()).toLocaleString(dateLocale)}</strong>
                       </div>
                       <div>
                         <span style={{ color: '#64748B', display: 'block', fontSize: '0.72rem' }}>Référence / N° Bordereau :</span>
@@ -3012,7 +3016,7 @@ const Dashboard = () => {
                 }}>
                   <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--s2t-red)', marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                     <XCircle size={16} />
-                    <span>Sélectionnez ou saisissez le motif du rejet :</span>
+                    <span>{t('modal_receipt_reject_title')}</span>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginBottom: '0.75rem', fontSize: '0.82rem' }}>
@@ -3052,13 +3056,13 @@ const Dashboard = () => {
                     </div>
                   )}
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: isRtl ? 'flex-start' : 'flex-end', gap: '0.5rem' }}>
                     <button
                       type="button"
                       onClick={() => setIsRejecting(false)}
                       className="btn btn-secondary btn-sm"
                     >
-                      Annuler
+                      {t('modal_contract_btn_cancel')}
                     </button>
                     <button
                       type="button"
@@ -3067,7 +3071,7 @@ const Dashboard = () => {
                       style={{ background: 'var(--s2t-red)', borderColor: 'var(--s2t-red)', gap: '0.35rem' }}
                     >
                       <XCircle size={14} />
-                      <span>Confirmer le Rejet</span>
+                      <span>{t('modal_receipt_btn_confirm_rejection')}</span>
                     </button>
                   </div>
                 </div>
@@ -3081,7 +3085,7 @@ const Dashboard = () => {
                 onClick={() => { setShowReceiptModal(false); setIsRejecting(false); }}
                 className="btn btn-secondary"
               >
-                Fermer
+                {t('modal_preview_btn_close')}
               </button>
 
               {isAdmin && selectedReceiptInvoice.status === 'en_attente_validation' && !isRejecting && (
@@ -3093,7 +3097,7 @@ const Dashboard = () => {
                     style={{ color: 'var(--s2t-red)', borderColor: 'rgba(225, 29, 72, 0.35)', gap: '0.35rem' }}
                   >
                     <XCircle size={15} />
-                    <span>Rejeter la Demande</span>
+                    <span>{t('modal_receipt_btn_reject_req')}</span>
                   </button>
 
                   <button
@@ -3110,10 +3114,10 @@ const Dashboard = () => {
                     <CheckCircle2 size={16} />
                     <span>
                       {selectedReceiptInvoice.paymentMethod === 'especes'
-                        ? `Confirmer l'Encaissement en Espèces & Émettre Quittance (${selectedReceiptInvoice.amountTTC?.toFixed(3)} DT)`
+                        ? t('modal_receipt_btn_confirm_cash').replace('{amount}', selectedReceiptInvoice.amountTTC?.toFixed(3) || '0.000')
                         : selectedReceiptInvoice.paymentMethod === 'ordre_permanent'
-                        ? `Confirmer le Prélèvement & Émettre Quittance (${selectedReceiptInvoice.amountTTC?.toFixed(3)} DT)`
-                        : `Approuver & Valider l'Encaissement (${selectedReceiptInvoice.amountTTC?.toFixed(3)} DT)`}
+                        ? t('modal_receipt_btn_confirm_debit').replace('{amount}', selectedReceiptInvoice.amountTTC?.toFixed(3) || '0.000')
+                        : t('modal_receipt_btn_confirm_transfer').replace('{amount}', selectedReceiptInvoice.amountTTC?.toFixed(3) || '0.000')}
                     </span>
                   </button>
                 </div>
