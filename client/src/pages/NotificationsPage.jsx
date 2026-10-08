@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { notificationAPI } from '../services/api';
 import { 
   Bell, 
@@ -27,6 +28,8 @@ import {
 
 const NotificationsPage = () => {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const isRtl = language === 'ar';
   const isAdmin = user?.role === 'admin';
 
   const [notifications, setNotifications] = useState([]);
@@ -64,12 +67,12 @@ const NotificationsPage = () => {
       setNotifications(res.data || []);
     } catch (err) {
       console.error('Erreur chargement notifications:', err);
-      showToast('Impossible de charger les notifications.', 'error');
+      showToast(t('notif_toast_load_err'), 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadNotifications();
@@ -80,10 +83,10 @@ const NotificationsPage = () => {
     try {
       await notificationAPI.markAllRead();
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-      showToast('Toutes les notifications ont été marquées comme lues.');
+      showToast(t('notif_toast_all_read'));
     } catch (err) {
       console.error('Erreur markAllRead:', err);
-      showToast('Erreur lors du marquage.', 'error');
+      showToast(t('notif_toast_mark_err'), 'error');
     }
   };
 
@@ -93,10 +96,10 @@ const NotificationsPage = () => {
       const nextRead = !currentIsRead;
       await notificationAPI.toggleRead(id, nextRead);
       setNotifications(prev => prev.map(n => n.id === id || n._id === id ? { ...n, isRead: nextRead } : n));
-      showToast(nextRead ? 'Marquée comme lue.' : 'Marquée comme non lue.');
+      showToast(nextRead ? t('notif_toast_marked_read') : t('notif_toast_marked_unread'));
     } catch (err) {
       console.error('Erreur toggleRead:', err);
-      showToast('Erreur lors de la mise à jour.', 'error');
+      showToast(t('notif_toast_update_err'), 'error');
     }
   };
 
@@ -105,23 +108,23 @@ const NotificationsPage = () => {
     try {
       await notificationAPI.delete(id);
       setNotifications(prev => prev.filter(n => n.id !== id && n._id !== id));
-      showToast('Notification supprimée.');
+      showToast(t('notif_toast_deleted'));
     } catch (err) {
       console.error('Erreur delete notif:', err);
-      showToast('Erreur lors de la suppression.', 'error');
+      showToast(t('notif_toast_delete_err'), 'error');
     }
   };
 
   // Handle Clear All Read
   const handleClearRead = async () => {
-    if (!window.confirm('Voulez-vous effacer toutes les notifications déjà lues ?')) return;
+    if (!window.confirm(t('notif_confirm_clear_read'))) return;
     try {
       await notificationAPI.clearAll(true);
       setNotifications(prev => prev.filter(n => !n.isRead));
-      showToast('Notifications lues effacées.');
+      showToast(t('notif_toast_cleared_read'));
     } catch (err) {
       console.error('Erreur clear read:', err);
-      showToast('Erreur lors du nettoyage.', 'error');
+      showToast(t('notif_toast_clear_err'), 'error');
     }
   };
 
@@ -129,7 +132,7 @@ const NotificationsPage = () => {
   const handleSendBroadcast = async (e) => {
     e.preventDefault();
     if (!broadcastData.title.trim() || !broadcastData.description.trim()) {
-      showToast('Veuillez remplir le titre et la description.', 'error');
+      showToast(t('notif_toast_fill_required'), 'error');
       return;
     }
 
@@ -146,11 +149,11 @@ const NotificationsPage = () => {
         actionText: 'Consulter',
         actionLink: '/dashboard',
       });
-      showToast('Notification diffusée avec succès aux résidents S2T !');
+      showToast(t('notif_toast_broadcast_success'));
       await loadNotifications(true);
     } catch (err) {
       console.error('Erreur broadcast:', err);
-      showToast(err.response?.data?.message || 'Erreur lors de la diffusion.', 'error');
+      showToast(err.response?.data?.message || t('notif_toast_broadcast_err'), 'error');
     } finally {
       setBroadcastLoading(false);
     }
@@ -241,19 +244,19 @@ const NotificationsPage = () => {
             <Bell size={16} color="#F59E0B" />
             <span>
               {isAdmin 
-                ? 'Administration S2T / Centre d\'Alertes & Notifications'
-                : 'Espace Résident S2T / Centre de Notifications'}
+                ? t('notif_breadcrumb_admin')
+                : t('notif_breadcrumb_resident')}
             </span>
           </div>
           <h1 className="page-main-title">
             {isAdmin 
-              ? 'Supervision des Alertes & Événements S2T'
-              : 'Alertes & Notifications Réglementaires'}
+              ? t('notif_title_admin')
+              : t('notif_title_resident')}
           </h1>
           <p className="page-subtitle">
             {isAdmin 
-              ? 'Surveillance des demandes d\'avenants, réceptions de règlements, expirations de conventions et diffusion d\'annonces officielles.'
-              : 'Suivi des échéances de redevance locative (Article 6.3), alertes de relance J+15/J+30 et actualités du pôle.'}
+              ? t('notif_sub_admin')
+              : t('notif_sub_resident')}
           </p>
         </div>
 
@@ -262,11 +265,11 @@ const NotificationsPage = () => {
             type="button"
             onClick={() => loadNotifications(true)}
             className="btn btn-secondary"
-            title="Actualiser les notifications"
+            title={t('notif_btn_refresh_tooltip')}
             style={{ gap: '0.4rem', padding: '0.65rem 1rem' }}
           >
             <RefreshCw size={16} className={refreshing ? 'spin-animation' : ''} />
-            <span className="hide-on-mobile">Actualiser</span>
+            <span className="hide-on-mobile">{t('notif_btn_refresh')}</span>
           </button>
 
           {unreadCount > 0 && (
@@ -277,7 +280,7 @@ const NotificationsPage = () => {
               style={{ gap: '0.45rem', padding: '0.65rem 1rem' }}
             >
               <CheckCheck size={16} color="var(--s2t-teal)" />
-              <span>Tout marquer comme lu</span>
+              <span>{t('notif_btn_mark_all_read')}</span>
             </button>
           )}
 
@@ -289,7 +292,7 @@ const NotificationsPage = () => {
               style={{ gap: '0.5rem', padding: '0.65rem 1.35rem' }}
             >
               <Megaphone size={16} />
-              <span>Diffuser une notification</span>
+              <span>{t('notif_btn_broadcast')}</span>
             </button>
           )}
         </div>
@@ -348,7 +351,7 @@ const NotificationsPage = () => {
           <Search size={16} color="var(--text-muted)" />
           <input
             type="text"
-            placeholder="Rechercher parmi les alertes (titre, objet, référence...)"
+            placeholder={t('notif_search_ph')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
@@ -388,7 +391,7 @@ const NotificationsPage = () => {
               onClick={() => setActiveFilter('all')}
               className={`notif-filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
             >
-              <span>Toutes</span>
+              <span>{t('notif_filter_all')}</span>
               <span className="filter-count-badge">{notifications.length}</span>
             </button>
 
@@ -397,7 +400,7 @@ const NotificationsPage = () => {
               onClick={() => setActiveFilter('unread')}
               className={`notif-filter-btn ${activeFilter === 'unread' ? 'active' : ''}`}
             >
-              <span>Non lues</span>
+              <span>{t('notif_filter_unread')}</span>
               {unreadCount > 0 && (
                 <span className="filter-count-badge badge-red">{unreadCount}</span>
               )}
@@ -408,7 +411,7 @@ const NotificationsPage = () => {
               onClick={() => setActiveFilter('warning')}
               className={`notif-filter-btn ${activeFilter === 'warning' ? 'active' : ''}`}
             >
-              <span>Financières & Échéances</span>
+              <span>{t('notif_filter_finance')}</span>
             </button>
 
             <button
@@ -416,7 +419,7 @@ const NotificationsPage = () => {
               onClick={() => setActiveFilter('juridique')}
               className={`notif-filter-btn ${activeFilter === 'juridique' ? 'active' : ''}`}
             >
-              <span>Contrats & Avenants</span>
+              <span>{t('notif_filter_contracts')}</span>
             </button>
 
             <button
@@ -424,7 +427,7 @@ const NotificationsPage = () => {
               onClick={() => setActiveFilter('correspondance')}
               className={`notif-filter-btn ${activeFilter === 'correspondance' ? 'active' : ''}`}
             >
-              <span>Correspondances S2T</span>
+              <span>{t('notif_filter_mail')}</span>
             </button>
 
             <button
@@ -432,7 +435,7 @@ const NotificationsPage = () => {
               onClick={() => setActiveFilter('technique')}
               className={`notif-filter-btn ${activeFilter === 'technique' ? 'active' : ''}`}
             >
-              <span>Technique & Salles</span>
+              <span>{t('notif_filter_tech')}</span>
             </button>
           </div>
 
@@ -444,7 +447,7 @@ const NotificationsPage = () => {
               style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}
             >
               <Trash2 size={14} />
-              <span>Effacer les lues</span>
+              <span>{t('notif_btn_clear_read')}</span>
             </button>
           )}
         </div>
@@ -455,17 +458,17 @@ const NotificationsPage = () => {
         {loading ? (
           <div className="notif-empty-state" style={{ padding: '3.5rem 2rem' }}>
             <RefreshCw size={36} className="spin-animation" color="var(--s2t-blue)" style={{ margin: '0 auto 1rem' }} />
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.35rem' }}>Chargement des alertes S2T...</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.825rem' }}>Vérification des registres juridiques et financiers en cours.</p>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.35rem' }}>{t('notif_loading_title')}</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.825rem' }}>{t('notif_loading_desc')}</p>
           </div>
         ) : filteredNotifs.length === 0 ? (
           <div className="notif-empty-state">
             <CheckCircle2 size={48} color="#10B981" style={{ margin: '0 auto 1rem', opacity: 0.8 }} />
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 0.4rem' }}>Aucune notification trouvée</h3>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 0.4rem' }}>{t('notif_empty_title')}</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', maxWidth: '420px', margin: '0 auto' }}>
               {activeFilter === 'unread'
-                ? 'Toutes vos notifications sont lues. Vous êtes parfaitement à jour !'
-                : 'Aucune alerte ou notification ne correspond aux critères sélectionnés.'}
+                ? t('notif_empty_unread_desc')
+                : t('notif_empty_filtered_desc')}
             </p>
           </div>
         ) : (
@@ -491,7 +494,7 @@ const NotificationsPage = () => {
                 <div className="notif-content-area">
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      <span className="notif-category-tag">{item.category || 'Général'}</span>
+                      <span className="notif-category-tag">{item.category || t('notif_tag_general')}</span>
                       {!item.isRead && (
                         <span style={{
                           display: 'inline-flex',
@@ -505,7 +508,7 @@ const NotificationsPage = () => {
                           borderRadius: 'var(--radius-full)'
                         }}>
                           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--s2t-red)' }} />
-                          <span>Non lue</span>
+                          <span>{t('notif_badge_unread')}</span>
                         </span>
                       )}
                     </div>
@@ -526,8 +529,8 @@ const NotificationsPage = () => {
                           if (!item.isRead) handleToggleRead(notifId, false);
                         }}
                       >
-                        <span>{item.actionText || 'Consulter'}</span>
-                        <ArrowRight size={13} />
+                        <span>{item.actionText || t('notif_btn_consult')}</span>
+                        <ArrowRight size={13} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
                       </Link>
                     )}
 
@@ -538,7 +541,7 @@ const NotificationsPage = () => {
                       style={{ fontSize: '0.78rem', padding: '0.42rem 0.85rem', borderRadius: '8px', gap: '0.35rem' }}
                     >
                       <Check size={13} color={item.isRead ? 'var(--text-muted)' : '#10B981'} />
-                      <span>{item.isRead ? 'Marquer comme non lu' : 'Marquer comme lu'}</span>
+                      <span>{item.isRead ? t('notif_btn_mark_unread') : t('notif_btn_mark_read')}</span>
                     </button>
 
                     <button
@@ -546,10 +549,10 @@ const NotificationsPage = () => {
                       onClick={() => handleDelete(notifId)}
                       className="btn btn-ghost btn-sm notif-delete-btn"
                       style={{ color: 'var(--text-muted)', padding: '0.42rem 0.65rem', borderRadius: '8px', gap: '0.3rem' }}
-                      title="Supprimer la notification"
+                      title={t('notif_btn_delete_tooltip')}
                     >
                       <Trash2 size={14} />
-                      <span className="hide-on-desktop-inline">Supprimer</span>
+                      <span className="hide-on-desktop-inline">{t('notif_btn_delete')}</span>
                     </button>
                   </div>
                 </div>
@@ -587,10 +590,10 @@ const NotificationsPage = () => {
                 </div>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                    Diffuser une Notification S2T
+                    {t('notif_modal_title')}
                   </h3>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                    Notification instantanée envoyée aux sessions des entreprises résidentes
+                    {t('notif_modal_sub')}
                   </span>
                 </div>
               </div>
@@ -609,61 +612,61 @@ const NotificationsPage = () => {
               {/* Target & Severity */}
               <div className="modal-form-grid-2">
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Audience cible *</label>
+                  <label className="form-label">{t('notif_modal_target')}</label>
                   <select
                     className="form-select"
                     value={broadcastData.recipientEmail}
                     onChange={(e) => setBroadcastData({ ...broadcastData, recipientEmail: e.target.value })}
                     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
                   >
-                    <option value="all">📢 Tous les résidents du pôle (Broadcast)</option>
+                    <option value="all">{t('notif_modal_target_all')}</option>
                     <option value="client@s2t.tn">InnovTech Solutions SARL (client@s2t.tn)</option>
                     <option value="startup@s2t.tn">CloudTunisia SAS (startup@s2t.tn)</option>
                   </select>
                 </div>
 
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Niveau d'alerte / Sévérité *</label>
+                  <label className="form-label">{t('notif_modal_severity')}</label>
                   <select
                     className="form-select"
                     value={broadcastData.severity}
                     onChange={(e) => setBroadcastData({ ...broadcastData, severity: e.target.value })}
                     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
                   >
-                    <option value="info">🔵 Information standard</option>
-                    <option value="warning">🟠 Avertissement / Échéance</option>
-                    <option value="danger">🔴 Alerte critique / Urgence</option>
-                    <option value="success">🟢 Notification de validation</option>
+                    <option value="info">{t('notif_modal_sev_info')}</option>
+                    <option value="warning">{t('notif_modal_sev_warning')}</option>
+                    <option value="danger">{t('notif_modal_sev_danger')}</option>
+                    <option value="success">{t('notif_modal_sev_success')}</option>
                   </select>
                 </div>
               </div>
 
               {/* Category */}
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Catégorie réglementaire *</label>
+                <label className="form-label">{t('notif_modal_cat')}</label>
                 <select
                   className="form-select"
                   value={broadcastData.category}
                   onChange={(e) => setBroadcastData({ ...broadcastData, category: e.target.value })}
                   style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
                 >
-                  <option value="Général">Général / Note de service</option>
-                  <option value="Facturation">Facturation & Redevance</option>
-                  <option value="Juridique">Juridique & Conventions</option>
-                  <option value="Technique">Technique & Infrastructure Fibre / 5G</option>
-                  <option value="Réglementaire">Réglementaire (Loi n°2001-50)</option>
-                  <option value="Correspondance">Correspondance Officielle</option>
+                  <option value="Général">{t('notif_modal_cat_general')}</option>
+                  <option value="Facturation">{t('notif_modal_cat_facturation')}</option>
+                  <option value="Juridique">{t('notif_modal_cat_juridique')}</option>
+                  <option value="Technique">{t('notif_modal_cat_technique')}</option>
+                  <option value="Réglementaire">{t('notif_modal_cat_reglementaire')}</option>
+                  <option value="Correspondance">{t('notif_modal_cat_correspondance')}</option>
                 </select>
               </div>
 
               {/* Title */}
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Titre de la notification *</label>
+                <label className="form-label">{t('notif_modal_title_label')}</label>
                 <input
                   type="text"
                   className="form-input"
                   required
-                  placeholder="Ex: Avis de maintenance réseau / Rappel de reconduction"
+                  placeholder={t('notif_modal_title_ph')}
                   value={broadcastData.title}
                   onChange={(e) => setBroadcastData({ ...broadcastData, title: e.target.value })}
                   style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
@@ -672,12 +675,12 @@ const NotificationsPage = () => {
 
               {/* Description */}
               <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label">Message / Description complète *</label>
+                <label className="form-label">{t('notif_modal_desc_label')}</label>
                 <textarea
                   className="form-input"
                   required
                   rows={4}
-                  placeholder="Détaillez l'information transmise aux entreprises résidentes..."
+                  placeholder={t('notif_modal_desc_ph')}
                   value={broadcastData.description}
                   onChange={(e) => setBroadcastData({ ...broadcastData, description: e.target.value })}
                   style={{ 
@@ -693,25 +696,25 @@ const NotificationsPage = () => {
               {/* Action Link & Text */}
               <div className="modal-form-grid-2">
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Lien d'action</label>
+                  <label className="form-label">{t('notif_modal_link_label')}</label>
                   <select
                     className="form-select"
                     value={broadcastData.actionLink}
                     onChange={(e) => setBroadcastData({ ...broadcastData, actionLink: e.target.value })}
                     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
                   >
-                    <option value="/dashboard">Tableau de bord (/dashboard)</option>
-                    <option value="/email">Messagerie S2T (/email)</option>
-                    <option value="/reunions">Salles & Événements (/reunions)</option>
+                    <option value="/dashboard">{t('notif_modal_link_dash')}</option>
+                    <option value="/email">{t('notif_modal_link_email')}</option>
+                    <option value="/reunions">{t('notif_modal_link_meetings')}</option>
                   </select>
                 </div>
 
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Intitulé du bouton</label>
+                  <label className="form-label">{t('notif_modal_btn_label')}</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Ex: Consulter, Voir mon contrat"
+                    placeholder={t('notif_modal_btn_ph')}
                     value={broadcastData.actionText}
                     onChange={(e) => setBroadcastData({ ...broadcastData, actionText: e.target.value })}
                     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
@@ -728,7 +731,7 @@ const NotificationsPage = () => {
                 onClick={() => setBroadcastOpen(false)}
                 disabled={broadcastLoading}
               >
-                Annuler
+                {t('notif_modal_btn_cancel')}
               </button>
               <button 
                 type="submit" 
@@ -739,12 +742,12 @@ const NotificationsPage = () => {
                 {broadcastLoading ? (
                   <>
                     <RefreshCw size={16} className="spin-animation" />
-                    <span>Diffusion en cours...</span>
+                    <span>{t('notif_modal_btn_sending')}</span>
                   </>
                 ) : (
                   <>
                     <Send size={16} />
-                    <span>Diffuser la notification</span>
+                    <span>{t('notif_modal_btn_send')}</span>
                   </>
                 )}
               </button>
