@@ -1224,6 +1224,340 @@ button, input, select, textarea {
   }
 }
 
+/* ==========================================================================
+   About Page Styles (Responsive Tablet & Mobile)
+   ========================================================================== */
+.about-header-section {
+  padding: 4.5rem 0 3.25rem;
+  text-align: center;
+  background: var(--grad-hero);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.about-header-container {
+  max-width: 850px;
+}
+
+.about-header-badge {
+  background: var(--secondary-light);
+  color: var(--s2t-blue);
+  margin-bottom: 1.25rem;
+}
+
+.about-header-title {
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.03em;
+}
+
+.about-header-desc {
+  color: var(--text-secondary);
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  line-height: 1.7;
+}
+
+/* About Story / Vocation */
+.about-story-section {
+  padding: 4.5rem 1.5rem 3rem;
+}
+
+.about-story-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 3.5rem;
+  align-items: center;
+}
+
+.about-story-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-story-tag {
+  color: var(--s2t-red);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+
+.about-story-title {
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  margin: 0.35rem 0 1.25rem;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.about-story-paragraph {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+
+.about-story-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.about-story-bullet-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.925rem;
+}
+
+/* About Stats Box */
+.about-stats-box {
+  padding: 2.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-focus);
+}
+
+.about-stats-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.about-stats-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--s2t-red);
+  flex-shrink: 0;
+}
+
+.about-stats-heading {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.about-stats-subheading {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.about-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.about-stat-item {
+  background: var(--bg-tertiary);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.about-stat-val {
+  font-size: clamp(1.5rem, 3vw, 1.8rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 0.2rem;
+}
+
+.about-stat-lbl {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+/* About Missions Grid */
+.about-missions-section {
+  padding: 3rem 1.5rem;
+}
+
+.about-missions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.about-mission-card {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.about-mission-icon-box {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  flex-shrink: 0;
+}
+
+.about-mission-title {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+}
+
+.about-mission-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* About Parks Network */
+.about-parks-section {
+  padding: 3rem 1.5rem;
+}
+
+.about-parks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.about-park-card {
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.about-park-icon-box {
+  padding: 0.6rem;
+  border-radius: 10px;
+  background: var(--secondary-light);
+  color: var(--s2t-blue);
+  flex-shrink: 0;
+}
+
+.about-park-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.about-park-name {
+  font-size: 1.05rem;
+  margin-bottom: 0.2rem;
+}
+
+.about-park-meta {
+  font-size: 0.8rem;
+  color: var(--s2t-red);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.about-park-focus {
+  font-size: 0.825rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* Tablet Media Queries for About */
+@media (max-width: 992px) {
+  .about-header-section {
+    padding: 3.25rem 0 2.25rem;
+  }
+  .about-story-section {
+    padding: 3rem 1.25rem 2rem;
+  }
+  .about-story-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .about-missions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  .about-parks-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.15rem;
+  }
+}
+
+/* Mobile Media Queries for About */
+@media (max-width: 640px) {
+  .about-header-section {
+    padding: 2rem 0 1.5rem;
+  }
+  .about-header-title {
+    font-size: clamp(1.5rem, 6.5vw, 2.1rem);
+    margin-bottom: 0.85rem;
+  }
+  .about-header-desc {
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+  .about-story-section {
+    padding: 2rem 0 1.5rem;
+  }
+  .about-story-grid {
+    gap: 1.75rem;
+  }
+  .about-story-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.85rem;
+  }
+  .about-story-paragraph {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  .about-stats-box {
+    padding: 1.25rem 1rem;
+    border-radius: var(--radius-md);
+  }
+  .about-stats-grid {
+    gap: 0.75rem;
+  }
+  .about-stat-item {
+    padding: 0.75rem 0.5rem;
+  }
+  .about-stat-val {
+    font-size: 1.45rem;
+  }
+  .about-stat-lbl {
+    font-size: 0.72rem;
+  }
+  .about-missions-section {
+    padding: 2rem 0 1.5rem;
+  }
+  .about-missions-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+  .about-mission-card {
+    padding: 1.25rem 1rem;
+    border-radius: var(--radius-md);
+  }
+  .about-parks-section {
+    padding: 2rem 0 1.5rem;
+  }
+  .about-parks-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+  .about-park-card {
+    padding: 1.15rem 0.95rem;
+    border-radius: var(--radius-md);
+    gap: 0.75rem;
+  }
+  .about-park-name {
+    font-size: 0.98rem;
+  }
+  .about-park-focus {
+    font-size: 0.78rem;
+  }
+}
+
 /* S2T Pro Navbar Styles */
 .s2t-navbar {
   position: sticky;
