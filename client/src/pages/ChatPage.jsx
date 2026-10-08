@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { chatAPI } from '../services/api';
 import { getSocket, registerSocketUser } from '../services/socket';
 import { startIncomingRingtone, startOutgoingRingtone, stopRingtone } from '../services/ringtone';
@@ -50,68 +51,9 @@ import {
   Activity
 } from 'lucide-react';
 
-const EMOJI_CATEGORIES = [
-  {
-    id: 'popular',
-    name: '🌟 Favoris',
-    emojis: ['👍', '❤️', '😊', '🎉', '🚀', '💡', '🔥', '⭐', '🤝', '✅', '👏', '🙏', '👌', '💯', '✨', '😍', '🙌', '😎', '🥳', '🤩']
-  },
-  {
-    id: 'faces',
-    name: '😀 Visages',
-    emojis: ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😋', '😛', '😜', '🤪', '😎', '🤓', '🧐', '🥳', '😏', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😌', '😴', '😷']
-  },
-  {
-    id: 'pro',
-    name: '🏢 S2T & Pro',
-    emojis: ['🏢', '🏛️', '💼', '📄', '⚖️', '💳', '📊', '🛡️', '📅', '📍', '📞', '💻', '🖥️', '📁', '🔑', '🏷️', '📬', '✉️', '🔒', '🔔', '📐', '📝', '🏗️', '🖨️', '📡', '🎯', '🌐', '💾', '⚙️', '📈', '📦']
-  },
-  {
-    id: 'gestures',
-    name: '👉 Gestes',
-    emojis: ['👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '👋', '🤚', '🖐️', '✋', '🖖', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️', '💪', '👊', '🤜', '🤛', '✊', '🤳']
-  }
-];
-
-const AI_PROMPTS = [
-  { label: '💳 Barème Loyers (Art. 6)', prompt: 'Quel est le barème officiel des redevances locatives au m² selon l\'Article 6 ?' },
-  { label: '🛡️ Caution STB (Art. 7)', prompt: 'Quel est le montant de la caution et le RIB officiel STB (Article 7) ?' },
-  { label: '📈 Avenant de Surface (Art. 11)', prompt: 'Comment faire une demande d\'avenant pour modifier la superficie du bureau ?' },
-  { label: '⚖️ Résiliation & Préavis (Art. 8)', prompt: 'Quelle est la procédure de résiliation et la durée du préavis (Article 8) ?' },
-  { label: '🤝 Salles de Réunion (Art. 2.c)', prompt: 'Comment réserver la Salle Ibn Khaldoun ou la Salle Innovation ?' },
-  { label: '🏛️ Cadre Légal (Loi 2001-50)', prompt: 'Quel est le cadre juridique et la loi régissant les technoparcs en Tunisie ?' },
-  { label: '🔌 Services Inclus & Fibre', prompt: 'Quels sont les services techniques et télécoms inclus dans la redevance ?' },
-  { label: '📄 Factures & Quittances', prompt: 'Comment régler une facture et obtenir ma quittance libératoire STB ?' },
-  { label: '🛠️ Support & Réclamations', prompt: 'Comment déclarer une panne de climatisation ou un problème de connectivité au support S2T ?' },
-];
-
-const DEFAULT_CHANNELS = [
-  {
-    id: 'direction',
-    name: 'Direction S2T',
-    role: 'Administration, Contrats & Support Pôle El Ghazala',
-    avatarText: 'D',
-    avatarBg: 'var(--s2t-blue)',
-    online: true,
-    lastMessage: 'Bienvenue sur le canal direct de la Direction S2T Pôle El Ghazala.',
-    lastTime: 'En ligne',
-    unreadCount: 0,
-  },
-  {
-    id: 'ia_assistant',
-    name: 'Assistant Réglementaire IA S2T',
-    role: 'Expert Loi 2001-50 & Convention 16 Articles (24/7)',
-    avatarText: 'IA',
-    avatarBg: 'var(--s2t-red)',
-    online: true,
-    lastMessage: 'Posez-moi vos questions sur le barème locatif (Art. 6) ou les avenants.',
-    lastTime: '24/7',
-    unreadCount: 0,
-  }
-];
-
 // Voice Note Player Component
 const VoiceMessagePlayer = ({ audio, isMe }) => {
+  const { t } = useLanguage();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef(null);
@@ -127,11 +69,11 @@ const VoiceMessagePlayer = ({ audio, isMe }) => {
         setIsPlaying(true);
         let sec = 0;
         const dur = audio.duration || 4;
-        const t = setInterval(() => {
+        const tInterval = setInterval(() => {
           sec += 0.5;
           setCurrentTime(sec);
           if (sec >= dur) {
-            clearInterval(t);
+            clearInterval(tInterval);
             setIsPlaying(false);
             setCurrentTime(0);
           }
@@ -180,7 +122,7 @@ const VoiceMessagePlayer = ({ audio, isMe }) => {
         type="button"
         onClick={togglePlay}
         className="chat-voice-play-btn"
-        title={isPlaying ? 'Mettre en pause' : 'Écouter le message vocal'}
+        title={isPlaying ? 'Pause' : 'Play'}
       >
         {isPlaying ? <Pause size={15} /> : <Play size={15} style={{ marginLeft: '2px' }} />}
       </button>
@@ -201,7 +143,7 @@ const VoiceMessagePlayer = ({ audio, isMe }) => {
         </div>
         <div className="chat-voice-meta-row">
           <span>{formatSecs(isPlaying ? currentTime : duration)}</span>
-          <span style={{ fontSize: '0.68rem', opacity: 0.85 }}>Message vocal</span>
+          <span style={{ fontSize: '0.68rem', opacity: 0.85 }}>{t('chat_voice_note_label')}</span>
         </div>
       </div>
     </div>
@@ -210,10 +152,72 @@ const VoiceMessagePlayer = ({ audio, isMe }) => {
 
 const ChatPage = () => {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const isRtl = language === 'ar';
   const isClient = user?.role === 'client';
 
+  const emojiCategories = [
+    {
+      id: 'popular',
+      name: t('chat_emoji_cat_popular'),
+      emojis: ['👍', '❤️', '😊', '🎉', '🚀', '💡', '🔥', '⭐', '🤝', '✅', '👏', '🙏', '👌', '💯', '✨', '😍', '🙌', '😎', '🥳', '🤩']
+    },
+    {
+      id: 'faces',
+      name: t('chat_emoji_cat_faces'),
+      emojis: ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😋', '😛', '😜', '🤪', '😎', '🤓', '🧐', '🥳', '😏', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😌', '😴', '😷']
+    },
+    {
+      id: 'pro',
+      name: t('chat_emoji_cat_pro'),
+      emojis: ['🏢', '🏛️', '💼', '📄', '⚖️', '💳', '📊', '🛡️', '📅', '📍', '📞', '💻', '🖥️', '📁', '🔑', '🏷️', '📬', '✉️', '🔒', '🔔', '📐', '📝', '🏗️', '🖨️', '📡', '🎯', '🌐', '💾', '⚙️', '📈', '📦']
+    },
+    {
+      id: 'gestures',
+      name: t('chat_emoji_cat_gestures'),
+      emojis: ['👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '👇', '☝️', '👋', '🤚', '🖐️', '✋', '🖖', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️', '💪', '👊', '🤜', '🤛', '✊', '🤳']
+    }
+  ];
+
+  const aiPrompts = [
+    { label: t('chat_prompt_1_label'), prompt: t('chat_prompt_1_text') },
+    { label: t('chat_prompt_2_label'), prompt: t('chat_prompt_2_text') },
+    { label: t('chat_prompt_3_label'), prompt: t('chat_prompt_3_text') },
+    { label: t('chat_prompt_4_label'), prompt: t('chat_prompt_4_text') },
+    { label: t('chat_prompt_5_label'), prompt: t('chat_prompt_5_text') },
+    { label: t('chat_prompt_6_label'), prompt: t('chat_prompt_6_text') },
+    { label: t('chat_prompt_7_label'), prompt: t('chat_prompt_7_text') },
+    { label: t('chat_prompt_8_label'), prompt: t('chat_prompt_8_text') },
+    { label: t('chat_prompt_9_label'), prompt: t('chat_prompt_9_text') },
+  ];
+
+  const defaultChannels = [
+    {
+      id: 'direction',
+      name: t('chat_default_dir_name'),
+      role: t('chat_default_dir_role'),
+      avatarText: 'D',
+      avatarBg: 'var(--s2t-blue)',
+      online: true,
+      lastMessage: t('chat_default_dir_welcome'),
+      lastTime: t('chat_status_online'),
+      unreadCount: 0,
+    },
+    {
+      id: 'ia_assistant',
+      name: t('chat_default_ia_name'),
+      role: t('chat_default_ia_role'),
+      avatarText: 'IA',
+      avatarBg: 'var(--s2t-red)',
+      online: true,
+      lastMessage: t('chat_default_ia_welcome'),
+      lastTime: t('chat_status_247'),
+      unreadCount: 0,
+    }
+  ];
+
   // Component states
-  const [channels, setChannels] = useState(DEFAULT_CHANNELS);
+  const [channels, setChannels] = useState(defaultChannels);
   const [activeChannelId, setActiveChannelId] = useState(isClient ? 'direction' : '');
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
@@ -267,7 +271,7 @@ const ChatPage = () => {
   const remoteVideoRef = useRef(null);
   const localVideoRef = useRef(null);
 
-  const activeChannel = channels.find((c) => c.id === activeChannelId) || channels[0] || DEFAULT_CHANNELS[0];
+  const activeChannel = channels.find((c) => c.id === activeChannelId) || channels[0] || defaultChannels[0];
 
   // Helper to cleanup all WebRTC tracks and peer connections
   const cleanupWebRTC = () => {
@@ -386,11 +390,7 @@ const ChatPage = () => {
     const handleCallRejected = (payload) => {
       stopRingtone();
       alert(
-        `Appel non abouti : ${
-          payload.reason === 'busy'
-            ? 'Le correspondant est actuellement en communication.'
-            : 'Le correspondant a décliné l\'appel.'
-        }`
+        `${payload.reason === 'busy' ? t('chat_call_rejected_busy') : t('chat_call_rejected_declined')}`
       );
       cleanupWebRTC();
       setCallModal(null);
@@ -454,7 +454,7 @@ const ChatPage = () => {
       socket.off('ice-candidate', handleIceCandidate);
       socket.off('message-received', handleMessageReceived);
     };
-  }, [user, activeChannelId, callModal, incomingCall]);
+  }, [user, activeChannelId, callModal, incomingCall, t]);
 
   // Auto-scroll on new message
   useEffect(() => {
@@ -724,7 +724,7 @@ const ChatPage = () => {
       id: optimisticId,
       _id: optimisticId,
       sender: 'me',
-      senderName: isClient ? (user?.name || 'Moi') : 'Direction S2T',
+      senderName: isClient ? (user?.name || t('chat_me_label')) : t('chat_default_dir_name'),
       senderRole: user?.role || (isClient ? 'client' : 'admin'),
       text: '',
       audio: payload.audio,
@@ -749,8 +749,8 @@ const ChatPage = () => {
     } catch (err) {
       console.error('Erreur envoi audio:', err);
       const errorMsg = err.response?.data?.message || (err.response?.status === 401
-        ? 'Votre session a expiré. Veuillez vous reconnecter.'
-        : 'Impossible d\'envoyer le message vocal. Veuillez vérifier que le serveur est accessible.');
+        ? t('chat_alert_session_expired')
+        : t('chat_alert_server_unavail'));
       alert(errorMsg);
       setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
     } finally {
@@ -776,7 +776,7 @@ const ChatPage = () => {
       id: optimisticId,
       _id: optimisticId,
       sender: 'me',
-      senderName: isClient ? (user?.name || 'Moi') : 'Direction S2T',
+      senderName: isClient ? (user?.name || t('chat_me_label')) : t('chat_default_dir_name'),
       senderRole: user?.role || (isClient ? 'client' : 'admin'),
       text: payload.text,
       attachments: selectedFiles,
@@ -817,8 +817,8 @@ const ChatPage = () => {
     } catch (err) {
       console.error('Erreur envoi message:', err);
       const errorMsg = err.response?.data?.message || (err.response?.status === 401
-        ? 'Votre session a expiré. Veuillez vous reconnecter.'
-        : 'Impossible d\'envoyer le message. Veuillez vérifier que le serveur backend est connecté.');
+        ? t('chat_alert_session_expired')
+        : t('chat_alert_server_unavail'));
       alert(errorMsg);
       setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
     } finally {
@@ -834,7 +834,7 @@ const ChatPage = () => {
   };
 
   const handleClearHistory = async () => {
-    if (!window.confirm(`Êtes-vous certain de vouloir effacer l'historique des échanges avec ${activeChannel.name} ?`)) {
+    if (!window.confirm(t('chat_confirm_clear_history').replace('{name}', activeChannel.name))) {
       return;
     }
     try {
@@ -843,14 +843,14 @@ const ChatPage = () => {
       fetchChannels();
     } catch (err) {
       console.error('Erreur suppression historique:', err);
-      alert('Erreur lors de l\'effacement de l\'historique.');
+      alert(t('chat_err_clear_history'));
     }
   };
 
   // Start Voice / Video Call (WebRTC Caller)
   const handleStartCall = async (type = 'audio') => {
     if (activeChannelId === 'ia_assistant') {
-      alert("L'Assistant IA ne prend pas en charge les appels en direct. Veuillez lui poser vos questions par message texte.");
+      alert(t('chat_alert_ia_no_call'));
       return;
     }
 
@@ -864,7 +864,7 @@ const ChatPage = () => {
     setIsSpeakerOn(true);
     setIsVideoOff(false);
     setActiveCallTarget({
-      name: activeChannel?.name || 'Direction S2T',
+      name: activeChannel?.name || t('chat_default_dir_name'),
       email: targetEmail,
     });
 
@@ -978,7 +978,7 @@ const ChatPage = () => {
       stopRingtone();
       cleanupWebRTC();
       setCallModal(null);
-      alert("Impossible d'accéder au microphone ou à la caméra. Veuillez autoriser l'accès dans les paramètres de votre navigateur.");
+      alert(t('chat_alert_media_access'));
     }
   };
 
@@ -1114,7 +1114,7 @@ const ChatPage = () => {
       stopRingtone();
       cleanupWebRTC();
       setCallModal(null);
-      alert("Impossible d'accéder au microphone ou à la caméra pour établir la visioconférence.");
+      alert(t('chat_alert_media_access'));
     }
   };
 
@@ -1155,8 +1155,8 @@ const ChatPage = () => {
         const payload = {
           channelId: activeChannel.id,
           text: isVideoCall
-            ? `📹 Visioconférence S2T terminée (${formatCallTime(duration || 1)})`
-            : `📞 Appel vocal S2T terminé (${formatCallTime(duration || 1)})`,
+            ? t('chat_log_visio_text').replace('{dur}', formatCallTime(duration || 1))
+            : t('chat_log_voice_text').replace('{dur}', formatCallTime(duration || 1)),
           messageType: 'call',
           callDuration: duration || 1,
           recipientEmail: !isClient ? activeChannel.residentEmail || activeChannel.id : undefined,
@@ -1257,8 +1257,8 @@ const ChatPage = () => {
       });
 
       return (
-        <div key={idx} style={{ marginBottom: line === '' ? '0.4rem' : '0.2rem', paddingLeft: isBullet ? '0.75rem' : 0 }}>
-          {isBullet && <span style={{ color: 'var(--s2t-blue)', marginRight: '0.35rem' }}>•</span>}
+        <div key={idx} style={{ marginBottom: line === '' ? '0.4rem' : '0.2rem', paddingLeft: isBullet && !isRtl ? '0.75rem' : 0, paddingRight: isBullet && isRtl ? '0.75rem' : 0 }}>
+          {isBullet && <span style={{ color: 'var(--s2t-blue)', marginRight: isRtl ? 0 : '0.35rem', marginLeft: isRtl ? '0.35rem' : 0 }}>•</span>}
           {formattedLine}
         </div>
       );
@@ -1278,15 +1278,13 @@ const ChatPage = () => {
         <div>
           <div className="page-breadcrumb">
             <MessageSquare size={16} color="var(--s2t-blue)" />
-            <span>{isClient ? 'Espace Résident S2T' : 'Administration S2T'} / Chat & Support Direct</span>
+            <span>{isClient ? t('chat_breadcrumb_resident') : t('chat_breadcrumb_admin')}</span>
           </div>
           <h1 className="page-main-title">
-            {isClient ? 'Assistance & Messagerie Instantanée S2T' : 'Messagerie Direction S2T & Entreprises Résidentes'}
+            {isClient ? t('chat_title_resident') : t('chat_title_admin')}
           </h1>
           <p className="page-subtitle">
-            {isClient
-              ? 'Échangez en direct avec la Direction S2T (documents, photos, vocaux) et l\'Assistant IA Réglementaire.'
-              : 'Gérez les échanges multimédias (documents, photos, notes vocales) avec chaque entreprise résidente.'}
+            {isClient ? t('chat_sub_resident') : t('chat_sub_admin')}
           </p>
         </div>
 
@@ -1299,10 +1297,10 @@ const ChatPage = () => {
               fetchChannels();
               if (activeChannelId) loadMessages(activeChannelId);
             }}
-            title="Actualiser la messagerie"
+            title={t('chat_btn_refresh_tooltip')}
           >
             <RefreshCw size={14} />
-            <span>Actualiser</span>
+            <span>{t('chat_btn_refresh')}</span>
           </button>
         </div>
       </div>
@@ -1317,7 +1315,7 @@ const ChatPage = () => {
             <Search size={16} color="var(--text-muted)" />
             <input
               type="text"
-              placeholder={isClient ? 'Rechercher un service S2T...' : 'Rechercher une entreprise ou contact...'}
+              placeholder={isClient ? t('chat_search_ph_resident') : t('chat_search_ph_admin')}
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
               className="chat-search-input"
@@ -1327,8 +1325,10 @@ const ChatPage = () => {
           {/* Channels Header (for Admin) */}
           {!isClient && (
             <div style={{ padding: '0.5rem 1rem', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span>Conversations Entreprises</span>
-              <span className="badge badge-primary" style={{ fontSize: '0.65rem' }}>{channels.length - 1} résidents</span>
+              <span>{t('chat_admin_convos')}</span>
+              <span className="badge badge-primary" style={{ fontSize: '0.65rem' }}>
+                {t('chat_admin_residents_count').replace('{n}', Math.max(0, channels.length - 1))}
+              </span>
             </div>
           )}
 
@@ -1350,7 +1350,7 @@ const ChatPage = () => {
                   <div className="channel-info-col">
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.3rem' }}>
                       <span className="channel-name-label">{chan.name}</span>
-                      <span className="channel-time-label">{chan.lastTime || 'En ligne'}</span>
+                      <span className="channel-time-label">{chan.lastTime || t('chat_status_online')}</span>
                     </div>
                     <span className="channel-role-label">{chan.role}</span>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.2rem' }}>
@@ -1368,7 +1368,7 @@ const ChatPage = () => {
           {/* S2T Compliance Banner */}
           <div className="chat-sidebar-footer-note">
             <ShieldCheck size={16} color="var(--s2t-teal)" />
-            <span>Échanges officiels sécurisés SSL 256-bit (Loi 2001-50)</span>
+            <span>{t('chat_compliance_note')}</span>
           </div>
         </div>
 
@@ -1383,9 +1383,9 @@ const ChatPage = () => {
                 type="button"
                 className="chat-mobile-back-btn"
                 onClick={() => setShowMobileChat(false)}
-                title="Retour aux canaux"
+                title={t('chat_back_to_channels')}
               >
-                <ArrowLeft size={18} />
+                <ArrowLeft size={18} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
               </button>
 
               <div
@@ -1405,7 +1405,7 @@ const ChatPage = () => {
                   {activeChannel.online && (
                     <span className="chat-status-pill">
                       <Circle size={6} fill="#10B981" color="#10B981" />
-                      <span>{activeChannel.id === 'ia_assistant' ? 'IA Active 24/7' : (!isClient ? 'Résident' : 'En ligne')}</span>
+                      <span>{activeChannel.id === 'ia_assistant' ? t('chat_status_ia') : (!isClient ? t('chat_status_resident') : t('chat_status_online'))}</span>
                     </span>
                   )}
                 </div>
@@ -1422,7 +1422,7 @@ const ChatPage = () => {
                   <button 
                     type="button" 
                     className="btn btn-ghost btn-sm chat-header-action-btn" 
-                    title={!isClient ? `Appel vocal direct avec ${activeChannel.name}` : "Lancer un appel vocal sécurisé"}
+                    title={!isClient ? t('chat_btn_call_audio_admin').replace('{name}', activeChannel.name) : t('chat_btn_call_audio_resident')}
                     onClick={() => handleStartCall('audio')}
                   >
                     <Phone size={17} />
@@ -1430,7 +1430,7 @@ const ChatPage = () => {
                   <button 
                     type="button" 
                     className="btn btn-ghost btn-sm chat-header-action-btn" 
-                    title={!isClient ? `Visioconférence sécurisée avec ${activeChannel.name}` : "Lancer une visioconférence avec la Direction"}
+                    title={!isClient ? t('chat_btn_call_video_admin').replace('{name}', activeChannel.name) : t('chat_btn_call_video_resident')}
                     onClick={() => handleStartCall('video')}
                   >
                     <Video size={17} />
@@ -1441,7 +1441,7 @@ const ChatPage = () => {
               <button
                 type="button"
                 className="btn btn-ghost btn-sm chat-header-action-btn"
-                title="Effacer l'historique de cette conversation"
+                title={t('chat_btn_clear_history')}
                 onClick={handleClearHistory}
                 style={{ color: 'var(--text-muted)' }}
               >
@@ -1455,10 +1455,10 @@ const ChatPage = () => {
             <div className="chat-ai-prompts-bar">
               <div className="chat-ai-prompts-label">
                 <Sparkles size={14} color="var(--s2t-red)" />
-                <span>Suggestions rapides :</span>
+                <span>{t('chat_ai_prompts_title')}</span>
               </div>
               <div className="chat-ai-prompts-scroll">
-                {AI_PROMPTS.map((p, idx) => (
+                {aiPrompts.map((p, idx) => (
                   <button
                     key={idx}
                     type="button"
@@ -1477,16 +1477,16 @@ const ChatPage = () => {
             {isLoadingMessages ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '0.5rem', color: 'var(--text-muted)' }}>
                 <RefreshCw size={20} className="animate-spin" />
-                <span>Chargement de la conversation sécurisée...</span>
+                <span>{t('chat_loading_conversation')}</span>
               </div>
             ) : messages.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
                 <MessageSquare size={40} style={{ opacity: 0.3, marginBottom: '0.75rem' }} />
-                <p style={{ fontWeight: 600, fontSize: '0.95rem' }}>Aucun message dans cette conversation</p>
+                <p style={{ fontWeight: 600, fontSize: '0.95rem' }}>{t('chat_empty_title')}</p>
                 <p style={{ fontSize: '0.8rem' }}>
                   {!isClient
-                    ? `Envoyez le premier message à l'entreprise ${activeChannel.name}.`
-                    : `Envoyez votre message à la ${activeChannel.name}.`}
+                    ? t('chat_empty_desc_admin').replace('{name}', activeChannel.name)
+                    : t('chat_empty_desc_resident').replace('{name}', activeChannel.name)}
                 </p>
               </div>
             ) : (
@@ -1514,7 +1514,7 @@ const ChatPage = () => {
                           <span>{msg.senderName || activeChannel.name}</span>
                           {isAi && (
                             <span className="chat-ai-badge">
-                              <Sparkles size={11} /> IA 24/7
+                              <Sparkles size={11} /> {t('chat_ai_badge')}
                             </span>
                           )}
                         </div>
@@ -1542,10 +1542,10 @@ const ChatPage = () => {
                           </div>
                           <div className="chat-call-log-info">
                             <span className="chat-call-log-title">
-                              {isMe ? 'Appel vocal sortant' : 'Appel vocal entrant'}
+                              {isMe ? t('chat_call_outgoing') : t('chat_call_incoming')}
                             </span>
                             <span className="chat-call-log-dur">
-                              {msg.callDuration > 0 ? `Durée : ${formatCallTime(msg.callDuration)}` : 'Appel vocal terminé'}
+                              {msg.callDuration > 0 ? t('chat_call_duration_label').replace('{dur}', formatCallTime(msg.callDuration)) : t('chat_call_ended_label')}
                             </span>
                           </div>
                           {activeChannel.id !== 'ia_assistant' && (
@@ -1553,10 +1553,10 @@ const ChatPage = () => {
                               type="button"
                               className="chat-call-again-btn"
                               onClick={() => handleStartCall('audio')}
-                              title="Rappeler"
+                              title={t('chat_btn_call_again')}
                             >
                               <Phone size={12} />
-                              <span>Rappeler</span>
+                              <span>{t('chat_btn_call_again')}</span>
                             </button>
                           )}
                         </div>
@@ -1589,7 +1589,7 @@ const ChatPage = () => {
                                   href={att.url}
                                   download={att.name}
                                   className="chat-att-dl"
-                                  title="Télécharger le document"
+                                  title={t('chat_download_doc')}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
@@ -1603,7 +1603,7 @@ const ChatPage = () => {
 
                       {/* Message metadata */}
                       <div className="chat-message-meta">
-                        <span>{msg.time || 'À l\'instant'}</span>
+                        <span>{msg.time || t('chat_just_now')}</span>
                         {isMe && <CheckCheck size={14} color="#60A5FA" />}
                       </div>
                     </div>
@@ -1635,7 +1635,7 @@ const ChatPage = () => {
           {selectedFiles.length > 0 && (
             <div className="chat-pending-files-bar">
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                Éléments prêts à l'envoi ({selectedFiles.length}) :
+                {t('chat_pending_files_header').replace('{n}', selectedFiles.length)}
               </span>
               <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                 {selectedFiles.map((file, idx) => (
@@ -1646,7 +1646,7 @@ const ChatPage = () => {
                       type="button"
                       onClick={() => removeAttachment(idx)}
                       className="chat-remove-file-btn"
-                      title="Supprimer"
+                      title={t('chat_delete_file_tooltip')}
                     >
                       <X size={12} />
                     </button>
@@ -1662,13 +1662,13 @@ const ChatPage = () => {
               <div className="chat-emoji-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                   <Smile size={16} color="var(--s2t-blue)" />
-                  <span>Émojis & Réactions</span>
+                  <span>{t('chat_emoji_title')}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowEmojiPicker(false)}
                   className="chat-emoji-close-btn"
-                  title="Fermer"
+                  title={t('chat_emoji_close')}
                 >
                   <X size={14} />
                 </button>
@@ -1676,7 +1676,7 @@ const ChatPage = () => {
 
               {/* Categories Navigation Tabs */}
               <div className="chat-emoji-tabs">
-                {EMOJI_CATEGORIES.map((cat) => (
+                {emojiCategories.map((cat) => (
                   <button
                     key={cat.id}
                     type="button"
@@ -1690,7 +1690,7 @@ const ChatPage = () => {
 
               {/* Grid of Emojis */}
               <div className="chat-emoji-grid">
-                {(EMOJI_CATEGORIES.find((c) => c.id === activeEmojiCategory)?.emojis || []).map((emoji, idx) => (
+                {(emojiCategories.find((c) => c.id === activeEmojiCategory)?.emojis || []).map((emoji, idx) => (
                   <button
                     key={idx}
                     type="button"
@@ -1710,7 +1710,7 @@ const ChatPage = () => {
             <div className="chat-recording-bar">
               <div className="chat-recording-pulse">
                 <Circle size={10} fill="#EF4444" color="#EF4444" className="animate-ping" />
-                <span className="chat-recording-timer">Enregistrement vocal : {formatCallTime(recordingDuration)}</span>
+                <span className="chat-recording-timer">{t('chat_recording_label').replace('{time}', formatCallTime(recordingDuration))}</span>
               </div>
               
               <div className="chat-recording-waves">
@@ -1727,17 +1727,17 @@ const ChatPage = () => {
                   className="btn btn-ghost btn-sm"
                   onClick={cancelVoiceRecording}
                   style={{ color: 'var(--text-muted)' }}
-                  title="Annuler le message vocal"
+                  title={t('chat_btn_cancel_voice')}
                 >
                   <Trash2 size={16} />
-                  <span>Annuler</span>
+                  <span>{t('chat_btn_cancel_voice')}</span>
                 </button>
 
                 <button
                   type="button"
                   className="chat-send-btn voice-send"
                   onClick={stopAndSendVoiceRecording}
-                  title="Envoyer le message vocal"
+                  title={t('chat_btn_send_voice')}
                 >
                   <Send size={15} />
                 </button>
@@ -1769,7 +1769,7 @@ const ChatPage = () => {
               <button
                 type="button"
                 className="chat-attach-btn"
-                title="Joindre un document (PDF, Word, Excel)"
+                title={t('chat_tooltip_attach_doc')}
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Paperclip size={18} />
@@ -1779,7 +1779,7 @@ const ChatPage = () => {
               <button
                 type="button"
                 className="chat-attach-btn"
-                title="Joindre une photo ou image (PNG, JPG)"
+                title={t('chat_tooltip_attach_photo')}
                 onClick={() => imageInputRef.current?.click()}
               >
                 <ImageIcon size={18} />
@@ -1790,7 +1790,7 @@ const ChatPage = () => {
                 ref={emojiTriggerBtnRef}
                 type="button"
                 className={`chat-attach-btn ${showEmojiPicker ? 'active' : ''}`}
-                title="Ajouter un emoji"
+                title={t('chat_tooltip_emoji')}
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               >
                 <Smile size={18} />
@@ -1800,8 +1800,8 @@ const ChatPage = () => {
                 type="text"
                 placeholder={
                   !isClient 
-                    ? `Écrire un message à ${activeChannel.name}...` 
-                    : `Poser une question à ${activeChannel.name}...`
+                    ? t('chat_input_ph_admin').replace('{name}', activeChannel.name)
+                    : t('chat_input_ph_resident').replace('{name}', activeChannel.name)
                 }
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
@@ -1813,7 +1813,7 @@ const ChatPage = () => {
               <button
                 type="button"
                 className="chat-mic-btn"
-                title="Enregistrer un message vocal"
+                title={t('chat_tooltip_mic')}
                 onClick={startVoiceRecording}
               >
                 <Mic size={17} />
@@ -1824,9 +1824,9 @@ const ChatPage = () => {
                 type="submit"
                 disabled={(!inputText.trim() && selectedFiles.length === 0) || isSending}
                 className="chat-send-btn"
-                title="Envoyer le message"
+                title={t('chat_tooltip_send')}
               >
-                <Send size={16} />
+                <Send size={16} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
               </button>
             </form>
           )}
@@ -1838,16 +1838,16 @@ const ChatPage = () => {
         <div className="modal-overlay" onClick={() => setPreviewImage(null)}>
           <div className="chat-lightbox-card" onClick={(e) => e.stopPropagation()}>
             <div className="chat-lightbox-header">
-              <span>Aperçu de l'image</span>
+              <span>{t('chat_lightbox_title')}</span>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <a
                   href={previewImage}
                   download="image-s2t.png"
                   className="btn btn-secondary btn-sm"
-                  title="Télécharger l'image"
+                  title={t('chat_lightbox_download')}
                 >
                   <Download size={14} />
-                  <span>Télécharger</span>
+                  <span>{t('chat_lightbox_download')}</span>
                 </a>
                 <button
                   type="button"
@@ -1896,24 +1896,24 @@ const ChatPage = () => {
               <div className={`incoming-badge-pill ${incomingCall.isVideo ? 'video' : 'audio'}`}>
                 <span className="live-ping-dot" />
                 {incomingCall.isVideo ? <Video size={13} className="animate-pulse" /> : <Radio size={13} className="animate-bounce" />}
-                <span>{incomingCall.isVideo ? 'VISIOCONFÉRENCE HD ENTRANTE' : 'APPEL VOCAL S2T ENTRANT'}</span>
+                <span>{incomingCall.isVideo ? t('chat_incoming_visio_badge') : t('chat_incoming_audio_badge')}</span>
               </div>
 
               <h3 className="incoming-caller-title">
-                {incomingCall.caller?.name || 'Direction S2T'}
+                {incomingCall.caller?.name || t('chat_default_dir_name')}
               </h3>
               
               <p className="incoming-caller-company">
                 {incomingCall.caller?.companyName
-                  ? `${incomingCall.caller.companyName} • Pôle El Ghazala`
+                  ? t('chat_incoming_sub_park').replace('{company}', incomingCall.caller.companyName)
                   : incomingCall.caller?.role === 'admin'
-                  ? 'Direction Générale S2T • Administration & Support'
-                  : 'Résident Entreprise S2T'}
+                  ? t('chat_incoming_sub_admin')
+                  : t('chat_incoming_sub_resident')}
               </p>
 
               <div className="incoming-secure-tag">
                 <ShieldCheck size={14} color="#10B981" />
-                <span>Liaison Chiffrée TLS 256-bit • Réseau S2T</span>
+                <span>{t('chat_incoming_encrypted')}</span>
               </div>
             </div>
 
@@ -1922,24 +1922,24 @@ const ChatPage = () => {
                 type="button"
                 className="btn-incoming-reject"
                 onClick={handleRejectIncomingCall}
-                title="Décliner l'appel"
+                title={t('chat_btn_call_reject')}
               >
                 <div className="btn-call-icon-wrap">
                   <PhoneOff size={22} />
                 </div>
-                <span>Refuser</span>
+                <span>{t('chat_btn_call_reject')}</span>
               </button>
 
               <button
                 type="button"
                 className={`btn-incoming-accept ${incomingCall.isVideo ? 'video' : 'audio'}`}
                 onClick={handleAcceptIncomingCall}
-                title={incomingCall.isVideo ? 'Accepter la visioconférence' : "Accepter l'appel"}
+                title={incomingCall.isVideo ? t('chat_btn_call_accept_visio') : t('chat_btn_call_accept_audio')}
               >
                 <div className="btn-call-icon-wrap">
                   {incomingCall.isVideo ? <Video size={22} className="animate-pulse" /> : <Phone size={22} className="animate-pulse" />}
                 </div>
-                <span>{incomingCall.isVideo ? 'Accepter Visio' : 'Répondre'}</span>
+                <span>{incomingCall.isVideo ? t('chat_btn_call_accept_visio') : t('chat_btn_call_accept_audio')}</span>
               </button>
             </div>
           </div>
@@ -1979,10 +1979,12 @@ const ChatPage = () => {
               
               <span className="chat-call-subtext">
                 {callState === 'ringing' 
-                  ? (callModal === 'video' ? 'Visioconférence en cours • Sonnerie chez le correspondant...' : 'Appel vocal direct • Sonnerie en cours...') 
+                  ? (callModal === 'video' ? t('chat_call_ringing_visio') : t('chat_call_ringing_audio')) 
                   : callState === 'ended' 
-                  ? (callModal === 'video' ? 'Visioconférence terminée' : 'Appel terminé')
-                  : (callModal === 'video' ? `Visioconférence HD sécurisée avec ${activeCallTarget?.name || activeChannel.name}` : `Liaison audio sécurisée avec ${activeCallTarget?.name || activeChannel.name}`)}
+                  ? (callModal === 'video' ? t('chat_call_ended_visio') : t('chat_call_ended_audio'))
+                  : (callModal === 'video' 
+                      ? t('chat_call_connected_visio').replace('{name}', activeCallTarget?.name || activeChannel.name)
+                      : t('chat_call_connected_audio').replace('{name}', activeCallTarget?.name || activeChannel.name))}
               </span>
 
               {/* Status & Timer Badge */}
@@ -1990,17 +1992,17 @@ const ChatPage = () => {
                 {callState === 'ringing' ? (
                   <>
                     {callModal === 'video' ? <Video size={13} className="animate-pulse" /> : <PhoneCall size={13} className="animate-bounce" />}
-                    <span>Appel en cours d'établissement...</span>
+                    <span>{t('chat_call_establishing')}</span>
                   </>
                 ) : callState === 'ended' ? (
                   <>
                     <PhoneOff size={13} />
-                    <span>{callModal === 'video' ? 'Visio terminée' : 'Appel terminé'} • {formatCallTime(callTimer)}</span>
+                    <span>{(callModal === 'video' ? t('chat_call_ended_visio') : t('chat_call_ended_audio'))} • {formatCallTime(callTimer)}</span>
                   </>
                 ) : (
                   <>
                     <span className="live-ping-dot green" />
-                    <span>En direct : {formatCallTime(callTimer)} • {callModal === 'video' ? 'Visio HD WebRTC' : 'Voix HD WebRTC'}</span>
+                    <span>{t('chat_call_live_label').replace('{time}', formatCallTime(callTimer)).replace('{mode}', callModal === 'video' ? t('chat_mode_visio') : t('chat_mode_audio'))}</span>
                   </>
                 )}
               </div>
@@ -2011,7 +2013,7 @@ const ChatPage = () => {
               <div className="chat-call-equalizer-container">
                 <div className="chat-equalizer-header">
                   <Activity size={13} color="#10B981" />
-                  <span className="chat-equalizer-label">Liaison Audio HD Active (Micro & Haut-Parleur)</span>
+                  <span className="chat-equalizer-label">{t('chat_eq_label')}</span>
                 </div>
                 <div className="chat-call-equalizer-bars">
                   <span className="eq-bar eq-1" />
@@ -2057,7 +2059,7 @@ const ChatPage = () => {
                       </div>
                     </div>
                     <span className="chat-video-waiting-name">{activeCallTarget?.name || activeChannel.name}</span>
-                    <span className="chat-video-waiting-sub">Établissement du flux vidéo sécurisé WebRTC...</span>
+                    <span className="chat-video-waiting-sub">{t('chat_video_stream_connecting')}</span>
                   </div>
                 )}
 
@@ -2070,13 +2072,13 @@ const ChatPage = () => {
                     playsInline
                     className="chat-local-video-pip"
                   />
-                  <span className="chat-pip-badge">Moi</span>
+                  <span className="chat-pip-badge">{t('chat_pip_me')}</span>
                 </div>
 
                 {isVideoOff && (
                   <div className="chat-video-disabled-overlay">
                     <VideoOff size={36} color="var(--s2t-red)" />
-                    <span>Caméra locale désactivée</span>
+                    <span>{t('chat_cam_disabled')}</span>
                   </div>
                 )}
               </div>
@@ -2087,9 +2089,9 @@ const ChatPage = () => {
               <Lock size={15} color="var(--s2t-blue)" />
               <span>
                 {!isClient ? (
-                  <>Ligne directe Résident : <strong>{activeCallTarget?.email || activeChannel.residentEmail || 'Contact Entreprise'}</strong></>
+                  <>{t('chat_direct_line_resident')}<strong>{activeCallTarget?.email || activeChannel.residentEmail || 'Contact Entreprise'}</strong></>
                 ) : (
-                  <>Standard Direction S2T : <strong>+216 71 857 000</strong> (Pôle El Ghazala)</>
+                  <>{t('chat_standard_s2t')}<strong>+216 71 857 000</strong> (Pôle El Ghazala)</>
                 )}
               </span>
             </div>
@@ -2101,13 +2103,13 @@ const ChatPage = () => {
                 type="button"
                 className={`chat-call-control-btn ${isMuted ? 'active-mute' : ''}`}
                 onClick={handleToggleMute}
-                title={isMuted ? 'Activer le micro' : 'Couper le micro'}
+                title={isMuted ? t('chat_ctrl_mic_on') : t('chat_ctrl_mic_off')}
                 disabled={callState === 'ended'}
               >
                 <div className="control-btn-icon-wrap">
                   {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
                 </div>
-                <span className="control-btn-caption">{isMuted ? 'Coupé' : 'Micro'}</span>
+                <span className="control-btn-caption">{isMuted ? t('chat_ctrl_mic_off') : t('chat_ctrl_mic_on')}</span>
               </button>
 
               {/* Speaker Toggle */}
@@ -2115,13 +2117,13 @@ const ChatPage = () => {
                 type="button"
                 className={`chat-call-control-btn ${!isSpeakerOn ? 'active-mute' : ''}`}
                 onClick={handleToggleSpeaker}
-                title={isSpeakerOn ? 'Couper le haut-parleur' : 'Activer le haut-parleur'}
+                title={isSpeakerOn ? t('chat_ctrl_hp_off') : t('chat_ctrl_hp_on')}
                 disabled={callState === 'ended'}
               >
                 <div className="control-btn-icon-wrap">
                   {isSpeakerOn ? <Volume2 size={20} /> : <VolumeX size={20} />}
                 </div>
-                <span className="control-btn-caption">{isSpeakerOn ? 'HP Actif' : 'HP Coupé'}</span>
+                <span className="control-btn-caption">{isSpeakerOn ? t('chat_ctrl_hp_on') : t('chat_ctrl_hp_off')}</span>
               </button>
 
               {/* Video Toggle if video call */}
@@ -2130,13 +2132,13 @@ const ChatPage = () => {
                   type="button"
                   className={`chat-call-control-btn ${isVideoOff ? 'active-mute' : ''}`}
                   onClick={handleToggleVideo}
-                  title={isVideoOff ? 'Activer la caméra' : 'Couper la caméra'}
+                  title={isVideoOff ? t('chat_ctrl_cam_on') : t('chat_ctrl_cam_off')}
                   disabled={callState === 'ended'}
                 >
                   <div className="control-btn-icon-wrap">
                     {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
                   </div>
-                  <span className="control-btn-caption">{isVideoOff ? 'Cam Off' : 'Caméra'}</span>
+                  <span className="control-btn-caption">{isVideoOff ? t('chat_ctrl_cam_off') : t('chat_ctrl_cam_on')}</span>
                 </button>
               )}
 
@@ -2145,12 +2147,12 @@ const ChatPage = () => {
                 type="button"
                 className="chat-call-hangup-btn"
                 onClick={handleEndCall}
-                title="Raccrocher"
+                title={t('chat_ctrl_hangup')}
               >
                 <div className="hangup-icon-wrap">
                   <PhoneOff size={22} />
                 </div>
-                <span className="control-btn-caption">Raccrocher</span>
+                <span className="control-btn-caption">{t('chat_ctrl_hangup')}</span>
               </button>
             </div>
           </div>
